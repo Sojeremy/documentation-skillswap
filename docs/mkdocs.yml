@@ -152,15 +152,16 @@ nav:
       - Volumes: infrastructure/volumes.md
       - CI/CD Pipeline: infrastructure/ci-cd.md
       - Troubleshooting: infrastructure/troubleshooting.md
-  - TypeDoc (Hooks & Utils):
-      - Vue d'ensemble: typedoc/index.md
-      - Hooks: typedoc/Hooks.md
-      - API Client: typedoc/APIClient.md
-      - Types API: typedoc/lib/api-types.md
-      - Utilitaires: typedoc/Utilities.md
-      - Date/Time: typedoc/DateTimeUtilities.md
-      - Validation:
-          - Auth: typedoc/lib/validation/auth.validation.md
-          - Profil: typedoc/lib/validation/updateProfile.validation.md
-          - Mot de passe: typedoc/lib/validation/updatePassword.validation.md
-          - Conversation: typedoc/lib/validation/conversation.validation.md
+  # TypeDoc temporairement désactivé - problème de parsing HTML avec les types génériques
+  # - TypeDoc (Hooks & Utils):
+  #     - Vue d'ensemble: typedoc/index.md
+  #     - Hooks: typedoc/Hooks.md
+  #     - API Client: typedoc/APIClient.md
+  #     - Types API: typedoc/lib/api-types.md
+  #     - Utilitaires: typedoc/Utilities.md
+  #     - Date/Time: typedoc/DateTimeUtilities.md
+  #     - Validation:
+  #         - Auth: typedoc/lib/validation/auth.validation.md
+  #         - Profil: typedoc/lib/validation/updateProfile.validation.md
+  #         - Mot de passe: typedoc/lib/validation/updatePassword.validation.md
+  #         - Conversation: typedoc/lib/validation/conversation.validation.md
