@@ -1,27 +1,7 @@
 name: Deploy Documentation to Vercel
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'docs/**'
-      - 'user-docs/**'
-      - 'frontend/src/**/*.stories.tsx'
-      - 'frontend/src/**/*.stories.ts'
-      - 'frontend/src/**/*.mdx'
-      - 'frontend/.storybook/**'
   workflow_dispatch:
-    inputs:
-      deploy_target:
-        description: 'Which documentation to deploy'
-        required: true
-        default: 'all'
-        type: choice
-        options:
-          - all
-          - mkdocs
-          - docusaurus
-          - storybook
 
 env:
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
@@ -33,7 +13,6 @@ jobs:
   deploy-mkdocs:
     name: 📚 Deploy MkDocs
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch' && (inputs.deploy_target == 'all' || inputs.deploy_target == 'mkdocs')
 
     steps:
       - name: Checkout
@@ -70,7 +49,6 @@ jobs:
   deploy-docusaurus:
     name: 📖 Deploy Docusaurus
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch' && (inputs.deploy_target == 'all' || inputs.deploy_target == 'docusaurus')
 
     steps:
       - name: Checkout
@@ -107,7 +85,6 @@ jobs:
   deploy-storybook:
     name: 🎨 Deploy Storybook
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch' && (inputs.deploy_target == 'all' || inputs.deploy_target == 'storybook')
 
     steps:
       - name: Checkout
