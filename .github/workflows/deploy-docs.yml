@@ -33,10 +33,10 @@ jobs:
   deploy-mkdocs:
     name: 📚 Deploy MkDocs
     runs-on: ubuntu-latest
-    if: |
-      github.event_name == 'workflow_dispatch' &&
-      (github.event.inputs.deploy_target == 'all' || github.event.inputs.deploy_target == 'mkdocs') ||
-      github.event_name == 'push' && contains(toJson(github.event.commits.*.modified), 'docs/')
+    if: >-
+      (github.event_name == 'workflow_dispatch' &&
+      (github.event.inputs.deploy_target == 'all' || github.event.inputs.deploy_target == 'mkdocs'))
+      || (github.event_name == 'push' && contains(toJson(github.event.commits.*.modified), 'docs/'))
 
     steps:
       - name: Checkout
@@ -73,10 +73,10 @@ jobs:
   deploy-docusaurus:
     name: 📖 Deploy Docusaurus
     runs-on: ubuntu-latest
-    if: |
-      github.event_name == 'workflow_dispatch' &&
-      (github.event.inputs.deploy_target == 'all' || github.event.inputs.deploy_target == 'docusaurus') ||
-      github.event_name == 'push' && contains(toJson(github.event.commits.*.modified), 'user-docs/')
+    if: >-
+      (github.event_name == 'workflow_dispatch' &&
+      (github.event.inputs.deploy_target == 'all' || github.event.inputs.deploy_target == 'docusaurus'))
+      || (github.event_name == 'push' && contains(toJson(github.event.commits.*.modified), 'user-docs/'))
 
     steps:
       - name: Checkout
@@ -113,13 +113,10 @@ jobs:
   deploy-storybook:
     name: 🎨 Deploy Storybook
     runs-on: ubuntu-latest
-    if: |
-      github.event_name == 'workflow_dispatch' &&
-      (github.event.inputs.deploy_target == 'all' || github.event.inputs.deploy_target == 'storybook') ||
-      github.event_name == 'push' && (
-        contains(toJson(github.event.commits.*.modified), '.stories.') ||
-        contains(toJson(github.event.commits.*.modified), '.storybook/')
-      )
+    if: >-
+      (github.event_name == 'workflow_dispatch' &&
+      (github.event.inputs.deploy_target == 'all' || github.event.inputs.deploy_target == 'storybook'))
+      || (github.event_name == 'push' && (contains(toJson(github.event.commits.*.modified), '.stories.') || contains(toJson(github.event.commits.*.modified), '.storybook/')))
 
     steps:
       - name: Checkout
