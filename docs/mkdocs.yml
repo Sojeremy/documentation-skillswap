@@ -42,6 +42,10 @@ plugins:
   - tags
   - swagger-ui-tag
 
+# Exclure les fichiers TypeDoc qui causent des erreurs de parsing HTML
+exclude_docs: |
+  typedoc/
+
 markdown_extensions:
   - pymdownx.highlight:
       anchor_linenums: true
