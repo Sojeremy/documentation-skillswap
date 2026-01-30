@@ -1,0 +1,169 @@
+@startuml
+title ERD — SkillSwap
+
+hide circle
+skinparam linetype ortho
+
+' ==========================
+'            TABLES
+' ==========================
+
+entity "role" as role_tbl {
+  *id : Int <<PK>>
+  --
+  name : RoleOfUser
+  created_at : DateTime
+  updated_at : DateTime
+}
+
+entity "user" as user_tbl {
+  *id : Int <<PK>>
+  --
+  firstname : String
+  lastname : String
+  email : String <<UNIQUE>>
+  password : String
+  address : String <<NULL>>
+  postal_code : Int <<NULL>>
+  city : String <<NULL>>
+  age : Int <<NULL>>
+  avatarUrl : String <<NULL>>
+  description : String <<NULL>>
+  role_id : Int <<FK>> (role.id)
+  created_at : DateTime
+  updated_at : DateTime
+}
+
+entity "category" as category_tbl {
+  *id : Int <<PK>>
+  --
+  name : String
+  created_at : DateTime
+  updated_at : DateTime
+}
+
+entity "skill" as skill_tbl {
+  *id : Int <<PK>>
+  --
+  name : String
+  category_id : Int <<FK>> (category.id)
+  created_at : DateTime
+  updated_at : DateTime
+}
+
+entity "user_has_skill" as user_has_skill_tbl {
+  *user_id : Int <<PK, FK>> (user.id)
+  *skill_id : Int <<PK, FK>> (skill.id)
+  --
+  created_at : DateTime
+  updated_at : DateTime
+}
+
+entity "user_has_interest" as user_has_interest_tbl {
+  *user_id : Int <<PK, FK>> (user.id)
+  *skill_id : Int <<PK, FK>> (skill.id)
+  --
+  created_at : DateTime
+  updated_at : DateTime
+}
+
+entity "conversation" as conversation_tbl {
+  *id : Int <<PK>>
+  --
+  status : StatusOfConversation
+  title : String
+  created_at : DateTime
+  updated_at : DateTime
+}
+
+entity "user_has_conversation" as user_has_conversation_tbl {
+  *user_id : Int <<PK, FK>> (user.id)
+  *conversation_id : Int <<PK, FK>> (conversation.id)
+  --
+  created_at : DateTime
+  updated_at : DateTime
+}
+
+entity "message" as message_tbl {
+  *id : Int <<PK>>
+  --
+  sender_id : Int <<FK>> (user.id)
+  receiver_id : Int <<FK>> (user.id)
+  content : String
+  conversation_id : Int <<FK>> (conversation.id)
+  created_at : DateTime
+  updated_at : DateTime
+}
+
+entity "rating" as evaluation_tbl {
+  *id : Int <<PK>>
+  --
+  comments : String
+  score : Int
+  evaluator_id : Int <<FK>> (user.id)
+  evaluated_id : Int <<FK>> (user.id)
+  created_at : DateTime
+  updated_at : DateTime
+}
+
+entity "follow" as follow_tbl {
+  *id : Int <<PK>>
+  --
+  followed_id : Int <<FK>> (user.id)
+  follower_id : Int <<FK>> (user.id)
+  created_at : DateTime
+  updated_at : DateTime
+}
+
+entity "available" as available_tbl {
+  *id : Int <<PK>>
+  --
+  day : dayInAWeek
+  start : String
+  end : String
+  user_id : Int <<FK>> (user.id)
+  created_at : DateTime
+  updated_at : DateTime
+}
+
+entity "refresh_token" as refresh_token_tbl {
+  *id : Int <<PK>>
+  --
+  token : String <<UNIQUE>>
+  user_id : Int <<FK>> (user.id)
+  expire_at : DateTime
+  issued_at : DateTime
+  --
+  <<INDEX(user_id)>>
+}
+
+' ==========================
+'          RELATIONS
+' ==========================
+
+role_tbl     ||--o{ user_tbl : "role_id"
+
+category_tbl ||--o{ skill_tbl : "category_id"
+
+user_tbl  ||--o{ user_has_skill_tbl
+skill_tbl ||--o{ user_has_skill_tbl
+
+user_tbl  ||--o{ user_has_interest_tbl
+skill_tbl ||--o{ user_has_interest_tbl
+
+user_tbl        ||--o{ user_has_conversation_tbl
+conversation_tbl||--o{ user_has_conversation_tbl
+
+conversation_tbl ||--o{ message_tbl : "conversation_id"
+user_tbl         ||--o{ message_tbl : "sender_id"
+user_tbl         ||--o{ message_tbl : "receiver_id"
+
+user_tbl ||--o{ evaluation_tbl : "evaluator_id"
+user_tbl ||--o{ evaluation_tbl : "evaluated_id"
+
+user_tbl ||--o{ follow_tbl : "follower_id"
+user_tbl ||--o{ follow_tbl : "followed_id"
+
+user_tbl ||--o{ available_tbl : "user_id"
+user_tbl ||--o{ refresh_token_tbl : "user_id"
+@enduml

@@ -1,0 +1,64 @@
+# Node modules
+backend/node_modules/
+frontend/node_modules/
+node_modules
+
+# Logs
+*.log
+npm-debug.log*
+
+# Env files locaux (ne pas partager les secrets)
+backend/.env
+frontend/.env
+devops/.env
+devops/.env.docker
+.env.local
+.env.*.local
+
+# TypeScript
+*.tsbuildinfo
+
+# Build output
+frontend/.next/
+backend/dist/
+
+# Docker volumes
+# On ne versionne pas les volumes persistants
+docker-compose.override.yml
+devops/postgres_data/
+
+# Mac / Windows / IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Prisma client généré (régénéré via prisma generate)
+backend/prisma/generated/
+**/prisma/generated/
+# Note: Les migrations NE doivent PAS être ignorées pour la collaboration
+
+# =========================
+# Documentation (MkDocs)
+# =========================
+docs/.venv/
+docs/site/
+
+# =========================
+# Misc
+# =========================
+*.tmp
+*.swp
+
+
+
+# Documentation build
+docs/.venv/
+docs/site/
+frontend/storybook-static/
+user-docs/
+frontend/storybook-static/
+user-docs/
+frontend/coverage/
+docs/site/
+docs/.venv/

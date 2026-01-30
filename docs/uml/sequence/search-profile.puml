@@ -1,0 +1,32 @@
+@startuml Search profile page
+
+actor User
+participant FRONT
+participant API
+database DB
+
+== Display search page ==
+User -> FRONT : Search page
+FRONT -> API : GET /api/v1/search?page=1&limit=20
+API -> DB : SELECT all profiles order by evaluationRate DESC
+DB --> API : OK
+API --> FRONT : Response 200 (array of profiles) 
+FRONT --> User : List of profiles
+
+== Filter by category ==
+User -> FRONT : Select a category
+FRONT -> API : GET /api/v1/search?page=1&limit=20&categorie=bricolage
+API -> DB : SELECT all profiles by category order by evaluationRate DESC
+DB --> API : OK
+API --> FRONT : Response 200 (array of profiles) 
+FRONT --> User : Update display with list of filtered profiles
+
+== Search by skill ==
+User -> FRONT : Submit search skill form
+FRONT -> API : GET /api/v1/search?page=1&limit=20&categorie=bricolage&competence=montage-meuble
+API -> DB : SELECT all profiles by skill and category order by evaluationRate DESC
+DB --> API : OK
+API --> FRONT : Response 200 (array of profiles) 
+FRONT --> User : Update display with list of filtered profiles
+
+@enduml

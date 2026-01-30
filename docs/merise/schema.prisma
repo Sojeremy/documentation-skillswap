@@ -1,0 +1,240 @@
+// generator client {
+//   provider = "prisma-client-js"
+//   output   = "./generated/prisma"
+// }
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int       @id @default(autoincrement())
+  firstname    String
+  lastname     String
+  email        String    @unique
+  password     String
+  address      String?
+  postalCode   Int?      @map("postal_code")
+  city         String?
+  age          Int?
+  avatarUrl    String?   @map("avatar_url")
+  description  String?
+  
+  role         Role      @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  roleId       Int       @map("role_id")
+
+  skills       UserHasSkill[]
+  conversations UserHasConversation[]
+  availabilities UserHasAvailable[]
+  refreshTokens RefreshToken[]
+  interests    UserHasInterest[]
+  
+  evaluationsReceived Rating[]   @relation("EvaluatedUser")
+  evaluationsGiven    Rating[]   @relation("EvaluatorUser")
+  followedUsers       Follow[]   @relation("FollowedUser")
+  followerUsers       Follow[]   @relation("FollowerUser")
+  senderMessages      Message[]  @relation("SenderUser")
+  receiverMessages    Message[]  @relation("ReceiverUser")
+
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  @@map("user")
+}
+
+model Role {
+  id        Int        @id @default(autoincrement())
+  name      RoleOfUser @default(Membre)
+  users     User[]
+
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @default(now()) @updatedAt @map("updated_at")
+
+  @@map("role")
+}
+
+enum RoleOfUser {
+  Membre
+}
+
+model Skill {
+  id              Int               @id @default(autoincrement())
+  name            String
+  category        Category          @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categoryId      Int               @map("category_id")
+  
+  users           UserHasSkill[]
+  interestedUsers UserHasInterest[]
+
+  createdAt       DateTime          @default(now()) @map("created_at")
+  updatedAt       DateTime          @default(now()) @updatedAt @map("updated_at")
+
+  @@map("skill")
+}
+
+model UserHasSkill {
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int      @map("user_id")
+  skill     Skill    @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  skillId   Int      @map("skill_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@id([userId, skillId])
+  @@map("user_has_skill")
+}
+
+model UserHasInterest {
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int      @map("user_id")
+  skill     Skill    @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  skillId   Int      @map("skill_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@id([userId, skillId])
+  @@map("user_has_interest")
+}
+
+model Category {
+  id        Int      @id @default(autoincrement())
+  name      String
+  slug      String   @unique
+  skills    Skill[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@map("category")
+}
+
+model Rating {
+  id          Int      @id @default(autoincrement())
+  comments    String
+  score       Int
+
+  evaluator   User     @relation("EvaluatorUser", fields: [evaluatorId], references: [id], onDelete: Cascade)
+  evaluatorId Int      @map("evaluator_id")
+  evaluated   User     @relation("EvaluatedUser", fields: [evaluatedId], references: [id], onDelete: Cascade)
+  evaluatedId Int      @map("evaluated_id")
+
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@map("evaluation")
+}
+
+model Follow {
+  id         Int      @id @default(autoincrement())
+  followed   User     @relation("FollowedUser", fields: [followedId], references: [id], onDelete: Cascade)
+  followedId Int      @map("followed_id")
+  follower   User     @relation("FollowerUser", fields: [followerId], references: [id], onDelete: Cascade)
+  followerId Int      @map("follower_id")
+
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@map("follow")
+}
+
+model Conversation {
+  id        Int                  @id @default(autoincrement())
+  status    StatusOfConversation @default(Open)
+  title     String
+  users     UserHasConversation[]
+  messages  Message[]
+
+  createdAt DateTime             @default(now()) @map("created_at")
+  updatedAt DateTime             @default(now()) @updatedAt @map("updated_at")
+
+  @@map("conversation")
+}
+
+enum StatusOfConversation {
+  Open
+  Close
+}
+
+model UserHasConversation {
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId         Int          @map("user_id")
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  conversationId Int          @map("conversation_id")
+
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @default(now()) @updatedAt @map("updated_at")
+
+  @@id([userId, conversationId])
+  @@map("user_has_conversation")
+}
+
+model Message {
+  id             Int          @id @default(autoincrement())
+  sender         User         @relation("SenderUser", fields: [senderId], references: [id], onDelete: Cascade)
+  senderId       Int          @map("sender_id")
+  receiver       User         @relation("ReceiverUser", fields: [receiverId], references: [id], onDelete: Cascade)
+  receiverId     Int          @map("receiver_id")
+  content        String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  conversationId Int          @map("conversation_id")
+
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @default(now()) @updatedAt @map("updated_at")
+
+  @@map("message")
+}
+
+model Available {
+  id        Int              @id @default(autoincrement())
+  day       dayInAWeek
+  timeSlot  Time             @map("time_slot")
+  users     UserHasAvailable[]
+
+  createdAt DateTime         @default(now()) @map("created_at")
+  updatedAt DateTime         @default(now()) @updatedAt @map("updated_at")
+
+  @@map("available")
+}
+
+model UserHasAvailable {
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      Int       @map("user_id")
+  available   Available @relation(fields: [availableId], references: [id], onDelete: Cascade)
+  availableId Int       @map("available_id")
+
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  @@id([userId, availableId])
+  @@map("user_has_available")
+}
+
+model RefreshToken {
+  id       Int      @id @default(autoincrement())
+  token    String   @unique
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId   Int      @map("user_id")
+  expireAt DateTime @map("expire_at")
+  issuedAt DateTime @default(now()) @map("issued_at")
+
+  @@index([userId])
+  @@map("refresh_token")
+}
+
+enum Time {
+  Morning
+  Afternoon
+}
+
+enum dayInAWeek {
+  Lundi
+  Mardi
+  Mercredi
+  Jeudi
+  Vendredi
+  Samedi
+  Dimanche
+}

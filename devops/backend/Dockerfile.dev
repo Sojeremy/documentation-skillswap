@@ -1,0 +1,26 @@
+# ===============================
+# SKILLSWAP BACKEND - DEV
+# ===============================
+
+FROM node:24
+
+WORKDIR /app
+
+# Outils nécessaires : netcat pour wait-for-postgres
+RUN apt-get update && apt-get install -y netcat-openbsd && rm -rf /var/lib/apt/lists/*
+
+# Installer les dépendances avant de copier le code (optimisation cache)
+COPY backend/package*.json ./
+RUN npm install
+
+# Copier le code source
+COPY backend/. .
+
+# Variables d'environnement
+ENV NODE_ENV=development
+
+# Port exposé par l'API
+EXPOSE 3000
+
+# Le CMD est défini dans docker-compose pour utiliser wait-for-postgres
+CMD ["npm", "run", "dev"]

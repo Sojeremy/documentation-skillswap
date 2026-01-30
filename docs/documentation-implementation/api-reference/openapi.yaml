@@ -1,0 +1,1803 @@
+openapi: 3.1.0
+info:
+  title: SkillSwap API
+  description: |
+    API REST de SkillSwap - Plateforme d'échange de compétences entre utilisateurs.
+
+    ## Authentification
+    L'API utilise des tokens JWT stockés dans des cookies HTTP-only sécurisés.
+    - `accessToken` : valide 15 minutes, utilisé pour authentifier les requêtes
+    - `refreshToken` : valide 7 jours, utilisé pour renouveler l'accessToken
+
+    ## Base URL
+    - **Docker (via Nginx)** : `http://localhost:8888/api/v1`
+    - **Backend direct** : `http://localhost:3000/api/v1`
+    - **Production** : `https://api.skillswap.fr/api/v1`
+
+    ## Codes d'erreur
+    | Code | Description |
+    |------|-------------|
+    | 400 | Données de requête invalides |
+    | 401 | Non authentifié ou token expiré |
+    | 403 | Accès refusé (permissions insuffisantes) |
+    | 404 | Ressource non trouvée |
+    | 409 | Conflit (ressource déjà existante) |
+    | 500 | Erreur serveur interne |
+  version: 1.0.0
+  contact:
+    name: Équipe SkillSwap
+    url: https://github.com/O-clock-Dublin/projet-skillswap
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:8888/api/v1
+    description: Développement local (Docker via Nginx)
+  - url: http://localhost:3000/api/v1
+    description: Backend direct (sans Nginx)
+  - url: https://api.skillswap.fr/api/v1
+    description: Production
+
+tags:
+  - name: Auth
+    description: |
+      Authentification et gestion de session.
+      - Inscription et connexion avec JWT
+      - Tokens stockés en cookies HTTP-only
+      - Refresh automatique des tokens
+  - name: Profiles
+    description: |
+      Gestion des profils utilisateurs.
+      - Consultation de profils
+      - Modification de son profil
+      - Changement de mot de passe
+      - Suppression de compte
+  - name: Skills
+    description: |
+      Compétences et intérêts.
+      - Liste des compétences disponibles
+      - Ajout/suppression de compétences au profil
+      - Gestion des intérêts (compétences recherchées)
+  - name: Availabilities
+    description: |
+      Disponibilités des utilisateurs.
+      - Créneaux : Matin (Morning) / Après-midi (Afternoon)
+      - Jours : Lundi à Dimanche
+  - name: Follows
+    description: |
+      Système de suivi entre utilisateurs.
+      - Suivre/ne plus suivre un utilisateur
+      - Liste des abonnés et abonnements
+  - name: Conversations
+    description: |
+      Messagerie et conversations.
+      - Création de conversation (nécessite suivi mutuel)
+      - Statut : Open / Close
+  - name: Messages
+    description: |
+      Messages dans les conversations.
+      - Envoi, modification, suppression
+      - Pagination par curseur
+  - name: Categories
+    description: Catégories regroupant les compétences
+  - name: Search
+    description: |
+      Recherche de membres via Meilisearch.
+      - Recherche full-text (nom, prénom, compétences)
+      - Filtrage par catégorie
+      - Tri par note ou date d'inscription
+      - Pagination
+
+paths:
+  # ============================================
+  # AUTH ENDPOINTS
+  # ============================================
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: Inscription d'un nouveau membre
+      description: Crée un compte utilisateur et retourne les tokens d'authentification.
+      operationId: register
+      security: []  # Public endpoint - no authentication required
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+            example:
+              lastname: "Dupont"
+              firstname: "Marie"
+              email: "marie@example.com"
+              password: "SecurePass123!"
+              confirmation: "SecurePass123!"
+      responses:
+        '201':
+          description: Inscription réussie
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          description: Données invalides
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Email déjà utilisé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Connexion utilisateur
+      description: Authentifie l'utilisateur et définit les cookies JWT.
+      operationId: login
+      security: []  # Public endpoint - no authentication required
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            example:
+              email: "marie@example.com"
+              password: "SecurePass123!"
+      responses:
+        '200':
+          description: Connexion réussie
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Identifiants incorrects
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/logout:
+    post:
+      tags: [Auth]
+      summary: Déconnexion
+      description: Supprime les cookies d'authentification.
+      operationId: logout
+      security: []  # Public endpoint - clears cookies regardless of auth state
+      responses:
+        '200':
+          description: Déconnexion réussie
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Déconnexion réussie"
+
+  /auth/refresh:
+    post:
+      tags: [Auth]
+      summary: Rafraîchir le token
+      description: Génère un nouveau accessToken à partir du refreshToken.
+      operationId: refreshToken
+      security: []  # Uses refreshToken cookie, not accessToken
+      responses:
+        '200':
+          description: Token rafraîchi
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+        '401':
+          description: Refresh token invalide ou expiré
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/me:
+    get:
+      tags: [Auth]
+      summary: Profil connecté
+      description: Retourne les informations de l'utilisateur authentifié.
+      operationId: getMe
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Profil utilisateur
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '401':
+          description: Non authentifié
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  # ============================================
+  # PROFILE ENDPOINTS
+  # ============================================
+  /profiles/{id}:
+    get:
+      tags: [Profiles]
+      summary: Détail d'un profil
+      description: Retourne les informations complètes d'un utilisateur.
+      operationId: getProfile
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: Profil trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '404':
+          description: Utilisateur non trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    patch:
+      tags: [Profiles]
+      summary: Modifier son profil
+      description: Met à jour partiellement les informations du profil (propriétaire uniquement).
+      operationId: updateProfile
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProfileRequest'
+      responses:
+        '200':
+          description: Profil mis à jour
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '403':
+          description: Non autorisé (pas le propriétaire)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /profiles:
+    delete:
+      tags: [Profiles]
+      summary: Supprimer son compte
+      description: Supprime définitivement le compte de l'utilisateur connecté.
+      operationId: deleteAccount
+      security:
+        - cookieAuth: []
+      responses:
+        '204':
+          description: Compte supprimé
+        '401':
+          description: Non authentifié
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /profiles/{id}/rating:
+    post:
+      tags: [Profiles]
+      summary: Noter un utilisateur
+      description: |
+        Ajoute une évaluation à un utilisateur.
+
+        **Prérequis :** Vous devez suivre cet utilisateur et il doit vous suivre en retour (suivi mutuel).
+
+        **Contrainte :** Une seule évaluation par utilisateur est autorisée.
+      operationId: rateUser
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RatingRequest'
+            example:
+              score: 4
+              comment: "Excellent échange, très pédagogue et disponible !"
+      responses:
+        '201':
+          description: Évaluation ajoutée avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Rating'
+        '403':
+          description: Vous devez suivre cet utilisateur pour le noter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Vous avez déjà évalué cet utilisateur
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /profiles/password:
+    patch:
+      tags: [Profiles]
+      summary: Changer son mot de passe
+      description: |
+        Permet à l'utilisateur connecté de modifier son mot de passe.
+
+        **Validation :**
+        - L'ancien mot de passe doit être correct
+        - Le nouveau mot de passe doit contenir au moins 8 caractères
+        - La confirmation doit correspondre au nouveau mot de passe
+      operationId: changePassword
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+            example:
+              currentPassword: "AncienMotDePasse123!"
+              newPassword: "NouveauMotDePasse456!"
+              confirmation: "NouveauMotDePasse456!"
+      responses:
+        '200':
+          description: Mot de passe modifié avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Mot de passe modifié avec succès"
+        '400':
+          description: Données invalides (confirmation ne correspond pas)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: L'ancien mot de passe est incorrect
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  # ============================================
+  # SKILLS ENDPOINTS
+  # ============================================
+  /profiles/skills:
+    get:
+      tags: [Skills]
+      summary: Liste des compétences
+      description: Retourne toutes les compétences disponibles dans le système.
+      operationId: getAllSkills
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Liste des compétences
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Skill'
+
+    post:
+      tags: [Skills]
+      summary: Ajouter une compétence
+      description: Ajoute une compétence au profil de l'utilisateur connecté.
+      operationId: addSkill
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [skillId]
+              properties:
+                skillId:
+                  type: integer
+                  example: 1
+      responses:
+        '201':
+          description: Compétence ajoutée
+        '400':
+          description: Compétence déjà présente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /profiles/skills/{id}:
+    delete:
+      tags: [Skills]
+      summary: Supprimer une compétence
+      description: Retire une compétence du profil de l'utilisateur connecté.
+      operationId: deleteSkill
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID de la compétence à supprimer
+      responses:
+        '204':
+          description: Compétence supprimée
+        '404':
+          description: Compétence non trouvée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /profiles/interests:
+    post:
+      tags: [Skills]
+      summary: Ajouter un intérêt
+      description: Ajoute une compétence recherchée au profil.
+      operationId: addInterest
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [skillId]
+              properties:
+                skillId:
+                  type: integer
+                  example: 2
+      responses:
+        '201':
+          description: Intérêt ajouté
+
+  /profiles/interests/{id}:
+    delete:
+      tags: [Skills]
+      summary: Supprimer un intérêt
+      description: Retire un intérêt du profil de l'utilisateur connecté.
+      operationId: deleteInterest
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID de l'intérêt à supprimer
+      responses:
+        '204':
+          description: Intérêt supprimé
+
+  # ============================================
+  # AVAILABILITIES ENDPOINTS
+  # ============================================
+  /profiles/availabilities:
+    get:
+      tags: [Availabilities]
+      summary: Liste des disponibilités
+      description: Retourne tous les créneaux de disponibilité possibles.
+      operationId: getAllAvailabilities
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Liste des disponibilités
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Availability'
+
+    post:
+      tags: [Availabilities]
+      summary: Ajouter une disponibilité
+      description: Ajoute un créneau de disponibilité au profil.
+      operationId: addAvailability
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AvailabilityRequest'
+      responses:
+        '201':
+          description: Disponibilité ajoutée
+
+  /profiles/availabilities/{id}:
+    delete:
+      tags: [Availabilities]
+      summary: Supprimer une disponibilité
+      description: Retire une disponibilité du profil.
+      operationId: deleteAvailability
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID de la disponibilité
+      responses:
+        '204':
+          description: Disponibilité supprimée
+
+  # ============================================
+  # FOLLOWS ENDPOINTS
+  # ============================================
+  /follows/followers:
+    get:
+      tags: [Follows]
+      summary: Mes abonnés
+      description: Liste des utilisateurs qui suivent l'utilisateur connecté.
+      operationId: getFollowers
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Liste des abonnés
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/UserSummary'
+
+  /follows/following:
+    get:
+      tags: [Follows]
+      summary: Mes abonnements
+      description: Liste des utilisateurs que l'utilisateur connecté suit.
+      operationId: getFollowing
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Liste des abonnements
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/UserSummary'
+
+  /follows/{id}/follow:
+    post:
+      tags: [Follows]
+      summary: Suivre un utilisateur
+      description: Commence à suivre un utilisateur.
+      operationId: followUser
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '201':
+          description: Utilisateur suivi
+        '400':
+          description: Déjà suivi ou impossible de se suivre soi-même
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      tags: [Follows]
+      summary: Ne plus suivre
+      description: Arrête de suivre un utilisateur.
+      operationId: unfollowUser
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '204':
+          description: Utilisateur désuivi
+        '400':
+          description: Vous ne suivez pas cet utilisateur
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  # ============================================
+  # CONVERSATIONS ENDPOINTS
+  # ============================================
+  /conversations:
+    get:
+      tags: [Conversations]
+      summary: Liste des conversations
+      description: Retourne toutes les conversations de l'utilisateur connecté.
+      operationId: getConversations
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Liste des conversations
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Conversation'
+
+    post:
+      tags: [Conversations]
+      summary: Créer une conversation
+      description: Crée une nouvelle conversation (nécessite de suivre le destinataire).
+      operationId: createConversation
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateConversationRequest'
+      responses:
+        '201':
+          description: Conversation créée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Conversation'
+        '403':
+          description: Vous devez suivre cet utilisateur pour lui envoyer un message
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /conversations/{id}:
+    get:
+      tags: [Conversations]
+      summary: Détail d'une conversation
+      description: Retourne les informations d'une conversation.
+      operationId: getConversation
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ConversationId'
+      responses:
+        '200':
+          description: Conversation trouvée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Conversation'
+        '404':
+          description: Conversation non trouvée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      tags: [Conversations]
+      summary: Quitter une conversation
+      description: |
+        L'utilisateur quitte la conversation.
+
+        **Note :** La conversation n'est pas supprimée, l'utilisateur est simplement retiré des participants.
+      operationId: deleteConversation
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ConversationId'
+      responses:
+        '204':
+          description: Conversation quittée avec succès
+        '404':
+          description: Conversation non trouvée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /conversations/{id}/close:
+    patch:
+      tags: [Conversations]
+      summary: Fermer une conversation
+      description: |
+        Change le statut de la conversation de `Open` à `Close`.
+
+        Une conversation fermée peut être rouverte par un participant.
+      operationId: closeConversation
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ConversationId'
+      responses:
+        '200':
+          description: Conversation fermée avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Conversation'
+        '404':
+          description: Conversation non trouvée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  # ============================================
+  # MESSAGES ENDPOINTS
+  # ============================================
+  /conversations/{id}/messages:
+    get:
+      tags: [Messages]
+      summary: Messages d'une conversation
+      description: Retourne les messages avec pagination par curseur.
+      operationId: getMessages
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ConversationId'
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+          description: Nombre de messages à retourner
+        - name: cursor
+          in: query
+          schema:
+            type: integer
+          description: ID du message pour la pagination
+      responses:
+        '200':
+          description: Liste des messages
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Message'
+
+    post:
+      tags: [Messages]
+      summary: Envoyer un message
+      description: Envoie un message dans une conversation.
+      operationId: sendMessage
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ConversationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessageRequest'
+      responses:
+        '201':
+          description: Message envoyé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+
+  /conversations/{id}/message/{messageId}:
+    patch:
+      tags: [Messages]
+      summary: Modifier un message
+      description: Modifie le contenu d'un message existant.
+      operationId: updateMessage
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ConversationId'
+        - $ref: '#/components/parameters/MessageId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessageRequest'
+      responses:
+        '200':
+          description: Message modifié
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+
+    delete:
+      tags: [Messages]
+      summary: Supprimer un message
+      description: Supprime un message.
+      operationId: deleteMessage
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ConversationId'
+        - $ref: '#/components/parameters/MessageId'
+      responses:
+        '204':
+          description: Message supprimé
+
+  # ============================================
+  # CATEGORIES ENDPOINTS
+  # ============================================
+  /categories/top-rated:
+    get:
+      tags: [Categories]
+      summary: Top catégories
+      description: Retourne les catégories les plus populaires (avec le plus de membres).
+      operationId: getTopCategories
+      security: []  # Public endpoint
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 6
+          description: Nombre de catégories à retourner
+      responses:
+        '200':
+          description: Liste des top catégories
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CategoryWithCount'
+
+  # ============================================
+  # SEARCH ENDPOINTS
+  # ============================================
+  /search:
+    get:
+      tags: [Search]
+      summary: Rechercher des membres
+      description: |
+        Recherche full-text des membres via Meilisearch.
+
+        Supporte :
+        - Recherche par nom, prénom, compétences
+        - Filtrage par catégorie
+        - Tri par note ou date d'inscription
+        - Pagination
+      operationId: searchMembers
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: q
+          in: query
+          schema:
+            type: string
+          description: Terme de recherche (nom, prénom, compétence)
+          example: "React"
+        - name: category
+          in: query
+          schema:
+            type: string
+          description: Slug de la catégorie pour filtrer
+          example: "developpement-web"
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum: [rating:desc, createdAt:desc]
+            default: rating:desc
+          description: Critère de tri
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: Numéro de page
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 12
+          description: Nombre de résultats par page
+      responses:
+        '200':
+          description: Résultats de recherche
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResponse'
+
+  /search/top-rated:
+    get:
+      tags: [Search]
+      summary: Membres les mieux notés
+      description: Retourne les membres avec les meilleures évaluations.
+      operationId: getTopRatedMembers
+      security: []  # Public endpoint
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 8
+          description: Nombre de membres à retourner
+      responses:
+        '200':
+          description: Liste des top membres
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/MemberCard'
+
+  # ============================================
+  # AVATAR ENDPOINTS
+  # ============================================
+  /profiles/avatar:
+    patch:
+      tags: [Profiles]
+      summary: Mettre à jour l'avatar
+      description: |
+        Upload d'une nouvelle image de profil.
+
+        **Formats acceptés** : JPEG, JPG, PNG
+        **Taille max** : 5 MB
+      operationId: updateAvatar
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [avatar]
+              properties:
+                avatar:
+                  type: string
+                  format: binary
+                  description: Fichier image (JPEG, JPG ou PNG, max 5MB)
+      responses:
+        '200':
+          description: Avatar mis à jour
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      avatarUrl:
+                        type: string
+                        format: uri
+                        example: "/avatars/avatar-1-1234567890.jpg"
+        '400':
+          description: Format de fichier invalide ou fichier trop volumineux
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Fichier trop volumineux (> 5MB)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      tags: [Profiles]
+      summary: Supprimer l'avatar
+      description: Supprime l'image de profil et remet l'avatar par défaut.
+      operationId: deleteAvatar
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Avatar supprimé
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Avatar supprimé avec succès"
+
+  # ============================================
+  # PUBLIC PROFILE ENDPOINT (SEO)
+  # ============================================
+  /profiles/public/{id}:
+    get:
+      tags: [Profiles]
+      summary: Profil public (SEO)
+      description: |
+        Retourne les informations publiques d'un profil pour le SEO et les réseaux sociaux.
+
+        **Aucune authentification requise.**
+
+        Utilisé pour :
+        - Génération des méta-tags OpenGraph
+        - Aperçu sur les réseaux sociaux
+        - Indexation par les moteurs de recherche
+      operationId: getPublicProfile
+      security: []  # Public endpoint - no authentication required
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: Profil public
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicProfile'
+        '404':
+          description: Utilisateur non trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+# ============================================
+# COMPONENTS
+# ============================================
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: accessToken
+      description: JWT token stocké dans un cookie HTTP-only
+
+  parameters:
+    UserId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+      description: ID de l'utilisateur
+
+    ConversationId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+      description: ID de la conversation
+
+    MessageId:
+      name: messageId
+      in: path
+      required: true
+      schema:
+        type: integer
+      description: ID du message
+
+  schemas:
+    # ---- Auth Schemas ----
+    RegisterRequest:
+      type: object
+      required: [lastname, firstname, email, password, confirmation]
+      properties:
+        lastname:
+          type: string
+          minLength: 2
+          example: "Dupont"
+        firstname:
+          type: string
+          minLength: 2
+          example: "Marie"
+        email:
+          type: string
+          format: email
+          example: "marie@example.com"
+        password:
+          type: string
+          minLength: 8
+          example: "SecurePass123!"
+        confirmation:
+          type: string
+          example: "SecurePass123!"
+
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+          example: "marie@example.com"
+        password:
+          type: string
+          example: "SecurePass123!"
+
+    AuthResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          $ref: '#/components/schemas/UserProfile'
+
+    # ---- User Schemas ----
+    UserProfile:
+      type: object
+      description: Profil complet d'un utilisateur
+      properties:
+        id:
+          type: integer
+          example: 1
+        email:
+          type: string
+          format: email
+          description: Email (visible uniquement pour son propre profil)
+          example: "marie@example.com"
+        firstname:
+          type: string
+          example: "Marie"
+        lastname:
+          type: string
+          example: "Dupont"
+        address:
+          type: ["string", "null"]
+          example: "15 rue de la Paix"
+        postalCode:
+          type: ["integer", "null"]
+          example: 75001
+        city:
+          type: ["string", "null"]
+          example: "Paris"
+        age:
+          type: ["integer", "null"]
+          example: 28
+        avatarUrl:
+          type: ["string", "null"]
+          format: uri
+          example: "https://example.com/avatar.jpg"
+        description:
+          type: ["string", "null"]
+          example: "Passionné de développement web"
+        skills:
+          type: array
+          description: Compétences de l'utilisateur
+          items:
+            $ref: '#/components/schemas/UserSkill'
+        interests:
+          type: array
+          description: Compétences recherchées par l'utilisateur
+          items:
+            $ref: '#/components/schemas/UserSkill'
+        availabilities:
+          type: array
+          description: Créneaux de disponibilité
+          items:
+            $ref: '#/components/schemas/UserAvailability'
+        evaluationsReceived:
+          type: array
+          description: Évaluations reçues par l'utilisateur
+          items:
+            $ref: '#/components/schemas/RatingReceived'
+        followedUsers:
+          type: array
+          description: Utilisateurs suivis
+          items:
+            $ref: '#/components/schemas/Follow'
+        followerUsers:
+          type: array
+          description: Utilisateurs qui suivent ce profil
+          items:
+            $ref: '#/components/schemas/Follow'
+        isRated:
+          type: boolean
+          description: Indique si l'utilisateur connecté a déjà noté ce profil (uniquement sur profil d'autrui)
+          example: false
+        isFollowing:
+          type: boolean
+          description: Indique si l'utilisateur connecté suit ce profil (uniquement sur profil d'autrui)
+          example: true
+        isFollowedBy:
+          type: boolean
+          description: Indique si ce profil suit l'utilisateur connecté (uniquement sur profil d'autrui)
+          example: true
+        createdAt:
+          type: string
+          format: date-time
+          example: "2024-01-10T08:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2024-01-15T14:30:00Z"
+
+    UserSkill:
+      type: object
+      description: Compétence associée à un utilisateur
+      properties:
+        userId:
+          type: integer
+          example: 1
+        skillId:
+          type: integer
+          example: 5
+        skill:
+          $ref: '#/components/schemas/Skill'
+        createdAt:
+          type: string
+          format: date-time
+
+    UserAvailability:
+      type: object
+      description: Disponibilité associée à un utilisateur
+      properties:
+        userId:
+          type: integer
+          example: 1
+        availableId:
+          type: integer
+          example: 3
+        available:
+          $ref: '#/components/schemas/Availability'
+        createdAt:
+          type: string
+          format: date-time
+
+    RatingReceived:
+      type: object
+      description: Évaluation reçue avec informations sur l'évaluateur
+      properties:
+        id:
+          type: integer
+          example: 1
+        score:
+          type: integer
+          minimum: 0
+          maximum: 5
+          example: 4
+        comments:
+          type: ["string", "null"]
+          example: "Excellent échange !"
+        evaluatorId:
+          type: integer
+          example: 2
+        evaluatedId:
+          type: integer
+          example: 1
+        evaluator:
+          $ref: '#/components/schemas/UserSummary'
+        createdAt:
+          type: string
+          format: date-time
+
+    Follow:
+      type: object
+      description: Relation de suivi entre utilisateurs
+      properties:
+        id:
+          type: integer
+          example: 1
+        followerId:
+          type: integer
+          example: 1
+        followedId:
+          type: integer
+          example: 2
+        createdAt:
+          type: string
+          format: date-time
+
+    UserSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+        firstname:
+          type: string
+        lastname:
+          type: string
+        avatarUrl:
+          type: ["string", "null"]
+
+    UpdateProfileRequest:
+      type: object
+      description: Données pour mettre à jour le profil utilisateur
+      properties:
+        lastname:
+          type: string
+          description: Nom de famille
+          pattern: "^[A-Za-zÀ-ÿ\\s\\-']+$"
+          example: "Dupont"
+        firstname:
+          type: string
+          description: Prénom
+          pattern: "^[A-Za-zÀ-ÿ\\s\\-']+$"
+          example: "Marie"
+        email:
+          type: string
+          format: email
+          description: Adresse email
+          example: "marie.dupont@example.com"
+        address:
+          type: string
+          description: Adresse postale
+          minLength: 5
+          maxLength: 100
+          example: "15 rue de la Paix"
+        postalCode:
+          type: integer
+          description: Code postal (5 chiffres)
+          minimum: 1000
+          maximum: 99999
+          example: 75001
+        city:
+          type: string
+          description: Ville
+          example: "Paris"
+        age:
+          type: integer
+          description: Âge de l'utilisateur
+          minimum: 1
+          example: 28
+        avatarUrl:
+          type: string
+          description: URL de l'avatar
+          maxLength: 200
+          example: "https://example.com/avatar.jpg"
+        description:
+          type: string
+          description: Description du profil
+          minLength: 10
+          maxLength: 500
+          example: "Passionné de développement web, j'aime partager mes connaissances."
+
+    ChangePasswordRequest:
+      type: object
+      description: Données pour changer le mot de passe
+      required: [currentPassword, newPassword, confirmation]
+      properties:
+        currentPassword:
+          type: string
+          description: Mot de passe actuel
+          minLength: 8
+          example: "AncienMotDePasse123!"
+        newPassword:
+          type: string
+          description: Nouveau mot de passe (minimum 8 caractères)
+          minLength: 8
+          example: "NouveauMotDePasse456!"
+        confirmation:
+          type: string
+          description: Confirmation du nouveau mot de passe
+          example: "NouveauMotDePasse456!"
+
+    # ---- Skill Schemas ----
+    Skill:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "React"
+        categoryId:
+          type: integer
+          example: 1
+        category:
+          $ref: '#/components/schemas/Category'
+
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Développement Web"
+        slug:
+          type: string
+          example: "developpement-web"
+
+    # ---- Availability Schemas ----
+    Availability:
+      type: object
+      description: Créneau de disponibilité d'un utilisateur
+      properties:
+        id:
+          type: integer
+          example: 1
+        day:
+          type: string
+          description: Jour de la semaine (en français)
+          enum: [Lundi, Mardi, Mercredi, Jeudi, Vendredi, Samedi, Dimanche]
+          example: Lundi
+        timeSlot:
+          type: string
+          description: Créneau horaire
+          enum: [Morning, Afternoon]
+          example: Morning
+
+    AvailabilityRequest:
+      type: object
+      description: Données pour ajouter une disponibilité
+      required: [day, timeSlot]
+      properties:
+        day:
+          type: string
+          description: Jour de la semaine (en français)
+          enum: [Lundi, Mardi, Mercredi, Jeudi, Vendredi, Samedi, Dimanche]
+          example: Mardi
+        timeSlot:
+          type: string
+          description: Créneau horaire (Morning = Matin, Afternoon = Après-midi)
+          enum: [Morning, Afternoon]
+          example: Afternoon
+
+    # ---- Rating Schemas ----
+    Rating:
+      type: object
+      properties:
+        id:
+          type: integer
+        score:
+          type: integer
+          minimum: 0
+          maximum: 5
+        comment:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+        author:
+          $ref: '#/components/schemas/UserSummary'
+
+    RatingRequest:
+      type: object
+      required: [score]
+      properties:
+        score:
+          type: integer
+          minimum: 0
+          maximum: 5
+          example: 4
+        comment:
+          type: string
+          example: "Très bon échange, je recommande !"
+
+    # ---- Conversation Schemas ----
+    Conversation:
+      type: object
+      description: Conversation entre deux utilisateurs
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          description: Titre de la conversation
+          example: "Échange React/Python"
+        status:
+          type: string
+          description: Statut de la conversation
+          enum: [Open, Close]
+          example: Open
+        createdAt:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:30:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2024-01-15T14:45:00Z"
+        participants:
+          type: array
+          description: Liste des participants à la conversation
+          items:
+            $ref: '#/components/schemas/UserSummary'
+        lastMessage:
+          description: Dernier message de la conversation
+          $ref: '#/components/schemas/Message'
+
+    CreateConversationRequest:
+      type: object
+      required: [title, receiverId]
+      properties:
+        title:
+          type: string
+          example: "Échange React/Python"
+        receiverId:
+          type: integer
+          example: 2
+
+    # ---- Message Schemas ----
+    Message:
+      type: object
+      properties:
+        id:
+          type: integer
+        content:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: ["string", "null"]
+          format: date-time
+        senderId:
+          type: integer
+        sender:
+          $ref: '#/components/schemas/UserSummary'
+
+    MessageRequest:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string
+          minLength: 1
+          maxLength: 2000
+          example: "Bonjour, je suis intéressé par un échange !"
+
+    # ---- Error Schema ----
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          example: "Email déjà utilisé"
+        code:
+          type: string
+          example: "CONFLICT"
+
+    # ---- Search Schemas ----
+    SearchResponse:
+      type: object
+      description: Résultat de recherche paginé
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            hits:
+              type: array
+              description: Résultats correspondants
+              items:
+                $ref: '#/components/schemas/MemberCard'
+            query:
+              type: string
+              description: Terme de recherche utilisé
+              example: "React"
+            processingTimeMs:
+              type: integer
+              description: Temps de traitement en millisecondes
+              example: 12
+            hitsPerPage:
+              type: integer
+              description: Nombre de résultats par page
+              example: 12
+            page:
+              type: integer
+              description: Page actuelle
+              example: 1
+            totalPages:
+              type: integer
+              description: Nombre total de pages
+              example: 5
+            totalHits:
+              type: integer
+              description: Nombre total de résultats
+              example: 54
+
+    MemberCard:
+      type: object
+      description: Carte membre pour l'affichage dans les résultats
+      properties:
+        id:
+          type: integer
+          example: 1
+        firstname:
+          type: string
+          example: "Marie"
+        lastname:
+          type: string
+          example: "Dupont"
+        fullname:
+          type: string
+          example: "Marie Dupont"
+        avatarUrl:
+          type: ["string", "null"]
+          format: uri
+          example: "/avatars/avatar-1-123456.jpg"
+        city:
+          type: ["string", "null"]
+          example: "Paris"
+        description:
+          type: ["string", "null"]
+          example: "Développeuse passionnée"
+        skills:
+          type: array
+          description: Noms des compétences
+          items:
+            type: string
+          example: ["React", "TypeScript", "Node.js"]
+        rating:
+          type: number
+          format: float
+          description: Note moyenne (0-5)
+          example: 4.5
+        evaluationCount:
+          type: integer
+          description: Nombre d'évaluations reçues
+          example: 12
+
+    CategoryWithCount:
+      type: object
+      description: Catégorie avec le nombre de membres
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Développement Web"
+        slug:
+          type: string
+          example: "developpement-web"
+        _count:
+          type: object
+          properties:
+            skills:
+              type: integer
+              description: Nombre de compétences dans cette catégorie
+              example: 15
+
+    PublicProfile:
+      type: object
+      description: Profil public pour le SEO (sans données sensibles)
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            id:
+              type: integer
+              example: 1
+            firstname:
+              type: string
+              example: "Marie"
+            lastname:
+              type: string
+              example: "Dupont"
+            city:
+              type: ["string", "null"]
+              example: "Paris"
+            avatarUrl:
+              type: ["string", "null"]
+              format: uri
+              example: "/avatars/avatar-1-123456.jpg"
+            description:
+              type: ["string", "null"]
+              example: "Développeuse passionnée"
+            skills:
+              type: array
+              items:
+                $ref: '#/components/schemas/UserSkill'
+            evaluationsReceived:
+              type: array
+              items:
+                $ref: '#/components/schemas/RatingReceived'
+            createdAt:
+              type: string
+              format: date-time

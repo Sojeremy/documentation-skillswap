@@ -1,0 +1,121 @@
+@startuml architecture
+
+top to bottom direction
+
+' ===== Paramètres visuels =====
+skinparam componentStyle rectangle
+skinparam wrapWidth 500
+skinparam maxMessageSize 400
+skinparam componentFontSize 14
+skinparam noteFontSize 12
+skinparam nodeFontSize 14
+
+title Architecture – SkillSwap
+
+actor Visiteur
+actor Membre
+
+' ===== FRONTEND =====
+package "Frontend - Next.js" {
+
+  component "Landing Page\n(SEO / SSG)" as Landing
+  component "Signin / Login Page\n(CSR)" as Auth
+  component "Searching Page\n(SSR)" as Search
+  component "Profile Page\n(SSR)" as Profile
+  component "Update Profile Page\n(CSR)" as UpdateProfile
+  component "API Client\n(fetch)" as global
+
+  together {
+    component "Conversation Page\n(CSR)" as Messages
+    component "Chat Realtime Module\n(Socket.IO Client)" as ChatUI
+  }
+
+  Messages --> ChatUI : messages temps réel
+}
+
+' ===== API GATEWAY =====
+package "API Gateway\n(Nginx / Reverse Proxy)" {
+  component "Routage API\nSécurité\nRate limiting" as Gateway
+}
+
+
+' ===== BACKEND =====
+package "Backend - Express API" {
+
+  component "Auth Controller" as AuthAPI
+  component "Profile Controller" as ProfileAPI
+  component "Search Controller" as SearchAPI
+
+  together {
+    component "Socket.IO Server\n(Realtime Events)" as SocketServer
+    component "Chat Controller" as ChatAPI
+  }
+
+  component "Conversation Controller" as MessageAPI
+  component "Follow / Block Controller" as SocialAPI
+  component "Review Controller" as ReviewAPI
+
+  SocketServer --> ChatAPI : persist message\nbroadcast event
+}
+
+package "Storage & Indexing" {
+' ===== DATA LAYER =====
+package "Data Layer" {
+  database "PostgreSQL\nUsers / Profiles / Skills\nChats / Conversations" as DB
+}
+
+' ===== SEARCH ENGINE =====
+package "Search Engine" {
+  database "Meilisearch\nIndex profils & compétences" as SearchEngine
+}
+}
+
+' ===== ACTEURS =====
+Visiteur --> [Public]
+Membre -left-> [Visiteur]
+Membre --> [Private]
+
+[Public] --> Landing
+[Public] --> Auth
+[Private] --> Search
+[Private] --> Profile
+[Private] --> UpdateProfile
+[Private] --> Messages
+
+' ===== FRONT -> GATEWAY (REST) =====
+Landing --> global : fetch profils publics
+Auth --> global : login / signup
+Search --> global : recherche profils
+Profile --> global : consulter profil
+UpdateProfile --> global : mise à jour profil
+Messages --> global : historique\nlancer chat
+
+global --> Gateway
+
+' ===== WEBSOCKET (DIRECT) =====
+ChatUI <--> SocketServer : WebSocket\nmessages / typing / read
+
+' ===== GATEWAY -> BACKEND =====
+Gateway --> AuthAPI
+Gateway --> ProfileAPI
+Gateway --> SearchAPI
+Gateway --> MessageAPI
+Gateway --> SocialAPI
+Gateway --> ReviewAPI
+
+' ===== BACKEND -> DATA =====
+AuthAPI --> DB
+ProfileAPI --> DB
+SearchAPI --> SearchEngine
+ChatAPI --> DB
+MessageAPI --> DB
+SocialAPI --> DB
+ReviewAPI --> DB
+SocketServer --> DB
+
+' ===== LIENS CACHÉS (ALIGNEMENT) =====
+Messages -[hidden]-> Gateway
+Gateway -[hidden]-> SocketServer
+ChatUI -[hidden]-> MessageAPI
+
+@enduml

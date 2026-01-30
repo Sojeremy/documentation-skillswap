@@ -1,0 +1,59 @@
+@startuml Contact page
+
+actor User
+participant FRONT
+participant API
+database DB
+
+== Display conversation page ==
+User -> FRONT : Selects messaging button
+FRONT -> API : GET /api/v1/conversation
+API -> DB : SELECT all conversations by userId order by created_at DESC
+DB --> API : OK
+API --> FRONT : Response 200 (array of conversation) 
+FRONT --> User : List of conversation
+
+== Display a conversation ==
+User -> FRONT : Selects a conversation
+FRONT --> User : Display message section with message sending form
+FRONT -> API : GET /api/v1/conversation/:id/message
+API -> DB : SELECT all messages by conversationId order by created_at 
+DB --> API : OK
+API --> FRONT : Response 200 (array of messages) 
+FRONT --> User : Display conversation with message
+
+== Send message ==
+User -> FRONT : Submits message sending form
+FRONT -> API : POST /api/v1/conversation/:id/message {content}
+API -> API : validate data
+API -> DB : INSERT INTO "message" {content, sender, receiver, conversationId}
+activate DB
+DB --> API : Generated message ID
+deactivate DB
+API --> FRONT : Response 201 + Generated message ID
+FRONT --> User : Display new message following existing messages
+
+== Start a new conversation ==
+User -> FRONT : Selects conversation launch button
+FRONT -> API : GET /api/v1/user
+API -> DB : SELECT all users by followerId {userId, pseudo, avatarUrl} 
+DB --> API : OK
+API --> FRONT : Response 200 (array of users) 
+FRONT --> User : Display dialog window containing form {title, receiver, message}
+
+== Create a conversation ==
+User -> FRONT : Fills and submits creation form {title, receiverId, newMessage}
+FRONT -> API : POST /api/v1/conversation {title, receiverId, newMessage}
+API -> API : validate data
+API -> DB : INSERT INTO "conversation" {title}
+activate DB
+DB --> API : Generated conversation ID
+deactivate DB
+API -> DB : INSERT INTO "message" {content, sender, receiver, conversationId}
+activate DB
+DB --> API : Generated message ID
+deactivate DB
+API --> FRONT : Response 201 + Generated conversation ID + Generated message ID
+FRONT --> User : Display conversation
+
+@enduml

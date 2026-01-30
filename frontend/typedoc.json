@@ -1,0 +1,50 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": [
+    "src/hooks/index.ts",
+    "src/lib/api-client.ts",
+    "src/lib/api-types.ts",
+    "src/lib/utils.ts",
+    "src/lib/dateTime.utils.ts",
+    "src/lib/validation/auth.validation.ts",
+    "src/lib/validation/updateProfile.validation.ts",
+    "src/lib/validation/updatePassword.validation.ts",
+    "src/lib/validation/conversation.validation.ts"
+  ],
+  "out": "docs/api",
+  "plugin": ["typedoc-plugin-markdown"],
+  "name": "SkillSwap Frontend API",
+  "readme": "none",
+  "exclude": [
+    "**/*.stories.tsx",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "**/mock-data/**"
+  ],
+  "excludePrivate": true,
+  "excludeProtected": true,
+  "excludeExternals": true,
+  "hideGenerator": true,
+  "gitRevision": "main",
+  "includeVersion": false,
+  "categorizeByGroup": true,
+  "categoryOrder": ["Hooks", "API Client", "Types", "Utilities", "Validation"],
+  "sort": ["source-order"],
+  "skipErrorChecking": true,
+  "validation": {
+    "notExported": false,
+    "invalidLink": false,
+    "notDocumented": false
+  },
+  "outputFileStrategy": "modules",
+  "flattenOutputFiles": false,
+  "entryFileName": "index",
+  "indexFormat": "table",
+  "parametersFormat": "table",
+  "interfacePropertiesFormat": "table",
+  "classPropertiesFormat": "table",
+  "enumMembersFormat": "table",
+  "typeDeclarationFormat": "table",
+  "propertyMembersFormat": "table"
+}

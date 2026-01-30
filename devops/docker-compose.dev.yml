@@ -1,0 +1,100 @@
+name: skillswap-dev
+
+services:
+  backend:
+    build:
+      context: ..
+      dockerfile: ./devops/backend/Dockerfile.dev
+    restart: unless-stopped
+    volumes:
+      - ../backend:/app
+      - backend_node_modules:/app/node_modules
+    expose:
+      - '3000'
+    env_file:
+      - .env.docker
+    command: ['npm', 'run', 'dev']
+    depends_on:
+      postgres:
+        condition: service_healthy
+      meilisearch:
+        condition: service_started
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: ../devops/frontend/Dockerfile.dev
+    restart: unless-stopped
+    volumes:
+      - ../frontend:/app
+      - frontend_node_modules:/app/node_modules
+      - frontend_next:/app/.next
+    expose:
+      - '3000'
+    env_file:
+      - .env.docker
+    depends_on:
+      - backend
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: skillswap-postgres
+    restart: unless-stopped
+    env_file:
+      - .env.docker
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - '${DATABASE_PORT:-5433}:5432'
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'pg_isready -U ${POSTGRES_USER:-skillswap} -d ${POSTGRES_DB:-skillswap}',
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  adminer:
+    image: adminer
+    container_name: skillswap-adminer
+    restart: unless-stopped
+    ports:
+      - '${ADMINER_PORT:-8080}:8080'
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  meilisearch:
+    image: getmeili/meilisearch:v1.6
+    container_name: skillswap-meilisearch
+    restart: unless-stopped
+    ports:
+      - '7700:7700' # Garde pour accès navigateur en dev
+    env_file:
+      - .env.docker
+    environment:
+      - MEILI_MASTER_KEY=${MEILI_MASTER_KEY}
+      - MEILI_ENV=development
+    volumes:
+      - meilisearch_data:/meili_data
+
+  nginx:
+    image: nginx:alpine
+    container_name: skillswap-nginx
+    restart: unless-stopped
+    ports:
+      - '8888:80'
+    volumes:
+      - ./nginx/dev.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - frontend
+      - backend
+
+volumes:
+  postgres_data:
+  backend_node_modules:
+  frontend_node_modules:
+  frontend_next:
+  meilisearch_data:

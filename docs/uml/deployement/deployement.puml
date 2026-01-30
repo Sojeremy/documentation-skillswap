@@ -1,0 +1,75 @@
+@startuml Déploiement
+skinparam nodeStyle rectangle
+skinparam wrapWidth 200
+skinparam maxMessageSize 150
+
+title Diagramme de déploiement – SkillSwap (Docker)
+
+actor Utilisateur
+
+
+node "Navigateur Web" {
+  component "Browser"
+}
+
+node "VPS (Linux)" {
+
+  
+
+    node "Docker Network\n(app-network)" {
+        node "Reverse Proxy\nNginx" as Nginx {
+      component "API Gateway\nHTTPS / Routing"
+    }
+
+    node "Frontend Container" {
+      component "Next.js App\n(port 3000)" as Next
+    }
+
+    node "Backend Container" {
+      component "Express API\n(port 4000)" as API
+      component "WebSocket Server\n(Socket.io)" as WS
+    }
+
+    node "Conteneur Backoffice" {
+      component "Serveur HTTP (Adminer - PHP)" as Backoffice #LightBlue {
+      }
+    }
+
+    node "Database Containers" {
+
+      node "PostgreSQL\n(port 5432)" as DB
+      node "Meilisearch\n(port 7700)" as Search
+    }
+    }
+
+    node "Docker Volumes" {
+      component "pg-data"
+      component "meili-data"
+    }
+  
+}
+
+' ===== ACCÈS UTILISATEURS =====
+Utilisateur --> Browser
+
+
+Browser --> Nginx : HTTPS (443)
+
+' ===== ROUTAGE =====
+Nginx --> Next : HTTP (3000)
+Nginx --> API : HTTP (4000)
+Nginx --> WS : WebSocket
+Nginx --> Backoffice
+
+' ===== COMMUNICATION INTERNE =====
+Next --> API : REST / Fetch
+API --> DB : Prisma
+API --> Search : Recherche
+WS --> DB : Messages
+Backoffice --> DB : Gestion BDD
+
+' ===== VOLUMES =====
+DB ~~ "pg-data": (bind mount)
+Search ~~ "meili-data": (bind mount)
+
+@enduml

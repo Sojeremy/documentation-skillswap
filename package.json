@@ -1,0 +1,58 @@
+{
+  "name": "projet-skillswap",
+  "version": "1.0.0",
+  "description": "1. Aller dans le dossier frontend :\r    ```bash \r    cd frontend\r    ```\r 2. Installer les dépendances :\r    npm install\r 3. Aller dans le dossier backend :\r    cd ../backend\r 4. Installer les dépendances :\r    npm install",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "docker:compose": "docker compose -p skillswap -f devops/docker-compose.dev.yml --env-file=devops/.env.docker",
+    "docker:setup": "test -f devops/.env.docker || cp devops/.env.docker.example devops/.env.docker && echo '✅ .env.docker créé (pensez à modifier les secrets)'",
+    "docker:build": "docker compose -p skillswap -f devops/docker-compose.dev.yml --env-file=devops/.env.docker up -d --build",
+    "docker:generate": "docker compose -p skillswap -f devops/docker-compose.dev.yml exec backend npx prisma generate",
+    "docker:migrate": "docker compose -p skillswap -f devops/docker-compose.dev.yml exec backend npx prisma migrate dev",
+    "docker:migrate:deploy": "docker compose -p skillswap -f devops/docker-compose.dev.yml exec backend npx prisma migrate deploy",
+    "docker:seed": "docker compose -p skillswap -f devops/docker-compose.dev.yml exec backend npx ts-node src/models/seeding.ts",
+    "docker:init": "npm run docker:setup && npm run docker:build && npm run docker:generate && npm run docker:migrate && npm run docker:seed && npm run search:reindex",
+    "docker:down": "docker compose -p skillswap -f devops/docker-compose.dev.yml down -v",
+    "docker:up": "docker compose -p skillswap -f devops/docker-compose.dev.yml --env-file=devops/.env.docker up -d",
+    "docker:clean": "docker compose -p skillswap -f devops/docker-compose.dev.yml down -v --rmi local && echo '✅ Environnement Docker nettoyé'",
+    "docker:logs": "docker compose -p skillswap -f devops/docker-compose.dev.yml logs -f",
+    "docker:prod:compose": "docker compose -p skillswap -f devops/docker-compose.prod.yml --env-file=devops/.env.docker",
+    "docker:prod:setup": "test -f devops/.env.docker || cp devops/.env.docker.example devops/.env.docker && echo '✅ .env.docker créé (pensez à modifier les secrets)'",
+    "docker:prod:build": "docker compose -p skillswap -f devops/docker-compose.prod.yml --env-file=devops/.env.docker up -d --build",
+    "docker:prod:generate": "docker compose -p skillswap -f devops/docker-compose.prod.yml exec backend npx prisma generate",
+    "docker:prod:migrate": "docker compose -p skillswap -f devops/docker-compose.prod.yml exec backend npx prisma migrate dev",
+    "docker:prod:migrate:deploy": "docker compose -p skillswap -f devops/docker-compose.prod.yml exec backend npx prisma migrate deploy",
+    "docker:prod:seed": "docker compose -p skillswap -f devops/docker-compose.prod.yml exec backend npm run db:seed",
+    "docker:prod:init": "npm run docker:setup && npm run docker:build && npm run docker:generate && npm run docker:migrate && npm run docker:seed && npm run search:reindex",
+    "docker:prod:down": "docker compose -p skillswap -f devops/docker-compose.prod.yml down -v",
+    "docker:prod:up": "docker compose -p skillswap -f devops/docker-compose.prod.yml --env-file=devops/.env.docker up -d",
+    "docker:prod:clean": "docker compose -p skillswap -f devops/docker-compose.prod.yml down -v --rmi local && echo '✅ Environnement Docker nettoyé'",
+    "docker:prod:logs": "docker compose -p skillswap -f devops/docker-compose.prod.yml logs -f",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "prepare": "husky",
+    "search:reindex": "docker compose -p skillswap -f devops/docker-compose.dev.yml exec backend npm run setup:meilisearch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/O-clock-Dublin/projet-skillswap.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/O-clock-Dublin/projet-skillswap/issues"
+  },
+  "homepage": "https://github.com/O-clock-Dublin/projet-skillswap#readme",
+  "devDependencies": {
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
+    "husky": "^9.1.7",
+    "typescript-eslint": "^8.53.0"
+  }
+}

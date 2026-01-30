@@ -1,0 +1,89 @@
+@startuml sitemap
+!theme plain
+title SkillSwap — UserFlow (Frontend)
+
+skinparam backgroundColor #FFFFFF
+skinparam roundCorner 10
+skinparam shadowing false
+skinparam defaultFontName Inter
+skinparam defaultFontSize 12
+skinparam linetype ortho
+
+skinparam rectangle {
+  BackgroundColor #F9FAFB
+  BorderColor #E5E7EB
+  FontColor #111827
+}
+
+skinparam rectangle<<public>> {
+  BackgroundColor #DBEAFE
+  BorderColor #3B82F6
+  FontColor #1E40AF
+}
+
+skinparam rectangle<<auth>> {
+  BackgroundColor #FEE2E2
+  BorderColor #EF4444
+  FontColor #991B1B
+}
+
+skinparam rectangle<<member>> {
+  BackgroundColor #D1FAE5
+  BorderColor #10B981
+  FontColor #065F46
+}
+
+skinparam rectangle<<flow>> {
+  BackgroundColor #FEF3C7
+  BorderColor #F59E0B
+  FontColor #92400E
+}
+
+legend right
+  |<#DBEAFE>| Public |
+  |<#FEE2E2>| Auth |
+  |<#D1FAE5>| Member (auth requis) |
+endlegend
+
+rectangle "SKILLSWAP (Frontend)" as app {
+
+  rectangle "/ (Landing)" as home <<public>>
+
+  rectangle "/auth" as auth <<auth>> {
+    rectangle "/auth/login" as login
+    rectangle "/auth/register" as register
+  }
+
+  rectangle "Espace membre" as member_area <<member>> {
+    rectangle "/search" as search
+    rectangle "/profile/[id]" as profile
+    rectangle "/profile/edit" as profile_edit
+
+    rectangle "/conversations" as conversations
+    rectangle "/conversations/[id]" as conversation
+
+    rectangle "/conversations/[id]/messages" as messages
+    rectangle "/conversations/[id]/rating" as rating <<flow>>
+  }
+}
+
+' ----------------------
+' UserFlow principal
+' ----------------------
+home --> login : "se connecter"
+home --> register : "s'inscrire"
+home --> search : "continuer\n(si déjà connecté)"
+
+login --> search : "succès"
+register --> profile_edit : "onboarding"
+
+search --> profile : "voir un profil"
+profile --> conversations : "démarrer discussion"
+
+conversations --> conversation : "ouvrir"
+conversation --> messages : "lire / envoyer"
+conversation --> rating : "clôturer + noter"
+
+profile_edit --> search : "retour"
+
+@enduml

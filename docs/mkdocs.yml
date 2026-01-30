@@ -1,0 +1,166 @@
+site_name: SkillSwap Documentation
+site_description: Documentation technique de SkillSwap - Plateforme d'échange de compétences
+site_url: https://docs.skillswap.vercel.app
+docs_dir: documentation-implementation
+
+repo_name: projet-skillswap
+repo_url: https://github.com/O-clock-Dublin/projet-skillswap
+
+theme:
+  name: material
+  language: fr
+  palette:
+    - scheme: default
+      primary: red
+      accent: red
+      toggle:
+        icon: material/brightness-7
+        name: Mode sombre
+    - scheme: slate
+      primary: red
+      accent: red
+      toggle:
+        icon: material/brightness-4
+        name: Mode clair
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.tabs.link
+  icon:
+    repo: fontawesome/brands/github
+
+plugins:
+  - search:
+      lang: fr
+  - tags
+  - swagger-ui-tag
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - admonition
+  - pymdownx.details
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/O-clock-Dublin/projet-skillswap
+
+nav:
+  - Accueil: index.md
+  - Architecture (Arc42):
+      - "1. Introduction": arc42/01-introduction/index.md
+      - "2. Contraintes": arc42/02-constraints/index.md
+      - "3. Contexte": arc42/03-context/index.md
+      - "4. Stratégie": arc42/04-solution-strategy/index.md
+      - "5. Building Blocks":
+          - Vue d'ensemble: arc42/05-building-blocks/index.md
+          - Frontend: arc42/05-building-blocks/frontend.md
+          - Backend: arc42/05-building-blocks/backend.md
+          - Database: arc42/05-building-blocks/database.md
+      - "6. Runtime":
+          - Vue d'ensemble: arc42/06-runtime/index.md
+          - Authentification: arc42/06-runtime/authentication.md
+          - Recherche: arc42/06-runtime/search.md
+          - Messagerie: arc42/06-runtime/messaging.md
+          - Gestion d'erreurs: arc42/06-runtime/error-handling.md
+      - "7. Déploiement": arc42/07-deployment/index.md
+      - "8. Concepts transverses":
+          - Vue d'ensemble: arc42/08-crosscutting/index.md
+          - Authentification: arc42/08-crosscutting/authentication.md
+          - Validation: arc42/08-crosscutting/validation.md
+          - Gestion d'erreurs: arc42/08-crosscutting/error-handling.md
+          - Logging: arc42/08-crosscutting/logging.md
+          - Sécurité: arc42/08-crosscutting/security.md
+          - Internationalisation: arc42/08-crosscutting/i18n.md
+      - "9. Décisions (ADRs)":
+          - Index: arc42/09-decisions/index.md
+          - "001 - Next.js": arc42/09-decisions/001-nextjs.md
+          - "002 - Tailwind": arc42/09-decisions/002-tailwind.md
+          - "003 - Prisma": arc42/09-decisions/003-prisma.md
+          - "004 - TanStack Query": arc42/09-decisions/004-tanstack-query.md
+          - "005 - Zod": arc42/09-decisions/005-zod.md
+          - "006 - Atomic Design": arc42/09-decisions/006-atomic-design.md
+          - "007 - JWT": arc42/09-decisions/007-jwt.md
+          - "008 - Meilisearch": arc42/09-decisions/008-meilisearch.md
+          - "009 - Mock-to-API": arc42/09-decisions/009-mock-to-api.md
+          - "010 - Testing Strategy": arc42/09-decisions/010-testing-strategy.md
+      - "10. Qualité":
+          - Vue d'ensemble: arc42/10-quality/index.md
+          - Scénarios: arc42/10-quality/scenarios.md
+          - Tests: arc42/10-quality/testing.md
+          - Accessibilité: arc42/10-quality/accessibility.md
+          - Monitoring: arc42/10-quality/monitoring.md
+      - "11. Risques": arc42/11-risks/index.md
+      - "12. Glossaire": arc42/12-glossary/index.md
+  - API Reference:
+      - Vue d'ensemble: api-reference/index.md
+      - Swagger UI: api-reference/swagger.md
+      - Authentification: api-reference/authentication.md
+      - Codes d'erreur: api-reference/errors.md
+      - Outils de test: api-reference/testing-tools.md
+      - Exemples:
+          - Flux d'authentification: api-reference/examples/auth-flow.md
+          - Recherche de membres: api-reference/examples/search-flow.md
+          - Messagerie: api-reference/examples/messaging-flow.md
+  - Base de données:
+      - Vue d'ensemble: database/index.md
+      - Relations: database/relations.md
+      - Enums: database/enums.md
+      - Migrations: database/migrations.md
+      - Modèles:
+          - User: database/models/user.md
+          - Role: database/models/role.md
+          - Skill: database/models/skill.md
+          - Category: database/models/category.md
+          - Conversation: database/models/conversation.md
+          - Message: database/models/message.md
+          - Rating: database/models/rating.md
+          - Follow: database/models/follow.md
+          - Available: database/models/available.md
+          - RefreshToken: database/models/refresh-token.md
+          - Tables de jonction: database/models/junction-tables.md
+  - Infrastructure:
+      - Vue d'ensemble: infrastructure/index.md
+      - Services Docker: infrastructure/services.md
+      - Réseaux: infrastructure/networks.md
+      - Volumes: infrastructure/volumes.md
+      - CI/CD Pipeline: infrastructure/ci-cd.md
+      - Troubleshooting: infrastructure/troubleshooting.md
+  - TypeDoc (Hooks & Utils):
+      - Vue d'ensemble: typedoc/index.md
+      - Hooks: typedoc/Hooks.md
+      - API Client: typedoc/APIClient.md
+      - Types API: typedoc/lib/api-types.md
+      - Utilitaires: typedoc/Utilities.md
+      - Date/Time: typedoc/DateTimeUtilities.md
+      - Validation:
+          - Auth: typedoc/lib/validation/auth.validation.md
+          - Profil: typedoc/lib/validation/updateProfile.validation.md
+          - Mot de passe: typedoc/lib/validation/updatePassword.validation.md
+          - Conversation: typedoc/lib/validation/conversation.validation.md

@@ -1,0 +1,21 @@
+#!/bin/sh
+
+set -e
+
+echo "Running root lint..."
+npm run lint
+
+echo "Running root format..."
+npm run format
+
+echo "Running frontend lint..."
+cd frontend
+npm run lint
+cd ..
+
+echo "Running backend lint..."
+cd backend
+npm run lint
+cd ..
+
+echo "✅ Husky pre-commit passed"

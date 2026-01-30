@@ -1,0 +1,14 @@
+# Ignore artifacts:
+build
+coverage
+dist
+node_modules
+
+# Ignore documentation
+docs
+
+# Ignore Next.js build output
+.next
+
+# Ignore Storybook build output
+storybook-static

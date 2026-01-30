@@ -1,0 +1,23 @@
+# ===============================
+# SKILLSWAP FRONTEND - DEV
+# ===============================
+
+FROM node:24
+
+WORKDIR /app
+
+# Installer les dépendances avant de copier le code (optimisation cache)
+COPY package*.json ./
+RUN npm install
+
+# Copier le code source
+COPY . .
+
+# Variables d'environnement
+ENV NODE_ENV=development
+
+# Port exposé par Next.js
+EXPOSE 3000
+
+# Lancer le serveur de développement
+CMD ["npm", "run", "dev"]

@@ -1,0 +1,73 @@
+@baseUrl = http://localhost:8888
+@accessToken = REPLACE_ME
+@myId = 7
+
+# Health
+GET {{baseUrl}}/api/v1/health
+
+### Register ✅
+POST {{baseUrl}}/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "firstname": "Pascal",
+  "lastname": "Dufeu",
+  "email": "deleau@gdelaterre.co",
+  "password": "Delaire123!",
+  "confirmation": "Delaire123!"
+}
+
+### Login ✅
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "alice.dupont@example.com",
+  "password": "password123"
+}
+
+### Me ✅
+GET {{baseUrl}}/api/v1/auth/me
+
+### Profile ✅
+GET {{baseUrl}}/api/v1/profiles/8
+
+### Get All Conversations
+GET {{baseUrl}}/api/v1/conversations
+Authorization: Bearer {{accessToken}}
+
+### Get Conversation by ID
+GET {{baseUrl}}/api/v1/conversations/5
+Authorization: Bearer {{accessToken}}
+
+### Conversations (auth) :coche_blanche:
+GET {{baseUrl}}/api/v1/profiles/{{myId}}
+Authorization: Bearer {{accessToken}}
+
+### Create Conversation (auth + simple follow) 
+POST {{baseUrl}}/api/v1/conversations
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "title": "New Conversation",
+  "receiverId": 8
+}
+
+### Create message (auth)
+POST {{baseUrl}}/api/v1/conversations/5/message
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "message": "Salut !"
+}
+### Get messages (auth) - first page
+GET {{baseUrl}}/api/v1/conversations/5/messages?limit=50
+Authorization: Bearer {{accessToken}}
+
+### Get older messages (auth) - next page
+GET {{baseUrl}}/api/v1/conversations/5/messages?limit=50&cursor=123
+Authorization: Bearer {{accessToken}}
+
+// Faire le endpoint post follow pour tester le create conversation entre l'id 13 et 19

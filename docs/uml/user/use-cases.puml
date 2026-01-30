@@ -1,0 +1,256 @@
+' ============================================================================
+' SKILLSWAP - Diagramme de Cas d'Utilisation Complet
+' ============================================================================
+' Organisation optimisée : acteurs connectés aux UC principaux uniquement
+' Les détails sont montrés via include/extend
+' ============================================================================
+
+@startuml UC_SkillSwap_Complet
+!theme plain
+skinparam actorStyle awesome
+skinparam usecaseBackgroundColor #FEFEFE
+skinparam usecaseBorderColor #A71E34
+skinparam actorBorderColor #555555
+skinparam rectangleBorderColor #A71E34
+skinparam arrowColor #555555
+skinparam packageBorderColor #A71E34
+
+title **SkillSwap - Diagramme de Cas d'Utilisation Complet**
+
+left to right direction
+
+' ============================================================================
+' SYSTÈME PRINCIPAL
+' ============================================================================
+rectangle "SkillSwap" {
+
+    ' ========================================================================
+    ' ZONE VISITEUR
+    ' ========================================================================
+    rectangle "Zone Visiteur" #E5E7EB {
+
+        actor "Visiteur" as V #LightGray
+
+        rectangle "Découverte" {
+            usecase "Consulter la landing page" as UC_V_LANDING
+            usecase "Voir le concept" as UC_V_CONCEPT
+            usecase "Voir les témoignages" as UC_V_TESTIMONIALS
+            usecase "Voir les catégories" as UC_V_CATEGORIES
+            usecase "Voir les profils existants" as UC_V_PROFILE
+        }
+
+        rectangle "Inscription" {
+            usecase "Créer un compte" as UC_V_REGISTER
+            usecase "Renseigner ses informations" as UC_V_INFO
+            usecase "Accepter les CGU" as UC_V_CGU
+            usecase "Confirmer son email" as UC_V_CONFIRM
+        }
+
+        rectangle "Connexion" {
+            usecase "Se connecter" as UC_V_LOGIN
+            usecase "Saisir ses identifiants" as UC_V_CREDENTIALS
+            usecase "Mot de passe oublié" as UC_V_FORGOT
+        }
+
+        ' Visiteur → UC principaux seulement
+        V --> UC_V_LANDING
+        V --> UC_V_REGISTER
+        V --> UC_V_LOGIN
+        V --> UC_V_FORGOT
+
+        ' Include dans Découverte
+        UC_V_LANDING ..> UC_V_CONCEPT : <<include>>
+        UC_V_LANDING ..> UC_V_TESTIMONIALS : <<include>>
+        UC_V_LANDING ..> UC_V_CATEGORIES : <<include>>
+
+        ' Include dans Inscription
+        UC_V_REGISTER ..> UC_V_INFO : <<include>>
+        UC_V_REGISTER ..> UC_V_CGU : <<include>>
+        UC_V_REGISTER ..> UC_V_CONFIRM : <<include>>
+
+        ' Include dans Connexion
+        UC_V_LOGIN ..> UC_V_CREDENTIALS : <<include>>
+    }
+
+    ' ========================================================================
+    ' ZONE MEMBRE
+    ' ========================================================================
+    rectangle "Zone Membre" #FDF2F4 {
+
+        actor "Membre" as M #LightBlue
+
+        ' --------------------------------------------------------------------
+        ' MODULE PROFIL
+        ' --------------------------------------------------------------------
+        rectangle "Gestion du Profil" {
+            usecase "Gérer son profil" as UC_M_PROFILE
+            usecase "Modifier son avatarUrl" as UC_M_AVATAR
+            usecase "Rédiger sa biographie" as UC_M_BIO
+
+            usecase "Gérer ses compétences" as UC_M_SKILLS
+            usecase "Ajouter une compétence" as UC_M_ADD_SKILL
+            usecase "Définir le niveau" as UC_M_LEVEL
+            usecase "Retirer une compétence" as UC_M_DEL_SKILL
+
+            usecase "Gérer ses intérêts" as UC_M_INTERESTS
+            usecase "Ajouter un intérêt" as UC_M_ADD_INT
+            usecase "Retirer un intérêt" as UC_M_DEL_INT
+
+            usecase "Gérer ses disponibilités" as UC_M_AVAIL
+            usecase "Ajouter un créneau" as UC_M_ADD_SLOT
+            usecase "Supprimer un créneau" as UC_M_DEL_SLOT
+        }
+
+        ' --------------------------------------------------------------------
+        ' MODULE RECHERCHE
+        ' --------------------------------------------------------------------
+        rectangle "Recherche" {
+            usecase "Rechercher des profils" as UC_M_SEARCH
+            usecase "Saisir un mot-clé" as UC_M_KEYWORD
+            usecase "Filtrer par catégorie" as UC_M_FILTER
+            usecase "Voir les résultats" as UC_M_RESULTS
+
+            usecase "Consulter un profil" as UC_M_VIEW
+            usecase "Voir ses compétences" as UC_M_VIEW_SKILLS
+            usecase "Voir ses disponibilités" as UC_M_VIEW_AVAIL
+            usecase "Voir sa note moyenne" as UC_M_VIEW_RATING
+        }
+
+        ' --------------------------------------------------------------------
+        ' MODULE MESSAGERIE
+        ' --------------------------------------------------------------------
+        rectangle "Messagerie" {
+            usecase "Accéder à la messagerie" as UC_M_INBOX
+            usecase "Voir les conversations" as UC_M_CONV_LIST
+            usecase "Voir les non-lus" as UC_M_UNREAD
+
+            usecase "Contacter un membre" as UC_M_CONTACT
+            usecase "Créer une conversation" as UC_M_NEW_CONV
+
+            usecase "Échanger des messages" as UC_M_CHAT
+            usecase "Envoyer un message" as UC_M_SEND
+            usecase "Supprimer un message" as UC_M_DEL_MSG
+
+            usecase "Clore une conversation" as UC_M_CLOSE
+            usecase "Archiver" as UC_M_ARCHIVE
+        }
+
+        ' --------------------------------------------------------------------
+        ' MODULE SOCIAL
+        ' --------------------------------------------------------------------
+        rectangle "Interactions Sociales" {
+            usecase "Gérer ses follows" as UC_M_FOLLOWS
+            usecase "Suivre un membre" as UC_M_FOLLOW
+            usecase "Ne plus suivre" as UC_M_UNFOLLOW
+
+            usecase "Gérer les blocages" as UC_M_BLOCKS
+            usecase "Bloquer un membre" as UC_M_BLOCK
+            usecase "Débloquer" as UC_M_UNBLOCK
+
+            usecase "Évaluer un membre" as UC_M_RATE
+            usecase "Donner une note" as UC_M_SCORE
+            usecase "Écrire un commentaire" as UC_M_COMMENT
+        }
+
+        ' --------------------------------------------------------------------
+        ' MODULE COMPTE
+        ' --------------------------------------------------------------------
+        rectangle "Compte" {
+            usecase "Gérer son compte" as UC_M_ACCOUNT
+            usecase "Se déconnecter" as UC_M_LOGOUT
+            usecase "Changer son mot de passe" as UC_M_PWD
+            usecase "Supprimer son compte" as UC_M_DELETE
+        }
+
+        ' ====================================================================
+        ' RELATIONS MEMBRE → UC PRINCIPAUX (8 connexions seulement)
+        ' ====================================================================
+        M --> UC_M_PROFILE
+        M --> UC_M_SEARCH
+        M --> UC_M_INBOX
+        M --> UC_M_CONTACT
+        M --> UC_M_FOLLOWS
+        M --> UC_M_BLOCKS
+        M --> UC_M_RATE
+        M --> UC_M_ACCOUNT
+
+        ' ====================================================================
+        ' INCLUDE/EXTEND - MODULE PROFIL
+        ' ====================================================================
+        UC_M_PROFILE ..> UC_M_AVATAR : <<include>>
+        UC_M_PROFILE ..> UC_M_BIO : <<include>>
+        UC_M_PROFILE ..> UC_M_SKILLS : <<include>>
+        UC_M_PROFILE ..> UC_M_INTERESTS : <<include>>
+        UC_M_PROFILE ..> UC_M_AVAIL : <<include>>
+
+        UC_M_SKILLS ..> UC_M_ADD_SKILL : <<include>>
+        UC_M_SKILLS ..> UC_M_DEL_SKILL : <<include>>
+        UC_M_ADD_SKILL ..> UC_M_LEVEL : <<include>>
+
+        UC_M_INTERESTS ..> UC_M_ADD_INT : <<include>>
+        UC_M_INTERESTS ..> UC_M_DEL_INT : <<include>>
+
+        UC_M_AVAIL ..> UC_M_ADD_SLOT : <<include>>
+        UC_M_AVAIL ..> UC_M_DEL_SLOT : <<include>>
+
+        ' ====================================================================
+        ' INCLUDE/EXTEND - MODULE RECHERCHE
+        ' ====================================================================
+        UC_M_SEARCH ..> UC_M_KEYWORD : <<include>>
+        UC_M_SEARCH ..> UC_M_RESULTS : <<include>>
+        UC_M_FILTER ..> UC_M_SEARCH : <<extend>>
+
+        UC_M_RESULTS ..> UC_M_VIEW : <<include>>
+        UC_M_VIEW ..> UC_M_VIEW_SKILLS : <<include>>
+        UC_M_VIEW ..> UC_M_VIEW_AVAIL : <<include>>
+        UC_M_VIEW ..> UC_M_VIEW_RATING : <<include>>
+
+        ' ====================================================================
+        ' INCLUDE/EXTEND - MODULE MESSAGERIE
+        ' ====================================================================
+        UC_M_INBOX ..> UC_M_CONV_LIST : <<include>>
+        UC_M_INBOX ..> UC_M_UNREAD : <<include>>
+        UC_M_INBOX ..> UC_M_CHAT : <<include>>
+
+        UC_M_CONTACT ..> UC_M_NEW_CONV : <<include>>
+
+        UC_M_CHAT ..> UC_M_SEND : <<include>>
+        UC_M_DEL_MSG ..> UC_M_CHAT : <<extend>>
+        UC_M_CLOSE ..> UC_M_CHAT : <<extend>>
+        UC_M_CLOSE ..> UC_M_ARCHIVE : <<include>>
+
+        ' ====================================================================
+        ' INCLUDE/EXTEND - MODULE SOCIAL
+        ' ====================================================================
+        UC_M_FOLLOWS ..> UC_M_FOLLOW : <<include>>
+        UC_M_FOLLOWS ..> UC_M_UNFOLLOW : <<include>>
+
+        UC_M_BLOCKS ..> UC_M_BLOCK : <<include>>
+        UC_M_BLOCKS ..> UC_M_UNBLOCK : <<include>>
+
+        UC_M_RATE ..> UC_M_SCORE : <<include>>
+        UC_M_COMMENT ..> UC_M_RATE : <<extend>>
+
+        ' ====================================================================
+        ' INCLUDE/EXTEND - MODULE COMPTE
+        ' ====================================================================
+        UC_M_ACCOUNT ..> UC_M_LOGOUT : <<include>>
+        UC_M_ACCOUNT ..> UC_M_PWD : <<include>>
+        UC_M_ACCOUNT ..> UC_M_DELETE : <<include>>
+    }
+
+    ' ========================================================================
+    ' RELATIONS INTER-MODULES
+    ' ========================================================================
+    UC_M_VIEW ..> UC_M_CONTACT : <<extend>>
+    UC_M_VIEW ..> UC_M_FOLLOW : <<extend>>
+    UC_M_VIEW ..> UC_M_BLOCK : <<extend>>
+    UC_M_CLOSE ..> UC_M_RATE : <<include>>
+}
+
+' ============================================================================
+' HÉRITAGE
+' ============================================================================
+V <|-- M
+
+@enduml
