@@ -53,12 +53,9 @@ docs/site/
 
 
 # Documentation build
-docs/.venv/
-docs/site/
 frontend/storybook-static/
-user-docs/
-frontend/storybook-static/
-user-docs/
 frontend/coverage/
-docs/site/
-docs/.venv/
+user-docs/build/
+user-docs/.docusaurus/
+user-docs/node_modules/
+storybook/storybook-static/

@@ -1,0 +1,13 @@
+{
+  "name": "skillswap-storybook",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Storybook deployment package for SkillSwap components",
+  "scripts": {
+    "build": "cd ../frontend && npm install && npm run build-storybook -- --output-dir ../storybook/storybook-static",
+    "serve": "npx serve storybook-static"
+  },
+  "engines": {
+    "node": ">=20.0"
+  }
+}

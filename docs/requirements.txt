@@ -1,0 +1,11 @@
+# MkDocs core
+mkdocs>=1.6.0
+
+# Material theme
+mkdocs-material>=9.5.0
+
+# Plugins
+mkdocs-swagger-ui-tag>=0.6.0
+
+# Markdown extensions (included with mkdocs-material)
+# pymdown-extensions is bundled with mkdocs-material
