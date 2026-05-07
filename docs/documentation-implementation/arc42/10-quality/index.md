@@ -36,7 +36,7 @@ mindmap
 | ------- | ----------- | ---- |
 | **Scénarios de qualité** | Métriques et objectifs par attribut | [→](./scenarios.md) |
 | **Tests** | Pyramide de tests et couverture | [→](./testing.md) |
-| **Accessibilité** | Standards WCAG et implémentation | [→](./accessibility.md) |
+| **Accessibilité** | Référentiel RGAA 4.1 / WCAG 2.1 AA, pratiques en place et roadmap | [→](./accessibility.md) |
 | **Monitoring** | Métriques et surveillance (futur) | [→](./monitoring.md) |
 
 ---
@@ -48,9 +48,9 @@ mindmap
 | Performance | TTFB | < 200ms |
 | Performance | LCP | < 2.5s |
 | Utilisabilité | Inscription | ≤ 3 étapes |
-| Sécurité | Passwords | bcrypt 10 rounds |
+| Sécurité | Passwords | argon2id (paramètres par défaut de la lib) |
 | Maintenabilité | Coverage | > 70% |
-| Accessibilité | WCAG | 2.1 AA |
+| Accessibilité | RGAA / WCAG | RGAA 4.1 (≡ WCAG 2.1 AA) — non audité, conformité partielle estimée |
 
 ---
 
@@ -58,7 +58,7 @@ mindmap
 
 - [10.1 Scénarios de qualité](./scenarios.md) - Objectifs mesurables
 - [10.2 Tests](./testing.md) - Stratégie et couverture
-- [10.3 Accessibilité](./accessibility.md) - Standards WCAG
+- [10.3 Accessibilité](./accessibility.md) - RGAA 4.1 / WCAG 2.1 AA, pratiques observées et roadmap d'audit
 - [10.4 Monitoring](./monitoring.md) - Surveillance (futur)
 
 ---
