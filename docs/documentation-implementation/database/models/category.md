@@ -90,10 +90,13 @@ const category = await prisma.category.findUnique({
 ## Endpoint API
 
 ```
-GET /api/v1/categories
+GET /api/v1/categories/top-rated
 ```
 
-Endpoint public (pas d'authentification requise).
+Endpoint public (pas d'authentification requise). Query param optionnel : `?limit=` (≤ 100).
+
+!!! note "Pas de liste plate des catégories"
+    Aucun endpoint `GET /api/v1/categories/` (liste simple) n'est exposé en production. Seule la route `/top-rated` (catégories triées par nombre d'utilisateurs) est disponible. Les 8 catégories du seed sont accessibles via cet endpoint.
 
 ## Voir aussi
 

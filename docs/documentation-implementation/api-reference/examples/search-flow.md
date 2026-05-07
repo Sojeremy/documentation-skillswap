@@ -113,34 +113,33 @@ curl -X GET http://localhost:3000/api/v1/profiles/skills \
 
 ---
 
-## Récupérer les catégories
+## Récupérer les catégories (top-rated)
 
 ### Requête
 
 ```bash
-curl -X GET http://localhost:3000/api/v1/categories
+curl -X GET 'http://localhost:3000/api/v1/categories/top-rated?limit=8'
 ```
 
-!!! note "Endpoint public"
-    Les catégories sont accessibles sans authentification.
+!!! note "Endpoint public — pas de liste plate"
+    Les catégories sont accessibles sans authentification. Aucun endpoint `GET /api/v1/categories/` (liste plate) n'existe en production ; seul `/top-rated` (trié par nombre d'utilisateurs, ordre décroissant) est exposé. Query param optionnel `?limit=` (entier ≤ 100).
 
-### Réponse (200 OK)
+### Réponse (200 OK — extrait illustratif)
 
 ```json
 {
   "success": true,
   "data": [
     { "id": 1, "name": "Développement Web", "slug": "dev-web" },
-    { "id": 2, "name": "Design", "slug": "design" },
-    { "id": 3, "name": "Marketing", "slug": "marketing" },
     { "id": 4, "name": "Langues", "slug": "langues" },
-    { "id": 5, "name": "Cuisine", "slug": "cuisine" },
-    { "id": 6, "name": "Sport", "slug": "sport" },
-    { "id": 7, "name": "Musique", "slug": "musique" },
-    { "id": 8, "name": "Bricolage", "slug": "bricolage" }
+    { "id": 2, "name": "Design", "slug": "design" }
+    // ... ordre dépendant du tri par nombre d'utilisateurs
   ]
 }
 ```
+
+!!! note "Échantillon illustratif"
+    Les ids/noms/slugs correspondent au seed prod (8 catégories au total : Développement Web, Design, Marketing, Langues, Cuisine, Sport, Musique, Bricolage). L'ordre réel renvoyé par l'endpoint dépend du tri par nombre d'utilisateurs et peut différer de l'ordre du seed.
 
 ---
 

@@ -76,9 +76,9 @@ function useSearch(initialQuery = '', debounceMs = 300) {
 graph LR
     subgraph "Filtres"
         A[Query texte]
-        B[Catégorie]
-        C[Ville]
-        D[Disponibilité]
+        B[Catégorie - slug]
+        C[Pagination]
+        D[Tri]
     end
 
     A --> E[Recherche]
@@ -87,12 +87,16 @@ graph LR
     D --> E
 ```
 
-| Filtre | Paramètre | Exemple |
-| ------ | --------- | ------- |
-| Texte libre | `q` | `React Native` |
-| Catégorie | `categoryId` | `1` (Développement) |
-| Ville | `city` | `Paris` |
-| Disponibilité | `available` | `true` |
+| Filtre | Paramètre | Exemple | Notes |
+| ------ | --------- | ------- | ----- |
+| Texte libre | `q` | `React Native` | Optionnel, full-text Meilisearch |
+| Catégorie | `category` | `dev-web` | **Slug** (pas l'id) ; cf. fiche `models/category.md` pour la liste des slugs |
+| Pagination | `page` | `1` | Optionnel, entier |
+| Limite | `limit` | `20` | Optionnel, entier |
+| Tri | `sort` | `rating:desc` | Optionnel |
+
+!!! note "Source de vérité"
+    Validateur Zod : `SearchParamsSchema` (`backend/src/validation/search.validation.ts`). Les paramètres `city` et `available` mentionnés dans des itérations antérieures de cette doc **ne sont pas implémentés** en prod.
 
 ---
 

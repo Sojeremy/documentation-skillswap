@@ -47,28 +47,24 @@ sequenceDiagram
 
     U->>F: Clique "Contacter" sur profil B
     F->>B: POST /api/v1/conversations
-    Note right of F: { participantId: B.id, message: "..." }
-    B->>DB: Vérifie si conv existe entre A et B
-    alt Conversation existe
-        B-->>F: 200 OK + conversation existante
-        F-->>U: Ouvre la conversation
-    else Nouvelle conversation
-        B->>DB: BEGIN TRANSACTION
-        B->>DB: INSERT conversation
-        B->>DB: INSERT user_has_conversation (A)
-        B->>DB: INSERT user_has_conversation (B)
-        B->>DB: INSERT message (premier message)
-        B->>DB: COMMIT
+    Note right of F: { title: "...", receiverId: B.id }
+    B->>B: requireSimpleFollow (A suit B ?)
+    alt A ne suit pas B
+        B-->>F: 403 Forbidden
+        F-->>U: "Vous devez suivre ce profil pour le contacter"
+    else A suit B
+        B->>DB: INSERT conversation + user_has_conversation (A, B)
+        DB-->>B: Conversation créée
         B-->>F: 201 Created + conversation
-        F-->>U: Ouvre la nouvelle conversation
+        F-->>U: Ouvre la conversation (vide)
     end
 ```
 
 ### Points clés
 
-- **Éviter les doublons** : Vérifie si une conversation existe déjà
-- **Transaction** : Création atomique (conversation + participants + message)
-- **Premier message** : Obligatoire pour créer une conversation
+- **Validation du follow** : Le créateur doit suivre le destinataire (middleware `requireSimpleFollow`, vérification unidirectionnelle A → B). 403 Forbidden si non.
+- **Validation Zod** : `CreateConversationSchema` valide `{ title: string (1-256), receiverId: number }`. Aucun champ `message` ou `content` au moment de la création.
+- **Pas de premier message inclus** : La création de conversation crée la conversation + le rattachement des deux participants, mais **pas** de message. L'envoi du premier message se fait via un appel séparé `POST /api/v1/conversations/:id/messages` (cf. section "Envoi d'un message" plus haut).
 
 ---
 
