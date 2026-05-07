@@ -19,9 +19,9 @@ Source canonique : [12.4 Stack technique & métriques](../12-glossary/index.md#1
 | **sonner**          | ^2.0.7   | Toasts/notifications                       |
 
 !!! info "Pas de state management externe"
-    Le frontend SkillSwap n'utilise **aucune** librairie de cache/de store
-    externe (pas de TanStack Query, Redux, Zustand, Jotai, Recoil — vérifié
-    dans `frontend/package.json`). La gestion d'état repose sur les hooks
+    Le frontend SkillSwap n'utilise **aucune** librairie de cache de
+    requêtes ni de store global externe — vérifié par absence dans
+    `frontend/package.json`. La gestion d'état repose sur les hooks
     React natifs (`useState`, `useEffect`, `useCallback`, `useRef`) plus un
     `Context` unique (`AuthProvider`). Les fetchs annulables utilisent
     `AbortController`.
@@ -219,9 +219,9 @@ Compte des fichiers via `find frontend/src/components/organisms -type f`.
 ## Hooks personnalisés (21)
 
 Compte total : 8 hooks à la racine + 7 dans `hooks/messaging/` + 6 dans
-`hooks/profile/`. **Aucun n'utilise TanStack Query** : tous reposent sur
-`useState`/`useEffect`/`useCallback`/`useRef` natifs et `AbortController`
-pour le cancel-on-unmount des fetchs.
+`hooks/profile/`. **Aucun ne dépend d'une librairie externe de cache de
+requêtes** : tous reposent sur `useState`/`useEffect`/`useCallback`/`useRef`
+natifs et `AbortController` pour le cancel-on-unmount des fetchs.
 
 ### Hooks racine (8)
 
@@ -300,8 +300,9 @@ export function useMessaging() {
 ```
 
 Cet arbitrage explicite (un hook par responsabilité, branchement par
-`useEffect`) reste plus verbeux que l'équivalent TanStack Query mais évite la
-dépendance et garde la propagation des events Socket.IO au niveau React natif.
+`useEffect`) reste plus verbeux que l'équivalent qu'apporterait une librairie
+de cache de requêtes, mais évite la dépendance et garde la propagation des
+events Socket.IO au niveau React natif.
 
 ---
 

@@ -193,9 +193,9 @@ relèvent pas du temps réel. Routage défini dans
 
 ## Côté frontend — composition de hooks
 
-Le module messagerie ne s'appuie sur aucune librairie de cache de requêtes
-(pas de TanStack Query, pas de Redux). Il repose sur une **composition de
-hooks React natifs** (`useState`, `useEffect`, `useCallback`, `useRef`,
+Le module messagerie ne s'appuie sur **aucune librairie externe de cache
+de requêtes ni de store global**. Il repose sur une **composition de hooks
+React natifs** (`useState`, `useEffect`, `useCallback`, `useRef`,
 `AbortController` pour les fetchs cancellables).
 
 Le point d'entrée est la façade
