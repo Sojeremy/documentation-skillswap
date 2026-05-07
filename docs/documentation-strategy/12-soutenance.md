@@ -126,7 +126,7 @@ Cela reduit la charge serveur et ameliore l'UX."
 ## Liens
 
 - Fichier: `hooks/useSearch.ts`
-- Documentation: [Section 6 - Runtime View](../arc42/06-runtime/index.md)
+- Documentation: [Section 6 - Runtime View](../documentation-implementation/arc42/06-runtime/index.md)
 ````
 
 ---
