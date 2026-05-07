@@ -3,7 +3,7 @@ skinparam nodeStyle rectangle
 skinparam wrapWidth 200
 skinparam maxMessageSize 150
 
-title Diagramme de déploiement – SkillSwap (Docker)
+title Diagramme de déploiement – SkillSwap (Docker, production)
 
 actor Utilisateur
 
@@ -12,64 +12,72 @@ node "Navigateur Web" {
   component "Browser"
 }
 
-node "VPS (Linux)" {
+node "VPS OVH (Ubuntu)" {
 
-  
+    node "Docker Network\n(skillswap-prod)" {
+        node "Reverse Proxy\nskillswap-nginx-prod\n(nginx:alpine)" as Nginx {
+          component "TLS Let's Encrypt\nHTTPS / Routing"
+        }
 
-    node "Docker Network\n(app-network)" {
-        node "Reverse Proxy\nNginx" as Nginx {
-      component "API Gateway\nHTTPS / Routing"
-    }
+        node "Frontend Container\nskillswap-frontend-1" {
+          component "Next.js 16 standalone\n(port 3000 interne)" as Next
+        }
 
-    node "Frontend Container" {
-      component "Next.js App\n(port 3000)" as Next
-    }
+        node "Backend Container\nskillswap-backend-1" {
+          component "Express 5 API\n(port 3000 interne)" as API
+          component "WebSocket Server\nSocket.io" as WS
+        }
 
-    node "Backend Container" {
-      component "Express API\n(port 4000)" as API
-      component "WebSocket Server\n(Socket.io)" as WS
-    }
+        node "skillswap-postgres-prod" as DBNode {
+          component "PostgreSQL 16-alpine\n(port 5432 interne)" as DB
+        }
 
-    node "Conteneur Backoffice" {
-      component "Serveur HTTP (Adminer - PHP)" as Backoffice #LightBlue {
-      }
-    }
+        node "skillswap-meilisearch-prod" as SearchNode {
+          component "Meilisearch v1.6\n(port 7700 interne)" as Search
+        }
 
-    node "Database Containers" {
-
-      node "PostgreSQL\n(port 5432)" as DB
-      node "Meilisearch\n(port 7700)" as Search
-    }
+        node "skillswap-certbot\n(side-container)" as Certbot {
+          component "certbot/certbot\nrenew loop 12h"
+        }
     }
 
     node "Docker Volumes" {
-      component "pg-data"
-      component "meili-data"
+      component "postgres_data"
+      component "meilisearch_data"
+      component "avatars_data"
+      component "certbot_www / certbot_conf"
     }
-  
+
 }
+
+note right of Nginx
+  **Adminer n'est pas déployé en production.**
+  Le service Adminer (interface web Postgres)
+  est uniquement présent dans
+  docker-compose.dev.yml.
+end note
 
 ' ===== ACCÈS UTILISATEURS =====
 Utilisateur --> Browser
-
 
 Browser --> Nginx : HTTPS (443)
 
 ' ===== ROUTAGE =====
 Nginx --> Next : HTTP (3000)
-Nginx --> API : HTTP (4000)
-Nginx --> WS : WebSocket
-Nginx --> Backoffice
+Nginx --> API : HTTP (3000) /api/*
+Nginx --> WS : WebSocket /socket.io/
 
 ' ===== COMMUNICATION INTERNE =====
-Next --> API : REST / Fetch
-API --> DB : Prisma
-API --> Search : Recherche
-WS --> DB : Messages
-Backoffice --> DB : Gestion BDD
+Next --> API : REST / Fetch (interne)
+API --> DB : Prisma 7 (TCP 5432)
+API --> Search : HTTP 7700
+WS --> DB : Persistance messages
 
 ' ===== VOLUMES =====
-DB ~~ "pg-data": (bind mount)
-Search ~~ "meili-data": (bind mount)
+DB ~~ "postgres_data"
+Search ~~ "meilisearch_data"
+API ~~ "avatars_data"
+Nginx ~~ "certbot_www / certbot_conf"
+Certbot ~~ "certbot_www / certbot_conf"
 
 @enduml
