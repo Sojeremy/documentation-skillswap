@@ -4,8 +4,6 @@
   "outputDirectory": "site",
   "installCommand": "echo 'Using Python venv for dependencies'",
   "framework": null,
-  "cleanUrls": true,
-  "trailingSlash": true,
   "headers": [
     {
       "source": "/(.*)",
@@ -23,12 +21,6 @@
           "value": "1; mode=block"
         }
       ]
-    }
-  ],
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/$1.html"
     }
   ]
 }
