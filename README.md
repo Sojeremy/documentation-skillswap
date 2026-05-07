@@ -54,7 +54,7 @@ Faites attention de bien vous situer dans le backend ou le frontend.
 2. Vérifier le lancement des services :
 
 - <http://localhost> renvoie la page principale de NextJS
-- <http://localhost/api/health> renvoie le json avec `status: "ok"`
+- <http://localhost:8888/api/v1/health> renvoie le json avec `status: "ok"`
 - <http://localhost:8080/> -> se connecter au système PostgreSQL et au serveur postgres avec les identifiants du .env
 
 1. Eteindre les containers :

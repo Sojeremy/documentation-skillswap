@@ -59,7 +59,7 @@ Créer des environnements pour basculer entre les configurations :
 
 | Variable | Local | Docker | Production |
 |----------|-------|--------|------------|
-| `baseUrl` | `http://localhost:3000/api/v1` | `http://localhost:8888/api/v1` | `https://api.skillswap.fr/api/v1` |
+| `baseUrl` | `http://localhost:3000/api/v1` | `http://localhost:8888/api/v1` | `https://skill-swap.fr/api/v1` |
 | `accessToken` | *(auto)* | *(auto)* | *(auto)* |
 | `refreshToken` | *(auto)* | *(auto)* | *(auto)* |
 

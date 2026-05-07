@@ -497,7 +497,7 @@ npx openapi-typescript openapi.yaml -o src/types/api.generated.ts
 │   ┌─────────────────────────────────────────────────────────────────┐   │
 │   │  🔵 Local      → baseUrl: http://localhost:3000/api/v1          │   │
 │   │  🟢 Docker     → baseUrl: http://localhost:8888/api/v1          │   │
-│   │  🟠 Production → baseUrl: https://api.skillswap.fr/api/v1       │   │
+│   │  🟠 Production → baseUrl: https://skill-swap.fr/api/v1          │   │
 │   └─────────────────────────────────────────────────────────────────┘   │
 │                                                                         │
 │   3. VARIABLES DYNAMIQUES                                               │

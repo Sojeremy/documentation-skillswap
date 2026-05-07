@@ -184,7 +184,7 @@ docs/docs/api/
         description: Email déjà utilisé
 ```
 
-> **Note** : La spécification complète (31 endpoints) sera dans `/docs/docs/api/openapi.yaml`
+> **Note** : La spécification complète (38 endpoints) sera dans `/docs/docs/api/openapi.yaml`
 
 ---
 
