@@ -7,7 +7,7 @@ Source canonique : [12.4 Stack technique & métriques](../12-glossary/index.md#1
 
 | Technologie         | Version  | Rôle                                       |
 | ------------------- | -------- | ------------------------------------------ |
-| **Next.js**         | 16.1.1   | Framework React avec App Router, SSR/SSG   |
+| **Next.js**         | 16.1.1   | Framework React avec App Router, SSR/ISR   |
 | **React**           | 19.2.3   | Bibliothèque UI avec Server Components     |
 | **TypeScript**      | ^5       | Typage statique                            |
 | **Tailwind CSS**    | ^4.1.18  | Utility-first CSS                          |
@@ -18,388 +18,337 @@ Source canonique : [12.4 Stack technique & métriques](../12-glossary/index.md#1
 | **lucide-react**    | ^0.562.0 | Icônes                                     |
 | **sonner**          | ^2.0.7   | Toasts/notifications                       |
 
+!!! info "Pas de state management externe"
+    Le frontend SkillSwap n'utilise **aucune** librairie de cache/de store
+    externe (pas de TanStack Query, Redux, Zustand, Jotai, Recoil — vérifié
+    dans `frontend/package.json`). La gestion d'état repose sur les hooks
+    React natifs (`useState`, `useEffect`, `useCallback`, `useRef`) plus un
+    `Context` unique (`AuthProvider`). Les fetchs annulables utilisent
+    `AbortController`.
+
 ---
 
 ## Architecture des dossiers
 
 ```plaintext
-frontend/
-├── app/                      # Next.js App Router
-│   ├── (app)/                # Routes authentifiées (groupe)
-│   │   ├── conversation/     # Messagerie
-│   │   ├── profil/[id]/      # Profil utilisateur
-│   │   └── recherche/        # Recherche de membres
-│   ├── (auth)/               # Routes publiques (groupe)
-│   │   ├── connexion/        # Login
-│   │   └── inscription/      # Register
-│   ├── layout.tsx            # Layout racine
-│   └── page.tsx              # Page d'accueil
+frontend/src/
+├── app/                       # Next.js App Router
+│   ├── (app)/                 # Routes authentifiées (groupe)
+│   │   ├── conversation/      # Messagerie
+│   │   ├── mon-profil/        # Profil de l'utilisateur courant
+│   │   ├── profil/[id]/       # Profil public d'un autre user (ISR)
+│   │   └── recherche/         # Recherche de membres
+│   ├── (auth)/                # Routes publiques (groupe)
+│   │   ├── connexion/
+│   │   └── inscription/
+│   ├── layout.tsx             # Root layout
+│   ├── page.tsx               # Page d'accueil (Server Component, revalidate=3600)
+│   ├── robots.ts              # SEO — robots metadata
+│   └── sitemap.ts             # SEO — sitemap dynamique
 │
-├── components/               # Composants React (Atomic Design)
-│   ├── atoms/                # 18 composants de base
-│   ├── molecules/            # 9 composants composés
-│   ├── organisms/            # 29 composants complexes
-│   ├── layouts/              # 1 layout (MainLayout)
-│   └── providers/            # 1 provider (AuthProvider)
+├── middleware.ts              # Auth gate Next.js (redirige selon refreshToken)
 │
-├── hooks/                    # 21 hooks personnalisés
-│   ├── useAccount.ts         # 8 hooks racine (transverse)
-│   ├── useMessaging.ts
-│   ├── useSearch.ts
-│   ├── ...
-│   ├── messaging/            # 7 hooks de messagerie
-│   └── profile/              # 6 hooks de profil
+├── components/                # Composants React (Atomic Design)
+│   ├── atoms/                 # 18 composants de base
+│   ├── molecules/             # 9 composants composés
+│   ├── organisms/             # Sections complexes (AuthForm + Footer + 5 sous-familles)
+│   ├── layouts/               # 1 layout (MainLayout)
+│   └── providers/             # 1 provider (AuthProvider)
 │
-└── lib/                      # Utilitaires
-    ├── api-client.ts         # Client HTTP
-    ├── api-types.ts          # Types API
-    └── utils.ts              # Fonctions helper
+├── hooks/                     # 21 hooks personnalisés (8 racine + 7 messaging + 6 profile)
+│
+└── lib/
+    ├── api-client.ts          # Singleton fetch + retry refresh-token
+    ├── api-types.ts           # Types TS partagés
+    ├── socket-client.ts       # Singleton Socket.IO
+    ├── utils.ts               # Helpers (displayError, logError, isEqual, …)
+    └── validation/            # Schémas Zod (auth, conversation, updatePassword, updateProfile)
 ```
 
 ---
 
 ## Composants (Atomic Design)
 
-L'architecture frontend suit le pattern **Atomic Design** de Brad Frost, avec 58 composants organisés en 5 niveaux (au 2026-05-07).
+L'architecture frontend suit le pattern **Atomic Design** de Brad Frost,
+avec une stricte règle de composition : un atom ne dépend de rien, un
+molecule ne compose que des atoms, un organism compose atoms et molecules.
 
 ```mermaid
 graph TB
-    subgraph "Hierarchy"
-        A[Atoms] --> M[Molecules]
-        M --> O[Organisms]
-        O --> L[Layouts]
-        L --> P[Pages]
-    end
-
-    subgraph "Composition Rules"
-        R1["Atoms: Aucune dépendance interne"]
-        R2["Molecules: Composent des atoms"]
-        R3["Organisms: Composent atoms + molecules"]
-    end
+    A[Atoms] --> M[Molecules]
+    M --> O[Organisms]
+    A --> O
+    O --> L[Layouts]
+    L --> P[Pages — app/]
+    PR[Providers] --> P
 ```
 
 ### Atoms (18 composants)
 
-Composants de base indivisibles, sans dépendance vers d'autres composants internes.
+Composants indivisibles, sans dépendance vers d'autres composants internes.
+Comptés via `ls frontend/src/components/atoms/*.tsx | grep -v stories | wc -l`.
 
-| Composant | Fichier | Props | Description |
-| --------- | ------- | ----- | ----------- |
-| `Avatar` | `avatar.tsx` | `src`, `alt`, `fallback` | Image de profil avec fallback initiales |
-| `Badge` | `badge.tsx` | `variant`, `children` | Label visuel (statut, catégorie) |
-| `Button` | `button.tsx` | `variant`, `size`, `disabled` | Bouton d'action (shadcn/ui) |
-| `Card` | `card.tsx` | `children`, `className` | Container avec ombre |
-| `Checkbox` | `checkbox.tsx` | `checked`, `onCheckedChange` | Case à cocher |
-| `Dialog` | `dialog.tsx` | `open`, `onOpenChange` | Modal accessible |
-| `Input` | `input.tsx` | `type`, `placeholder`, `value` | Champ de saisie |
-| `Label` | `label.tsx` | `htmlFor`, `children` | Label de formulaire |
-| `Logo` | `Logo.tsx` | `size` | Logo SkillSwap SVG |
-| `ScrollArea` | `scroll-area.tsx` | `children` | Zone scrollable stylée |
-| `Select` | `select.tsx` | `options`, `value`, `onChange` | Liste déroulante |
-| `Separator` | `separator.tsx` | `orientation` | Ligne de séparation |
-| `Skeleton` | `skeleton.tsx` | `className` | Placeholder de chargement |
-| `Spinner` | `Spinner.tsx` | `size` | Indicateur de chargement |
-| `Textarea` | `textarea.tsx` | `rows`, `placeholder` | Zone de texte multiligne |
-| `Tooltip` | `tooltip.tsx` | `content`, `children` | Info-bulle au survol |
+| Composant         | Rôle                                                  |
+|-------------------|-------------------------------------------------------|
+| `Avatar`          | Image de profil avec fallback initiales (Radix)       |
+| `Badge`           | Label visuel (statut, catégorie)                      |
+| `Button`          | Bouton d'action shadcn/ui (variantes via CVA)         |
+| `Card`            | Container avec ombre/bordure                          |
+| `Dialog`          | Modal accessible (Radix)                              |
+| `DropdownMenu`    | Menu déroulant accessible (Radix)                     |
+| `Form`            | Wrapper React Hook Form (`Form`, `FormField`, …)      |
+| `Icons`           | Re-export typé des icônes lucide-react utilisées      |
+| `Input`           | Champ de saisie texte                                 |
+| `Label`           | Label de formulaire                                   |
+| `Link`            | Wrapper `next/link` stylé                             |
+| `Logo`            | Logo SkillSwap SVG                                    |
+| `PasswordInput`   | Input mot de passe avec toggle visibilité             |
+| `Rating`          | Affichage/saisie d'étoiles                            |
+| `Select`          | Liste déroulante accessible (Radix)                   |
+| `Separator`       | Ligne de séparation (Radix)                           |
+| `Textarea`        | Zone de texte multiligne                              |
+| `Toast`           | Wrapper `sonner` (`<Toaster />`)                      |
 
 ### Molecules (9 composants)
 
-Combinaisons d'atoms formant des unités fonctionnelles.
+| Composant              | Compose                | Rôle                                                  |
+|------------------------|------------------------|-------------------------------------------------------|
+| `ConfirmDialog`        | Dialog, Button         | Dialog générique de confirmation                      |
+| `ConversationItem`     | Avatar, Badge          | Item de la liste de conversations                     |
+| `ConversationSkeleton` | Card, Avatar, Skeleton | Squelette pendant chargement de la liste              |
+| `EmptyState`           | Icons, Button          | État vide générique (liste/recherche/conversation)    |
+| `MessageBubble`        | Card, Avatar           | Bulle d'un message (variante propre/destinataire)     |
+| `Pagination`           | Button, Icons          | Navigation entre pages des résultats                  |
+| `ProfileCard`          | Avatar, Badge, Button  | Carte profil membre (résultats de recherche)          |
+| `StepHowItWorks`       | Card, Icons            | Étape illustrée (section « Comment ça marche »)       |
+| `UserDropdown`         | Avatar, DropdownMenu   | Menu utilisateur du Header                            |
 
-| Composant | Compose | Props clés | Description |
-| --------- | ------- | ---------- | ----------- |
-| `AvailabilityIndicator` | Badge | `available` | Indicateur de disponibilité |
-| `ConversationItem` | Avatar, Badge | `conversation`, `isActive` | Item liste conversations |
-| `FormField` | Label, Input | `name`, `error` | Champ avec label et erreur |
-| `MessageBubble` | Card, Avatar | `message`, `isOwn` | Bulle de message |
-| `ProfileCard` | Avatar, Badge, Button | `user`, `onFollow` | Carte profil membre |
-| `RatingDisplay` | - | `rating`, `count` | Affichage étoiles |
-| `SearchBar` | Input, Button | `value`, `onSearch` | Barre de recherche |
-| `SkillBadge` | Badge | `skill`, `variant` | Badge de compétence |
-| `SkillTag` | Badge | `name`, `onRemove` | Tag supprimable |
+### Organisms (par sous-famille)
 
-### Organisms (29 composants)
+Les organismes sont organisés par **page de destination** plutôt qu'à plat.
+Compte des fichiers via `find frontend/src/components/organisms -type f`.
 
-Composants complexes formant des sections complètes de l'interface.
+#### `HomePage/` (5 fichiers)
 
-| Composant | Catégorie | Responsabilité |
-| --------- | --------- | -------------- |
-| **Navigation** | | |
-| `Header` | Layout | Navigation principale, menu utilisateur, logo |
-| `Footer` | Layout | Liens légaux, réseaux sociaux |
-| `MobileMenu` | Layout | Navigation responsive |
-| **Authentification** | | |
-| `AuthForm` | Auth | Formulaire login/register avec validation Zod |
-| `LoginForm` | Auth | Formulaire de connexion |
-| `RegisterForm` | Auth | Formulaire d'inscription |
-| **Profil** | | |
-| `ProfileHeader` | Profile | En-tête avec avatar, nom, stats |
-| `ProfileInfo` | Profile | Informations détaillées |
-| `ProfileSkills` | Profile | Liste des compétences |
-| `ProfileInterests` | Profile | Liste des centres d'intérêt |
-| `ProfileAvailability` | Profile | Calendrier de disponibilité |
-| `ProfileRatings` | Profile | Historique des évaluations |
-| `EditProfileModal` | Profile | Modal d'édition du profil |
-| **Recherche** | | |
-| `SearchPage` | Search | Page complète de recherche |
-| `SearchFilters` | Search | Filtres par catégorie, ville, disponibilité |
-| `SearchResults` | Search | Grille de résultats paginés |
-| `MemberGrid` | Search | Affichage grille des membres |
-| `Pagination` | Search | Navigation entre pages |
-| **Messagerie** | | |
-| `ConversationSection` | Messaging | Section complète de messagerie |
-| `ConversationList` | Messaging | Liste des conversations |
-| `ConversationView` | Messaging | Vue d'une conversation |
-| `MessageList` | Messaging | Liste des messages |
-| `MessageInput` | Messaging | Saisie de message |
-| **Composants partagés** | | |
-| `CategorySelector` | Shared | Sélection de catégorie |
-| `SkillSelector` | Shared | Sélection de compétences |
-| `CityAutocomplete` | Shared | Autocomplétion ville |
-| `ErrorBoundary` | Shared | Gestion d'erreurs React |
-| `LoadingState` | Shared | États de chargement |
-| `EmptyState` | Shared | États vides |
-| `ConfirmDialog` | Shared | Dialog de confirmation |
+| Fichier                      | Rôle                                            |
+|------------------------------|-------------------------------------------------|
+| `index.ts`                   | Barrel export                                   |
+| `HeroSection.tsx`            | Hero du landing (CTA + visuels)                 |
+| `HowItWorksSection.tsx`      | 3 étapes de fonctionnement                      |
+| `CategoriesSection.tsx`      | Top catégories (issues de `useTopCategories`)   |
+| `MembersSection.tsx`         | Membres mis en avant                            |
 
-### Layouts (1 composant)
+#### `Header/` (6 fichiers)
 
-| Composant | Fichier | Description |
-| --------- | ------- | ----------- |
-| `MainLayout` | `MainLayout.tsx` | Layout principal avec Header, Footer, zones responsive |
+| Fichier                       | Rôle                                                                |
+|-------------------------------|---------------------------------------------------------------------|
+| `index.tsx`                   | Header racine (logo, nav, settings, auth buttons)                   |
+| `DesktopNav.tsx`              | Navigation horizontale ≥ md                                          |
+| `MobileNav.tsx`               | Navigation drawer < md                                              |
+| `AuthButtons.tsx`             | Boutons « Se connecter / S'inscrire » ou avatar (selon AuthProvider)|
+| `SettingsPanel.tsx`           | Panneau réglages (thème, langue, etc.)                              |
+| `AccountSettingsDialog.tsx`   | Dialog de modification des réglages compte                          |
 
-### Providers (1 composant)
+#### `ConversationPage/` (12 fichiers)
 
-| Composant | Contexte | Description |
-| --------- | -------- | ----------- |
-| `AuthProvider` | `AuthContext` | Gestion de l'état d'authentification global |
+| Fichier                                       | Rôle                                                                  |
+|-----------------------------------------------|-----------------------------------------------------------------------|
+| `index.ts`                                    | Barrel export                                                         |
+| `ConversationSection.tsx`                     | Layout 2 colonnes : liste à gauche, MessageThread à droite            |
+| `NewConversationDialog.tsx`                   | Dialog de création (sélection followed user + titre)                  |
+| `NewMessageDialog.tsx`                        | Dialog d'envoi du premier message                                     |
+| `RatingDialog.tsx`                            | Dialog de notation post-conversation                                  |
+| `useConversationState.ts`                     | State local de l'UI conversation (dialogs, panneau actif)             |
+| `MessageThread/index.tsx`                     | Thread complet pour la conversation sélectionnée                      |
+| `MessageThread/ThreadHeader.tsx`              | En-tête (participant, actions : fermer/évaluer/supprimer)             |
+| `MessageThread/MessageList.tsx`               | Liste des messages (scroll inversé + pagination cursor)               |
+| `MessageThread/MessageInput.tsx`              | Saisie + bouton envoyer (déclenche `handleSendMessage`)               |
+| `MessageThread/ThreadDialogs.tsx`             | Regroupe les dialogs propres au thread                                |
+| `MessageThread/useThreadState.ts`             | State UI du thread (dialogs ouverts, etc.)                            |
+
+#### `ProfilePage/` (14 fichiers)
+
+| Fichier                                              | Rôle                                                                  |
+|------------------------------------------------------|-----------------------------------------------------------------------|
+| `index.ts`                                           | Barrel export                                                         |
+| `ProfileClient.tsx`                                  | Orchestrateur : choisit entre `ProfileTeaser` (public) et `ProfileFull` (auth) |
+| `ProfileTeaser.tsx`                                  | Mode public (SEO) — données limitées issues de `/profiles/public/:id` |
+| `ProfileFull.tsx`                                    | Mode authentifié — vue complète + actions (follow, message, …)        |
+| `ProfileHeader.tsx`                                  | Avatar + nom + statistiques + actions principales                     |
+| `SkillsSection.tsx`                                  | Compétences offertes/recherchées                                       |
+| `InterestsSection.tsx`                               | Centres d'intérêt                                                     |
+| `AvailabilitySection.tsx`                            | Disponibilités hebdomadaires                                          |
+| `ReviewsSection.tsx`                                 | Évaluations reçues                                                    |
+| `EditPage/ProfileUpdateHeader.tsx`                   | En-tête de la page d'édition (mon-profil)                             |
+| `EditPage/UpdateAvatarDialog.tsx`                    | Dialog upload avatar (multipart, Multer côté backend)                 |
+| `EditPage/AddSkillDialog.tsx`                        | Dialog d'ajout d'une compétence                                       |
+| `EditPage/AddAvailabilityDialog.tsx`                 | Dialog d'ajout d'une plage de disponibilité                           |
+| `EditPage/PrivateSettingSection.tsx`                 | Section réglages privés (visibilité)                                  |
+
+#### `SearchPage/` (5 fichiers)
+
+| Fichier                       | Rôle                                                              |
+|-------------------------------|-------------------------------------------------------------------|
+| `index.tsx`                   | Page de recherche complète (compose les sous-organismes)          |
+| `SearchBar.tsx`               | Barre de recherche (binding sur `useSearch.query`)                |
+| `CategoryFilter.tsx`          | Filtre catégorie                                                  |
+| `SearchResults.tsx`           | Grille de `ProfileCard` + `Pagination`                            |
+| `SearchResultSkeleton.tsx`    | Skeleton pendant le chargement                                    |
+
+#### Organismes au niveau racine
+
+| Fichier         | Rôle                                                                            |
+|-----------------|---------------------------------------------------------------------------------|
+| `AuthForm.tsx`  | Formulaire unifié connexion/inscription (variante via prop), validation Zod     |
+| `Footer.tsx`    | Pied de page (liens légaux, social)                                             |
+
+### Layouts
+
+| Composant     | Fichier                                  | Rôle                                                                |
+|---------------|------------------------------------------|---------------------------------------------------------------------|
+| `MainLayout`  | `components/layouts/MainLayout.tsx`      | Skip-link a11y → `Header` + `<main id="main-content">` + `Footer` (optionnel via `isFullHeight`) |
+
+### Providers
+
+| Composant       | Contexte           | Rôle                                                                                                                                |
+|-----------------|--------------------|-------------------------------------------------------------------------------------------------------------------------------------|
+| `AuthProvider`  | `AuthContext`      | État global utilisateur (`user`, `isAuthenticated`, `isLoading`) + méthodes `login`, `register`, `logout`, `refresh`. Auto-fetch `/auth/me` au mount via `refresh()` |
 
 ---
 
-## Hooks personnalisés
+## Hooks personnalisés (21)
 
-21 hooks encapsulent la logique métier réutilisable, répartis en 8 hooks transverses
-à la racine de `hooks/` et 13 hooks regroupés par sous-domaine (`hooks/messaging/`, `hooks/profile/`).
+Compte total : 8 hooks à la racine + 7 dans `hooks/messaging/` + 6 dans
+`hooks/profile/`. **Aucun n'utilise TanStack Query** : tous reposent sur
+`useState`/`useEffect`/`useCallback`/`useRef` natifs et `AbortController`
+pour le cancel-on-unmount des fetchs.
 
-> **Note :** les exemples de code et la mention de "TanStack Query" ci-dessous décrivent
-> une intention initiale ; l'implémentation actuelle s'appuie sur `fetch` et l'état
-> React standard. Une refonte de cette section est prévue dans un chantier ultérieur.
+### Hooks racine (8)
 
-```mermaid
-graph LR
-    subgraph "Hooks API"
-        useAuth
-        useSearch
-        useMessaging
-        useProfile
-        useFollow
-        useSkills
-    end
+| Hook                | Rôle                                                                          |
+|---------------------|-------------------------------------------------------------------------------|
+| `useAccount`        | Gestion compte courant (suppression, mise à jour mot de passe)                |
+| `useAutoScroll`     | Scroll automatique vers le bas quand un nouvel item est ajouté (messages)     |
+| `useFormState`      | Wrapper d'état pour formulaires multi-champs avec helpers                     |
+| `useIsMobile`       | Détection viewport mobile via `matchMedia`                                    |
+| `useMessaging`      | Façade messagerie (compose 6 hooks `messaging/`)                              |
+| `useSearch`         | Recherche membres avec debounce manuel + pagination + cancel via AbortController |
+| `useSocket`         | Connexion Socket.IO scopée à un `conversationId` (join/leave + listeners)     |
+| `useTopCategories`  | Charge les catégories mises en avant pour la HomePage                         |
 
-    subgraph "Hooks Utilitaires"
-        useDebounce
-        useLocalStorage
-        useMediaQuery
-        usePagination
-    end
+### Hooks `messaging/` (7)
 
-    useSearch --> useDebounce
-    useMessaging --> useDebounce
-    useSearch --> usePagination
-```
+| Hook                          | Rôle                                                                      |
+|-------------------------------|---------------------------------------------------------------------------|
+| `useConversationActions`      | Handlers UI (envoyer, fermer, supprimer, créer, voir profil, noter)       |
+| `useConversationList`         | Charge et mute la liste des conversations                                 |
+| `useConversationMessages`     | Pagination cursor-based + optimistic UI                                   |
+| `useFollowedUsers`            | Liste des utilisateurs suivis (création de nouvelle conversation)         |
+| `useGlobalSocket`             | Listeners Socket.IO globaux (`conversation:updated/closed/new`)            |
+| `useMessagingScroll`          | Maintien du scroll lors de l'arrivée de nouveaux messages                 |
+| `useSelectedConversation`     | Mémorise l'id sélectionné, dérive l'objet conversation                    |
 
-### Hooks API (avec TanStack Query)
+### Hooks `profile/` (6)
 
-| Hook | Queries/Mutations | Description |
-| ---- | ----------------- | ----------- |
-| `useAuth` | `login`, `logout`, `register`, `me` | Authentification complète |
-| `useSearch` | `searchMembers` | Recherche avec debounce et pagination |
-| `useMessaging` | `conversations`, `messages`, `sendMessage` | Facade pour la messagerie |
-| `useProfile` | `profile`, `updateProfile` | Lecture/édition de profil |
-| `useFollow` | `follow`, `unfollow`, `followers` | Gestion des abonnements |
-| `useSkills` | `skills`, `categories` | Récupération des compétences |
+| Hook                | Rôle                                                                       |
+|---------------------|----------------------------------------------------------------------------|
+| `useAvailabilities` | CRUD des disponibilités du user courant                                    |
+| `useDialogs`        | State centralisé des dialogs de la page d'édition de profil                |
+| `useInterests`      | CRUD des centres d'intérêt                                                 |
+| `useProfile`        | Charge le profil complet du user courant                                   |
+| `useProfileUpdate`  | Mutation des champs profil (firstname, bio, city, …) + upload avatar       |
+| `useSkills`         | CRUD des compétences (offertes/recherchées)                                |
 
-### Exemple : useSearch (Factory Pattern)
+---
 
-```typescript
-// hooks/useSearch.ts
-export function useSearch(initialFilters?: SearchFilters) {
-  const [filters, setFilters] = useState<SearchFilters>(initialFilters ?? {});
-  const debouncedQuery = useDebounce(filters.query, 300);
+## Pattern de composition — `useMessaging`
 
-  const { data, isLoading, error } = useQuery({
-    queryKey: ['members', 'search', { ...filters, query: debouncedQuery }],
-    queryFn: () => searchMembers({ ...filters, query: debouncedQuery }),
-    staleTime: 5 * 60 * 1000, // 5 minutes
-  });
+`useMessaging` illustre la stratégie de composition : aucune librairie de
+cache, mais un assemblage de hooks spécialisés réutilisables.
 
-  return {
-    members: data?.members ?? [],
-    total: data?.total ?? 0,
-    isLoading,
-    error,
-    filters,
-    setFilters,
-    setQuery: (query: string) => setFilters(f => ({ ...f, query })),
-    setCategory: (categoryId: number) => setFilters(f => ({ ...f, categoryId })),
-    setCity: (city: string) => setFilters(f => ({ ...f, city })),
-  };
-}
-```
-
-### Exemple : useMessaging (Facade Pattern)
-
-```typescript
-// hooks/useMessaging.ts - Facade simplifiant 3 endpoints
+```ts
+// frontend/src/hooks/useMessaging.ts (extrait)
 export function useMessaging() {
-  const conversationsQuery = useQuery({
-    queryKey: ['conversations'],
-    queryFn: getConversations,
+  const { user } = useAuth();
+
+  const { conversations, addConversation, updateConversationLastMessage,
+          updateConversationStatus, removeConversation, ... } = useConversationList();
+
+  const { selectedConvId, setSelectedConvId,
+          selectedConv, clearSelection } = useSelectedConversation(conversations);
+
+  const { messages, isLoading: isLoadingMessages,
+          hasMore: hasMoreMessages, loadMore: loadMoreMessages,
+          addMessage, addOptimisticMessage } = useConversationMessages({
+    conversationId: selectedConvId, limit: 30,
   });
 
-  const messagesQuery = (conversationId: number) => useQuery({
-    queryKey: ['messages', conversationId],
-    queryFn: () => getMessages(conversationId),
-    enabled: !!conversationId,
-  });
+  const { followedUsers, fetchFollowedUsers } = useFollowedUsers();
 
-  const sendMessageMutation = useMutation({
-    mutationFn: sendMessage,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['messages'] });
-    },
-  });
+  const { onConversationUpdate, onConversationClosed,
+          onConversationNew } = useGlobalSocket();
 
-  return {
-    // Conversations
-    conversations: conversationsQuery.data ?? [],
-    isLoadingConversations: conversationsQuery.isLoading,
+  // Listeners globaux branchés via useEffect
+  useEffect(() => { onConversationUpdate((id, lm) => updateConversationLastMessage(id, lm)); }, [...]);
+  useEffect(() => { onConversationClosed((id, by) => { /* … */ }); }, [...]);
+  useEffect(() => { onConversationNew((c) => { addConversation(c); /* toast */ }); }, [...]);
 
-    // Messages (factory)
-    useMessages: messagesQuery,
+  const actions = useConversationActions({ /* selectedConvId, addMessage, addOptimisticMessage, … */ });
 
-    // Actions
-    sendMessage: sendMessageMutation.mutate,
-    isSending: sendMessageMutation.isPending,
-  };
+  return { conversations, selectedConv, messages, ...actions };
 }
 ```
 
-### Hooks utilitaires
-
-| Hook | Paramètres | Retour | Usage |
-| ---- | ---------- | ------ | ----- |
-| `useDebounce` | `value`, `delay` | `debouncedValue` | Retarder les appels API |
-| `useLocalStorage` | `key`, `initialValue` | `[value, setValue]` | Persistance locale |
-| `useMediaQuery` | `query` | `boolean` | Responsive design |
-| `usePagination` | `totalItems`, `pageSize` | `{ page, totalPages, ... }` | Gestion pagination |
+Cet arbitrage explicite (un hook par responsabilité, branchement par
+`useEffect`) reste plus verbeux que l'équivalent TanStack Query mais évite la
+dépendance et garde la propagation des events Socket.IO au niveau React natif.
 
 ---
 
-## Design Patterns
+## Routes Next.js (App Router)
 
-### Factory Pattern (Création d'instances)
+| Chemin                                  | Type                                       | Notes                                                         |
+|-----------------------------------------|--------------------------------------------|---------------------------------------------------------------|
+| `/`                                     | Server Component, ISR `revalidate=3600`    | Compose les sections `HomePage/` ; pré-fetch top categories   |
+| `/connexion`, `/inscription`            | Client Components (group `(auth)/`)        | Réutilisent `AuthForm` ; layout dédié                         |
+| `/recherche`                            | Client Component (group `(app)/`)          | `SearchPage` organism + `useSearch`                           |
+| `/conversation`                         | Client Component (group `(app)/`)          | `ConversationSection` + façade `useMessaging`                 |
+| `/mon-profil`                           | Client Component (group `(app)/`)          | Compose les hooks `profile/` (édition)                        |
+| `/profil/[id]`                          | Server Component (group `(app)/`)          | ISR via `/profiles/public/:id`, rendu par `ProfileTeaser` puis `ProfileClient` côté client |
+| `/robots.txt`                           | `app/robots.ts`                            | Metadata SEO                                                  |
+| `/sitemap.xml`                          | `app/sitemap.ts`                           | Sitemap dynamique                                             |
 
-Utilisé pour créer des composants ou hooks avec configuration variable.
+### `middleware.ts` — auth gate
 
-```typescript
-// Exemple : createSearchHook factory
-function createSearchHook(endpoint: string, defaultFilters: SearchFilters) {
-  return function useSearch(initialFilters?: SearchFilters) {
-    const filters = { ...defaultFilters, ...initialFilters };
-    // ... logique commune
-  };
-}
+Implémentation dans `frontend/src/middleware.ts`. Le middleware :
 
-export const useSearchMembers = createSearchHook('/api/members/search', {});
-export const useSearchSkills = createSearchHook('/api/skills/search', {});
-```
+- détecte l'authentification via la **présence du cookie `refreshToken`**
+  (HTTP-only, posé par le backend) ;
+- redirige vers `/connexion?redirect=<path>` les routes protégées
+  (`/recherche`, `/conversation`, `/mon-profil`) si non authentifié ;
+- redirige vers `/recherche` (ou `redirect`) les routes auth
+  (`/connexion`, `/inscription`) si déjà authentifié ;
+- exclut du matcher les routes `/api`, `/_next/*`, `/favicon.ico` et tout
+  fichier statique.
 
-### Facade Pattern (Simplification d'API)
+!!! note "Pourquoi `/profil/[id]` n'est pas protégé"
+    La page profil public est volontairement laissée accessible aux
+    utilisateurs non authentifiés (et donc aux crawlers) pour le SEO.
+    Le rendu en mode public (`ProfileTeaser`) limite les données exposées.
 
-Le hook `useMessaging` masque la complexité de 3 endpoints derrière une interface unifiée.
+---
 
-```mermaid
-graph LR
-    subgraph "Interface publique"
-        useMessaging
-    end
+## Tooling et qualité
 
-    subgraph "Endpoints cachés"
-        E1[GET /conversations]
-        E2[GET /conversations/:id/messages]
-        E3[POST /messages]
-    end
-
-    useMessaging --> E1
-    useMessaging --> E2
-    useMessaging --> E3
-```
-
-### Compound Components
-
-Utilisé pour les composants complexes avec sous-composants liés.
-
-```tsx
-// Exemple : Dialog compound component
-<Dialog>
-  <Dialog.Trigger asChild>
-    <Button>Ouvrir</Button>
-  </Dialog.Trigger>
-  <Dialog.Content>
-    <Dialog.Title>Titre</Dialog.Title>
-    <Dialog.Description>Description</Dialog.Description>
-  </Dialog.Content>
-</Dialog>
-```
-
-### CVA (Class Variance Authority)
-
-Gestion des variantes de style de manière type-safe.
-
-```typescript
-// components/atoms/button.tsx
-import { cva, type VariantProps } from 'class-variance-authority';
-
-const buttonVariants = cva(
-  'inline-flex items-center justify-center rounded-md font-medium transition-colors',
-  {
-    variants: {
-      variant: {
-        default: 'bg-primary text-primary-foreground hover:bg-primary/90',
-        destructive: 'bg-destructive text-destructive-foreground',
-        outline: 'border border-input bg-background hover:bg-accent',
-        ghost: 'hover:bg-accent hover:text-accent-foreground',
-      },
-      size: {
-        default: 'h-10 px-4 py-2',
-        sm: 'h-9 px-3',
-        lg: 'h-11 px-8',
-        icon: 'h-10 w-10',
-      },
-    },
-    defaultVariants: {
-      variant: 'default',
-      size: 'default',
-    },
-  }
-);
-
-export interface ButtonProps extends VariantProps<typeof buttonVariants> {}
-```
-
-### Barrel Exports
-
-Organisation des exports pour simplifier les imports.
-
-```typescript
-// components/atoms/index.ts
-export { Avatar } from './avatar';
-export { Badge } from './badge';
-export { Button, buttonVariants } from './button';
-// ...
-
-// Usage simplifié
-import { Avatar, Badge, Button } from '@/components/atoms';
-```
+| Outil           | Usage                                                                                       |
+|-----------------|---------------------------------------------------------------------------------------------|
+| TypeScript      | `tsconfig.json` strict, alias `@/*` vers `src/`                                              |
+| ESLint          | Flat config, plugins React/Next/a11y/storybook                                              |
+| Prettier        | Formatage automatique (intégré aux hooks pre-commit)                                        |
+| Vitest          | Tests unitaires (utils, schémas Zod) — scripts `test`, `test:run`, `test:coverage`           |
+| Playwright      | Tests e2e — scripts `test:e2e`, `test:e2e:ui`                                               |
+| Storybook       | Visualisation isolée des atoms/molecules — script `storybook` (port 6006)                   |
+| TypeDoc         | Génération de la documentation API des hooks/utils — scripts `docs`, `docs:watch`           |
 
 ---
 
