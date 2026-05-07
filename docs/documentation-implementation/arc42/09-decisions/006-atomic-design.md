@@ -6,7 +6,7 @@ Accepté (2024-12)
 
 ## Contexte
 
-Le frontend SkillSwap nécessite une organisation claire des ~57 composants React pour faciliter la réutilisation, assurer la cohérence visuelle et permettre une maintenance efficace.
+Le frontend SkillSwap nécessite une organisation claire des composants React (58 au 2026-05-07) pour faciliter la réutilisation, assurer la cohérence visuelle et permettre une maintenance efficace.
 
 ## Décision
 
@@ -37,12 +37,14 @@ Le frontend SkillSwap nécessite une organisation claire des ~57 composants Reac
 
 ```plaintext
 components/
-├── atoms/          # 16 composants (Button, Input, Avatar)
+├── atoms/          # 18 composants (Button, Input, Avatar)
 ├── molecules/      # 9 composants (ProfileCard, MessageBubble)
-├── organisms/      # 30 composants (Header, SearchPage)
+├── organisms/      # 29 composants (Header, SearchPage)
 ├── layouts/        # 1 composant (MainLayout)
 └── providers/      # 1 composant (AuthProvider)
 ```
+
+_Comptages au 2026-05-07 ; voir [12.4 Stack technique & métriques](../12-glossary/index.md#124-stack-technique--métriques) pour la procédure de rafraîchissement._
 
 ## Règles de composition
 

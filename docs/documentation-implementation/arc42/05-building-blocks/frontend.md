@@ -2,16 +2,21 @@
 
 ## Stack technique
 
-| Technologie | Version | Rôle |
-| ----------- | ------- | ---- |
-| **Next.js** | 16.x | Framework React avec App Router, SSR/SSG |
-| **React** | 19.x | Bibliothèque UI avec Server Components |
-| **TypeScript** | 5.x | Typage statique |
-| **Tailwind CSS** | 3.4.x | Utility-first CSS |
-| **shadcn/ui** | - | Composants accessibles (Radix UI) |
-| **TanStack Query** | 5.x | State management serveur, cache |
-| **Zod** | 3.x | Validation de schémas |
-| **React Hook Form** | 7.x | Gestion des formulaires |
+Versions lues dans `frontend/package.json` au **2026-05-07**.
+Source canonique : [12.4 Stack technique & métriques](../12-glossary/index.md#124-stack-technique--métriques).
+
+| Technologie         | Version  | Rôle                                       |
+| ------------------- | -------- | ------------------------------------------ |
+| **Next.js**         | 16.1.1   | Framework React avec App Router, SSR/SSG   |
+| **React**           | 19.2.3   | Bibliothèque UI avec Server Components     |
+| **TypeScript**      | ^5       | Typage statique                            |
+| **Tailwind CSS**    | ^4.1.18  | Utility-first CSS                          |
+| **shadcn/ui**       | -        | Composants accessibles (Radix UI)          |
+| **React Hook Form** | ^7.71.1  | Gestion des formulaires                    |
+| **Zod**             | ^4.3.5   | Validation de schémas                      |
+| **socket.io-client**| ^4.8.3   | Temps réel (messagerie)                    |
+| **lucide-react**    | ^0.562.0 | Icônes                                     |
+| **sonner**          | ^2.0.7   | Toasts/notifications                       |
 
 ---
 
@@ -31,18 +36,19 @@ frontend/
 │   └── page.tsx              # Page d'accueil
 │
 ├── components/               # Composants React (Atomic Design)
-│   ├── atoms/                # 16 composants de base
+│   ├── atoms/                # 18 composants de base
 │   ├── molecules/            # 9 composants composés
-│   ├── organisms/            # 30 composants complexes
+│   ├── organisms/            # 29 composants complexes
 │   ├── layouts/              # 1 layout (MainLayout)
-│   ├── providers/            # 1 provider (AuthProvider)
-│   └── ui/                   # Composants shadcn/ui
+│   └── providers/            # 1 provider (AuthProvider)
 │
-├── hooks/                    # 10 hooks personnalisés
-│   ├── useAuth.ts
-│   ├── useSearch.ts
+├── hooks/                    # 21 hooks personnalisés
+│   ├── useAccount.ts         # 8 hooks racine (transverse)
 │   ├── useMessaging.ts
-│   └── ...
+│   ├── useSearch.ts
+│   ├── ...
+│   ├── messaging/            # 7 hooks de messagerie
+│   └── profile/              # 6 hooks de profil
 │
 └── lib/                      # Utilitaires
     ├── api-client.ts         # Client HTTP
@@ -54,7 +60,7 @@ frontend/
 
 ## Composants (Atomic Design)
 
-L'architecture frontend suit le pattern **Atomic Design** de Brad Frost, avec 57 composants organisés en 5 niveaux.
+L'architecture frontend suit le pattern **Atomic Design** de Brad Frost, avec 58 composants organisés en 5 niveaux (au 2026-05-07).
 
 ```mermaid
 graph TB
@@ -72,7 +78,7 @@ graph TB
     end
 ```
 
-### Atoms (16 composants)
+### Atoms (18 composants)
 
 Composants de base indivisibles, sans dépendance vers d'autres composants internes.
 
@@ -111,7 +117,7 @@ Combinaisons d'atoms formant des unités fonctionnelles.
 | `SkillBadge` | Badge | `skill`, `variant` | Badge de compétence |
 | `SkillTag` | Badge | `name`, `onRemove` | Tag supprimable |
 
-### Organisms (30 composants)
+### Organisms (29 composants)
 
 Composants complexes formant des sections complètes de l'interface.
 
@@ -170,7 +176,12 @@ Composants complexes formant des sections complètes de l'interface.
 
 ## Hooks personnalisés
 
-10 hooks encapsulent la logique métier réutilisable.
+21 hooks encapsulent la logique métier réutilisable, répartis en 8 hooks transverses
+à la racine de `hooks/` et 13 hooks regroupés par sous-domaine (`hooks/messaging/`, `hooks/profile/`).
+
+> **Note :** les exemples de code et la mention de "TanStack Query" ci-dessous décrivent
+> une intention initiale ; l'implémentation actuelle s'appuie sur `fetch` et l'état
+> React standard. Une refonte de cette section est prévue dans un chantier ultérieur.
 
 ```mermaid
 graph LR

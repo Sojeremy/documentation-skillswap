@@ -13,8 +13,8 @@ C4Container
     Person(user, "Utilisateur", "Membre de la plateforme")
 
     System_Boundary(skillswap, "SkillSwap Platform") {
-        Container(spa, "Frontend", "Next.js 14", "Application React SSR")
-        Container(api, "Backend API", "Express.js", "API REST")
+        Container(spa, "Frontend", "Next.js 16", "Application React SSR")
+        Container(api, "Backend API", "Express 5", "API REST")
         ContainerDb(db, "Base de données", "PostgreSQL 16", "Stockage des données")
         Container(search, "Meilisearch", "Meilisearch v1.6", "Recherche full-text")
         Container(nginx, "Reverse Proxy", "Nginx", "SSL, routing")
@@ -34,27 +34,31 @@ C4Container
 
 | Bloc | Technologie | Documentation détaillée |
 | ---- | ----------- | ----------------------- |
-| **Frontend** | Next.js 14, React 19, TypeScript | [Frontend](./frontend.md) |
-| **Backend** | Express.js, Node.js 20 | [Backend](./backend.md) |
-| **Base de données** | PostgreSQL 16, Prisma ORM | [Database](./database.md) |
+| **Frontend** | Next.js 16, React 19, TypeScript 5 | [Frontend](./frontend.md) |
+| **Backend** | Express 5, Node.js 20+ | [Backend](./backend.md) |
+| **Base de données** | PostgreSQL 16, Prisma 7 | [Database](./database.md) |
 
 ---
 
 ## Statistiques du projet
 
-| Métrique | Valeur |
-| -------- | ------ |
-| Composants React | 57 |
-| Hooks personnalisés | 10 |
-| Endpoints API | 31 |
-| Modèles Prisma | 14 |
-| Enums | 4 |
+Snapshot du **2026-05-07**. Source canonique et procédure de rafraîchissement :
+[12.4 Stack technique & métriques](../12-glossary/index.md#124-stack-technique--métriques).
+
+| Métrique             | Valeur |
+| -------------------- | -----: |
+| Composants React     |     58 |
+| Hooks personnalisés  |     21 |
+| Endpoints HTTP       |     37 |
+| Modèles Prisma       |     14 |
+| Enums Prisma         |      4 |
+| Migrations Prisma    |      6 |
 
 ---
 
 ## Sous-sections
 
-- [5.2 Frontend](./frontend.md) - Architecture frontend avec Atomic Design (57 composants, 10 hooks)
+- [5.2 Frontend](./frontend.md) - Architecture frontend avec Atomic Design (58 composants, 21 hooks)
 - [5.3 Backend](./backend.md) - Architecture en couches (routers, controllers, services)
 - [5.4 Database](./database.md) - Schéma PostgreSQL avec 14 modèles Prisma
 
