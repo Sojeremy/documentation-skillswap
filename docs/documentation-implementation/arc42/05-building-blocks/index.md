@@ -35,7 +35,7 @@ C4Container
 | Bloc | Technologie | Documentation détaillée |
 | ---- | ----------- | ----------------------- |
 | **Frontend** | Next.js 16, React 19, TypeScript 5 | [Frontend](./frontend.md) |
-| **Backend** | Express 5, Node.js 20+ | [Backend](./backend.md) |
+| **Backend** | Express 5, Node.js 24 | [Backend](./backend.md) |
 | **Base de données** | PostgreSQL 16, Prisma 7 | [Database](./database.md) |
 
 ---

@@ -7,7 +7,7 @@
 | **TypeScript obligatoire** | Frontend et backend en TypeScript | Type safety, maintenabilité |
 | **PostgreSQL** | Base de données relationnelle | Modèle de données complexe avec relations |
 | **Docker** | Conteneurisation de tous les services | Reproductibilité, déploiement simplifié |
-| **Node.js 20+** | Version LTS | Support long terme, performances |
+| **Node.js 24** | Version utilisée en production | Cohérent avec Dockerfiles dev/prod |
 
 ---
 
@@ -70,7 +70,7 @@ backend/src/
 
 | Décision | Choix | Alternative rejetée |
 | -------- | ----- | ------------------- |
-| Framework frontend | Next.js 14 (App Router) | Create React App |
+| Framework frontend | Next.js 16.1.1 (App Router) | Create React App |
 | Styling | Tailwind CSS + shadcn/ui | CSS Modules, Styled Components |
 | State management | TanStack Query | Redux, Zustand |
 | ORM | Prisma | Sequelize, TypeORM |

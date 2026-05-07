@@ -10,7 +10,7 @@ références pointent vers le code à la date du **2026-05-07**.
 
 ### Backend — `node --test` natif
 
-Le backend utilise le **test runner natif de Node** (≥ 22), sans framework
+Le backend utilise le **test runner natif de Node** (Node 24), sans framework
 externe. Aucun outil de coverage n'est branché en CI ; Node propose
 `--experimental-test-coverage`, qui n'est cependant pas utilisé pour
 l'instant.

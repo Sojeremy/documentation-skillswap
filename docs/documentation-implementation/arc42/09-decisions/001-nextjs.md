@@ -2,7 +2,7 @@
 
 ## Statut
 
-Accepté (2024-12)
+Accepté (2024-12). Implémenté en Next.js 16.1.1.
 
 ## Contexte
 
@@ -10,7 +10,7 @@ Choix du framework frontend pour l'application React SkillSwap. L'équipe devait
 
 ## Décision
 
-**Adopter Next.js 14 avec App Router** plutôt que Pages Router ou Create React App.
+**Adopter Next.js avec App Router** plutôt que Pages Router ou Create React App.
 
 ## Alternatives considérées
 

@@ -19,7 +19,7 @@ Bienvenue dans la documentation technique de **SkillSwap**, une plateforme d'éc
 
 ### Frontend
 
-- **Next.js 14** - Framework React avec App Router
+- **Next.js 16.1.1** - Framework React avec App Router
 - **TypeScript** - Typage statique
 - **Tailwind CSS** - Styling utilitaire
 - **shadcn/ui** - Composants UI (Radix + Tailwind)

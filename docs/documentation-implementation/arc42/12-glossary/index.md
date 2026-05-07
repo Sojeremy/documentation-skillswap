@@ -21,7 +21,7 @@
 
 | Terme | Définition |
 | ----- | ---------- |
-| **App Router** | Système de routing Next.js 14 basé sur le système de fichiers |
+| **App Router** | Système de routing Next.js basé sur le système de fichiers |
 | **Server Component** | Composant React rendu côté serveur (RSC) |
 | **Client Component** | Composant React avec interactivité côté client |
 | **Hydration** | Processus d'attachement des event handlers au HTML |

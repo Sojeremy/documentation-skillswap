@@ -6,7 +6,7 @@
 
 | Technologie | Raison du choix |
 | ----------- | --------------- |
-| **Next.js 14** | App Router, RSC, optimisations automatiques |
+| **Next.js 16.1.1** | App Router, RSC, optimisations automatiques |
 | **TypeScript** | Type safety, meilleure DX, refactoring facilité |
 | **Tailwind CSS** | Productivité, cohérence, pas de CSS custom |
 | **shadcn/ui** | Composants accessibles, personnalisables, pas de dépendance |

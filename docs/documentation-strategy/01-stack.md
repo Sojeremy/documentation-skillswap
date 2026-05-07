@@ -12,7 +12,7 @@
 |---------|--------|-------|
 | Outils validés | ✅ Terminé | Tous les outils du tableau choisis |
 | MkDocs Material installé | ✅ Terminé | venv configuré dans /docs/.venv/ |
-| Node/npm versions | ✅ Terminé | Node 20+ |
+| Node/npm versions | ✅ Terminé | Node 24 |
 | Équipe alignée | ✅ Terminé | Stack approuvée |
 
 **Progression globale** : ✅ **100%**
@@ -92,7 +92,7 @@ Définir et valider les choix d'outils pour la documentation SkillSwap afin de :
 | ----- | ------ | -------- | ---------- |
 | 2.1 | Installer MkDocs Material | `pip install` OK | `mkdocs --version` |
 | 2.2 | Installer Structurizr CLI | CLI disponible | `structurizr-cli --version` |
-| 2.3 | Vérifier Node/npm versions | Node 20+ | `node --version` |
+| 2.3 | Vérifier Node/npm versions | Node 24 | `node --version` |
 
 ---
 
