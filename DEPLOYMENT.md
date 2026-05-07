@@ -25,6 +25,7 @@ Créer **3 projets vides** sur Vercel (sans connecter de repo) :
 3. `skillswap-storybook` (Storybook)
 
 Pour chaque projet :
+
 ```bash
 vercel project add skillswap-docs
 vercel project add skillswap-guide
@@ -66,6 +67,7 @@ Dans chaque projet Vercel, ajouter le domaine personnalisé :
 Le workflow se déclenche automatiquement sur push vers `main` quand les fichiers concernés changent.
 
 Déploiement manuel :
+
 1. Aller dans **Actions** > **Deploy Documentation to Vercel**
 2. Cliquer sur **Run workflow**
 3. Choisir la cible (all, mkdocs, docusaurus, storybook)
@@ -112,18 +114,21 @@ vercel --prod
 Importer le repo 3 fois avec des "Root Directory" différents :
 
 ### Projet 1 : Docusaurus
+
 - **Root Directory**: `user-docs`
 - **Framework**: Docusaurus 2
 - **Build Command**: `npm run build`
 - **Output Directory**: `build`
 
 ### Projet 2 : Storybook
+
 - **Root Directory**: `frontend`
 - **Framework**: Other
 - **Build Command**: `npm run build-storybook`
 - **Output Directory**: `storybook-static`
 
 ### Projet 3 : MkDocs
+
 ⚠️ Ne fonctionne pas directement (Python non supporté). Utiliser la Méthode 1.
 
 ---
@@ -131,6 +136,7 @@ Importer le repo 3 fois avec des "Root Directory" différents :
 ## Tester localement
 
 ### MkDocs
+
 ```bash
 cd docs
 pip install -r requirements.txt
@@ -139,6 +145,7 @@ mkdocs serve
 ```
 
 ### Docusaurus
+
 ```bash
 cd user-docs
 npm install
@@ -147,6 +154,7 @@ npm start
 ```
 
 ### Storybook
+
 ```bash
 cd frontend
 npm install
@@ -180,10 +188,13 @@ projet-skillswap/
 ## Troubleshooting
 
 ### MkDocs : "pip not found"
+
 Vercel ne supporte pas Python nativement. Utiliser GitHub Actions.
 
 ### Storybook : Build échoue
+
 Vérifier que toutes les dépendances sont installées :
+
 ```bash
 cd frontend
 rm -rf node_modules
@@ -192,7 +203,9 @@ npm run build-storybook
 ```
 
 ### Docusaurus : Broken links
+
 Vérifier les liens dans la config :
+
 ```bash
 cd user-docs
 npm run build

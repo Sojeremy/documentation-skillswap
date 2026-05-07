@@ -36,6 +36,7 @@ Vous pouvez modifier :
 ### Enregistrer les modifications
 
 Après chaque modification :
+
 1. Cliquez sur **"Enregistrer"**
 2. Un message de confirmation s'affiche
 
@@ -89,6 +90,7 @@ La suppression du compte est irréversible.
 4. Confirmez en tapant votre mot de passe
 
 Toutes vos données seront supprimées :
+
 - Profil et informations
 - Conversations
 - Évaluations données et reçues

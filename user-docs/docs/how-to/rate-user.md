@@ -19,6 +19,7 @@ Les évaluations permettent de :
 ## Quand évaluer ?
 
 Évaluez après :
+
 - Un échange de compétences réussi
 - Une session d'apprentissage
 - Une interaction significative

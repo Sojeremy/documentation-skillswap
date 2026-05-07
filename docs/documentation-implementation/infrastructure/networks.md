@@ -59,15 +59,15 @@ proxy_pass http://backend:3000;
 
 | Service | Port interne | Port externe | Accès |
 |---------|--------------|--------------|-------|
-| nginx | 80 | 8888 | http://localhost:8888 |
+| nginx | 80 | 8888 | <http://localhost:8888> |
 | postgres | 5432 | 5433 | localhost:5433 |
-| adminer | 8080 | 8080 | http://localhost:8080 |
+| adminer | 8080 | 8080 | <http://localhost:8080> |
 
 ### Production
 
 | Service | Port interne | Port externe | Accès |
 |---------|--------------|--------------|-------|
-| nginx | 80 | 80 | http://domaine.com |
+| nginx | 80 | 80 | <http://domaine.com> |
 
 !!! note "Isolation"
     En production, seul nginx expose un port. Les autres services sont accessibles uniquement via le réseau interne Docker.

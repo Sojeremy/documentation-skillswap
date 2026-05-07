@@ -32,6 +32,7 @@ Sur SkillSwap, il y a une distinction importante :
 3. Sélectionnez celle qui correspond
 
 **Catégories disponibles** :
+
 - Langues (Anglais, Espagnol, Français...)
 - Musique (Guitare, Piano, Chant...)
 - Informatique (Programmation, Design, Excel...)
@@ -91,10 +92,12 @@ Posez-vous ces questions :
 ### Exemples de bons profils
 
 **Profil équilibré** :
+
 - Compétences : Guitare (intermédiaire), Python (expert), Tennis (débutant)
 - Intérêts : Espagnol, Photographie, Cuisine japonaise
 
 **Profil spécialisé** :
+
 - Compétences : Piano (expert), Solfège (expert)
 - Intérêts : Jardinage, Bricolage
 

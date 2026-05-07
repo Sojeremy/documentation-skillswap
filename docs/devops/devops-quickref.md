@@ -11,15 +11,16 @@
 
 | Service | URL | Credentials |
 |---|---|---|
-| Frontend (Next.js) | http://localhost:8888 | — |
-| API health check | http://localhost:8888/api/v1/health | — |
-| Adminer (UI BDD) | http://localhost:8080 | Server: `postgres` · User: `skillswap` · Pass: voir `devops/.env.docker` · BDD: `skillswap` |
-| Meilisearch | http://localhost:7700 | Master key: voir `devops/.env.docker` |
+| Frontend (Next.js) | <http://localhost:8888> | — |
+| API health check | <http://localhost:8888/api/v1/health> | — |
+| Adminer (UI BDD) | <http://localhost:8080> | Server: `postgres` · User: `skillswap` · Pass: voir `devops/.env.docker` · BDD: `skillswap` |
+| Meilisearch | <http://localhost:7700> | Master key: voir `devops/.env.docker` |
 | Postgres (host direct) | localhost:5433 | User: `skillswap` · BDD: `skillswap` |
 
 ⚠️ Le README dit `/api/health`, le vrai endpoint est `/api/v1/health` (port 8888 + préfixe v1). Écart doc/code à mentionner dans la doc.
 
 Pour récupérer les secrets BDD/Meilisearch :
+
 ```bash
 grep -E "POSTGRES_PASSWORD|MEILI_MASTER_KEY" devops/.env.docker
 ```
@@ -105,11 +106,13 @@ docker compose -p skillswap -f devops/docker-compose.dev.yml exec backend \
 ## Connexion SSH
 
 Alias configuré dans `~/.ssh/config` : pour récupérer awk '/^# SkillSwap prod VPS/,/^$/' ~/.ssh/config   ou    grep -A5 "skillswap-vps" ~/.ssh/config
+
 ```bash
 ssh skillswap-vps
 ```
 
 Détails (pour mémoire) :
+
 - IP : `137.74.114.18`
 - User : `ubuntu`
 - Hostname VPS : `vps-2b6c4aed`
@@ -120,8 +123,8 @@ Détails (pour mémoire) :
 
 | URL | Description |
 |---|---|
-| https://skill-swap.fr | Frontend (Next.js via nginx + Let's Encrypt) |
-| https://skill-swap.fr/api/v1/health | API health check |
+| <https://skill-swap.fr> | Frontend (Next.js via nginx + Let's Encrypt) |
+| <https://skill-swap.fr/api/v1/health> | API health check |
 
 ## Vérifier l'état de la prod
 
@@ -147,6 +150,7 @@ curl -s https://skill-swap.fr/api/v1/health
 Le déploiement est **automatique sur push main** via le workflow `.github/workflows/deploy-prod.yml` (utilise `appleboy/ssh-action`).
 
 Sur le VPS, le script exécuté lors du déploiement :
+
 ```bash
 cd /home/ubuntu/projet-skillswap
 git fetch --all --prune
@@ -221,6 +225,7 @@ Le `127.0.0.1:8080` côté VPS empêche que Adminer soit accessible depuis l'ext
 | Follows | 32 |
 
 À actualiser le jour J avec :
+
 ```bash
 ssh skillswap-vps 'docker exec skillswap-postgres-prod psql -U skillswap -d skillswap -c "SELECT \
   (SELECT COUNT(*) FROM \"user\") AS users, \
@@ -272,7 +277,7 @@ xdg-open http://localhost:8081 &  # Adminer prod via tunnel
 
 ## Pendant la démo
 
-- **Démo applicative** : sur https://skill-swap.fr (vraie prod)
+- **Démo applicative** : sur <https://skill-swap.fr> (vraie prod)
 - **Démo SQL** : via psql interactif sur prod ou Adminer tunneled
 - **Code source** : VS Code ouvert sur ton repo doc avec la doc Arc42
 

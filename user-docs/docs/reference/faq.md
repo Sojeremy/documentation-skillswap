@@ -74,6 +74,7 @@ Vérifiez qu'elle n'existe pas sous un autre nom. Si elle manque vraiment, conta
 ### Comment trouver un membre ?
 
 Utilisez la barre de recherche pour chercher par :
+
 - Compétence souhaitée
 - Nom d'un membre
 - Catégorie
@@ -83,6 +84,7 @@ Utilisez la barre de recherche pour chercher par :
 ### Pourquoi je ne trouve personne ?
 
 Possibles raisons :
+
 - Termes de recherche trop spécifiques
 - Peu de membres avec cette compétence
 - Filtres trop restrictifs
@@ -119,6 +121,7 @@ Oui, SkillSwap est basé sur l'échange de compétences, sans transaction financ
 ### Où faire les échanges ?
 
 C'est à vous de décider avec votre partenaire :
+
 - En présentiel (café, bibliothèque, domicile...)
 - En visioconférence (Zoom, Meet, Skype...)
 - Par téléphone pour certaines compétences

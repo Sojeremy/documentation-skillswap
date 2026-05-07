@@ -385,6 +385,7 @@ paths:
 **Q3 : "Pourquoi utiliser un contrat plutôt que documenter dans le code ?"**
 
 > **R** : "Le contrat OpenAPI offre plusieurs avantages :
+>
 > 1. **Standard industriel** : Compatible avec des centaines d'outils
 > 2. **Indépendant du langage** : Utilisable que le backend soit en Node, Python ou Java
 > 3. **Documentation vivante** : Swagger UI permet de tester directement
@@ -426,6 +427,7 @@ Cette section démontre notre **capacité de réflexion** et notre **maturité p
 ```
 
 **Bénéfices manqués** :
+
 - Génération automatique des types TypeScript frontend
 - Validation automatique des réponses API
 - Développement frontend/backend réellement parallèle
@@ -571,6 +573,7 @@ pm.environment.set("currentUserId", response.data.id);
 **Q : "Comment avez-vous testé votre API ?"**
 
 > **R** : "Nous avons utilisé Postman pour tester nos endpoints manuellement. Avec le recul, nous aurions dû structurer nos collections dès le début avec :
+>
 > - Des **environnements** pour basculer facilement entre local et Docker
 > - Des **tests automatisés** pour valider les réponses
 > - Un **mock server** pour permettre au frontend d'avancer sans attendre le backend
@@ -601,6 +604,7 @@ Ces deux outils sont complémentaires :
 ```
 
 **Conversion bidirectionnelle** :
+
 - OpenAPI → Postman : `Import > OpenAPI 3.0`
 - Postman → OpenAPI : `Export > OpenAPI 3.0` ou outil `postman-to-openapi`
 
@@ -642,6 +646,7 @@ Ordre de présentation recommandé :
 **3. Valeur ajoutée (30 secondes)**
 
 > "Storybook nous permet de :
+>
 > - **Développer en isolation** : tester les composants sans lancer toute l'app
 > - **Documenter automatiquement** : le design system reste à jour
 > - **Vérifier l'accessibilité** : addon a11y pour les critères WCAG
@@ -835,6 +840,7 @@ npm run test:e2e
 ```
 
 > "Nous avons **28 tests unitaires optimisés** qui couvrent :
+>
 > - Les **utilitaires de date** : formatage des timestamps en français
 > - Les **fonctions utilitaires** : fusion de classes CSS, calcul de moyennes
 > - Les **3 schémas de validation Zod** : login, register, profil
@@ -844,6 +850,7 @@ npm run test:e2e
 **3. Valeur ajoutée (30 secondes)**
 
 > "Ces tests nous ont permis de :
+>
 > - **Détecter un bug** dans `updateProfile.validation.ts` (`.optional` au lieu de `.optional()`)
 > - **Documenter le comportement** attendu de chaque fonction
 > - **Refactorer en confiance** : les tests garantissent qu'on ne casse rien"
@@ -861,6 +868,7 @@ npm run test:e2e
 **Q3 : "Qu'est-ce que le pattern AAA ?"**
 
 > **R** : "**Arrange-Act-Assert** est une convention de structuration des tests :
+>
 > - **Arrange** : préparer les données de test
 > - **Act** : exécuter la fonction à tester
 > - **Assert** : vérifier le résultat attendu

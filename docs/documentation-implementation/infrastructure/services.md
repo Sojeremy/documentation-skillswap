@@ -316,7 +316,7 @@ adminer:
 
 ### Accès
 
-- **URL** : http://localhost:8080 (ou `ADMINER_PORT`)
+- **URL** : <http://localhost:8080> (ou `ADMINER_PORT`)
 - **Système** : PostgreSQL
 - **Serveur** : postgres
 - **Utilisateur** : (depuis .env.docker)
@@ -383,7 +383,7 @@ docker compose -f docker-compose.dev.yml exec backend npm run search:reindex
 
 ### Accès direct (dev)
 
-- **URL** : http://localhost:7700
+- **URL** : <http://localhost:7700>
 - **Dashboard** : Accessible avec la master key
 
 ---

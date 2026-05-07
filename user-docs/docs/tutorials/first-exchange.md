@@ -91,6 +91,7 @@ Une fois le contact établi :
 ### 1. Définir les modalités
 
 Discutez ensemble de :
+
 - **La fréquence** : Une fois par semaine ? Deux fois par mois ?
 - **La durée** : 1h ? 2h ?
 - **Le format** : En visio ? En personne ?
@@ -104,6 +105,7 @@ Discutez ensemble de :
 ### 3. Équilibrer l'échange
 
 Un bon échange est équitable :
+
 - Même temps consacré à chaque compétence
 - Ou alternance d'une session à l'autre
 
@@ -122,10 +124,11 @@ Les évaluations aident la communauté à identifier les bons profils.
 ### Continuer la relation
 
 Si l'échange s'est bien passé :
+
 - Planifiez la prochaine session
 - Suivez le membre pour rester en contact
 
-## Félicitations !
+## Félicitations
 
 Vous avez réalisé votre premier échange ! Vous faites maintenant partie de la communauté SkillSwap.
 
@@ -138,6 +141,7 @@ N'hésitez pas à contacter plusieurs personnes. Plus vous échangez, plus vous 
 ## Pour aller plus loin
 
 Consultez nos guides pratiques :
+
 - [Rechercher des membres efficacement](/how-to/search-members)
 - [Évaluer un membre](/how-to/rate-user)
 - [Suivre vos membres favoris](/how-to/follow-members)

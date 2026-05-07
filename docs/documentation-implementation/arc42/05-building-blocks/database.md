@@ -9,6 +9,7 @@ fidèlement la structure réelle de la base en production.
 ![Entity Relationship Diagram](../diagrams/erd.svg){ loading=lazy }
 
 > Pour régénérer ce diagramme après une modification du schéma :
+>
 > ```bash
 > cd backend && npx prisma generate
 > ```

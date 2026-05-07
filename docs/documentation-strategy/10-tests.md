@@ -121,6 +121,7 @@ Storybook remplace les tests unitaires de composants :
 Les hooks React (`useSearch`, `useAuth`) ne peuvent pas être testés unitairement sans mocker tout React. Ils sont testés via **Playwright** dans leur contexte réel.
 
 **Ne PAS tester avec Vitest :**
+
 - `useIsMobile` → 5 lignes, trivial
 - `useAutoScroll` → Effet visuel, tester en E2E
 - `useAccount` → Wrapper simple

@@ -71,6 +71,7 @@ vercel --prod
 ## Option 3 : Utiliser un service alternatif
 
 MkDocs fonctionne nativement avec :
+
 - **GitHub Pages** : `mkdocs gh-deploy`
 - **Netlify** : Support Python natif
 - **Read the Docs** : Intégration MkDocs native

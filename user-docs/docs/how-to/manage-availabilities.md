@@ -42,11 +42,13 @@ Sélectionnez les jours où vous êtes disponible :
 ### Exemple de configuration
 
 **Profil d'un salarié** :
+
 - Soir : Lundi, Mardi, Jeudi
 - Après-midi + Soir : Samedi
 - Matin : Dimanche
 
 **Profil d'un étudiant** :
+
 - Après-midi : Lundi, Mercredi, Vendredi
 - Toute la journée : Week-end
 

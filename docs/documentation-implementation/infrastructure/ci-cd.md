@@ -179,6 +179,7 @@ docker system prune -a
 ### Le frontend ne se connecte pas au backend
 
 Vérifier que les variables d'environnement sont correctes :
+
 - `NEXT_PUBLIC_API_URL` doit pointer vers l'URL publique
 - `INTERNAL_API_URL` doit pointer vers `http://backend:3000`
 

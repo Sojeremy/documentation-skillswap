@@ -169,9 +169,9 @@ au repo `documentation-skillswap` en auto-deploy GitHub natif :
 
 | Projet Vercel              | URL publique                            | Source dans le repo | Stack             |
 | -------------------------- | --------------------------------------- | ------------------- | ----------------- |
-| `skillswap-docs`           | https://skillswap-docs.vercel.app       | `docs/`             | MkDocs Material   |
-| `skillswap-guide`          | https://skillswap-guide.vercel.app      | `user-docs/`        | Docusaurus        |
-| `skillswap-storybook`      | https://skillswap-storybook.vercel.app  | `storybook/`        | Storybook 10      |
+| `skillswap-docs`           | <https://skillswap-docs.vercel.app>       | `docs/`             | MkDocs Material   |
+| `skillswap-guide`          | <https://skillswap-guide.vercel.app>      | `user-docs/`        | Docusaurus        |
+| `skillswap-storybook`      | <https://skillswap-storybook.vercel.app>  | `storybook/`        | Storybook 10      |
 
 Chaque projet a un fichier `vercel.json` qui définit son build (commande,
 output directory, headers de sécurité). Tout `push` sur `main` déclenche

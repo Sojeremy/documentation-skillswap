@@ -55,6 +55,7 @@ export default defineConfig({
 ### Q1: "Pourquoi ne pas tester les composants avec Vitest ?"
 
 **R**: "Storybook fait tout ce que Vitest ferait, en mieux :
+
 - **addon-interactions** pour les clics et saisies
 - **addon-a11y** pour l'accessibilité WCAG
 - **Chromatic** pour la régression visuelle
@@ -69,6 +70,7 @@ Dupliquer avec Vitest serait du travail redondant sans valeur ajoutée."
 ### Q3: "N'est-ce pas risqué d'avoir peu de tests ?"
 
 **R**: "Au contraire. Notre approche donne :
+
 - **100% des composants** documentés et testés visuellement (Storybook)
 - **80%+ de coverage** sur la logique métier critique (Vitest)
 - **100% des parcours critiques** couverts (Playwright)
@@ -79,6 +81,7 @@ C'est une couverture supérieure à 'tout tester avec Jest', avec moins d'effort
 ### Q4: "Comment avez-vous décidé de cette stratégie ?"
 
 **R**: "En analysant notre architecture :
+
 - 53 composants Atomic Design → Storybook est fait pour ça
 - 23 fichiers hooks/lib → Logique métier à tester avec Vitest
 - 4 parcours utilisateur critiques → E2E avec Playwright

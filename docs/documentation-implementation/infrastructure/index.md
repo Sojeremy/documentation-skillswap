@@ -111,6 +111,7 @@ Base de données relationnelle.
 | Volume | `postgres_data` |
 
 **Healthcheck** :
+
 ```bash
 pg_isready -U skillswap -d skillswap
 ```

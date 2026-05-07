@@ -33,11 +33,13 @@ Ce guide explique comment contacter un membre et gérer vos conversations.
 ### Bonnes pratiques
 
 ✅ **À faire** :
+
 - Présentez-vous brièvement
 - Expliquez votre demande clairement
 - Posez une question pour engager la discussion
 
 ❌ **À éviter** :
+
 - Messages trop courts ou vagues
 - Demandes multiples dans un seul message
 - Ton trop familier avec quelqu'un que vous ne connaissez pas
@@ -47,6 +49,7 @@ Ce guide explique comment contacter un membre et gérer vos conversations.
 ### Liste des conversations
 
 Dans la section **"Messages"**, vous voyez :
+
 - Toutes vos conversations actives
 - La date du dernier message
 - Un aperçu du dernier message

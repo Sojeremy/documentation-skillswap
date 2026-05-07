@@ -19,7 +19,7 @@
 | Méthode | Route                 | Description                     | Notes                                                                                                                                         |
 | ------- | --------------------- | ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
 | GET     | `/:id`                | Récupérer un profil complet     | Accessible uniquement aux membres. Retourne des infos privées si `/:id` = utilisateur authentifié.                                             |
-| PUT     | `/:id`                | Mettre à jour un profil         | Seule la personne authentifiée peut modifier son profil. 
+| PUT     | `/:id`                | Mettre à jour un profil         | Seule la personne authentifiée peut modifier son profil.
 | POST    | `/:id/rating` | Évaluer un participant          | Requiert `score` (note de 1 à 5) et `comment` (string). Seuls les participants peuvent évaluer l'autre participant lors de la clôture. |
 | POST    | `/skills`             | Ajouter une compétence          | Opère uniquement sur le profil authentifié. Requiert `name` (unique par profil). Maximum 10 compétences.                                      |
 | DELETE  | `/skills/:id`         | Supprimer une compétence        | Seule la personne authentifiée peut supprimer ses compétences.                                                                                |
@@ -81,6 +81,3 @@
 | Méthode | Route | Description           | Notes                                                                            |
 | ------- | ----- | --------------------- | -------------------------------------------------------------------------------- |
 | GET     | `/`   | Lister les catégories | Query params : `?order=recent&limit=3`. Par défaut, trie par ordre alphabétique. |
-
-
-

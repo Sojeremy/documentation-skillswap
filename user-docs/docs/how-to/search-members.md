@@ -39,6 +39,7 @@ Cliquez sur **"Recherche"** dans la barre de navigation.
 ### Combiner recherche et filtre
 
 Vous pouvez :
+
 1. Sélectionner une catégorie (ex: "Langues")
 2. Puis rechercher un terme (ex: "espagnol")
 

@@ -33,7 +33,7 @@ docker compose -f docker-compose.dev.yml ps postgres
 # Doit afficher "healthy"
 ```
 
-2. **Variables d'environnement manquantes**
+1. **Variables d'environnement manquantes**
 
 ```bash
 # Vérifier .env.docker
@@ -44,7 +44,7 @@ DATABASE_URL=postgresql://user:pass@postgres:5432/skillswap
 JWT_SECRET=...
 ```
 
-3. **Erreur Prisma**
+1. **Erreur Prisma**
 
 ```bash
 # Régénérer le client

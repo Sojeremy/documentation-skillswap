@@ -1,0 +1,76 @@
+{
+  // ---------------------------------------------------------------------------
+  // markdownlint-cli2 — configuration racine
+  // Référence : https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md
+  // ---------------------------------------------------------------------------
+
+  "globs": [
+    "docs/**/*.md",
+    "user-docs/**/*.md",
+    "*.md"
+  ],
+
+  "ignores": [
+    // Dépendances et artefacts de build — jamais lint
+    "**/node_modules/**",
+    "**/.venv/**",
+    "**/site/**",
+    "**/build/**",
+    "**/storybook-static/**",
+    "**/.next/**",
+    "**/dist/**",
+
+    // Code applicatif — couvert par ESLint, pas par markdownlint
+    "frontend/**",
+    "backend/**",
+
+    // Output auto-généré par TypeDoc.
+    // Régénéré par `cd frontend && npm run docs`
+    // (frontend/package.json: "docs": "typedoc", typedoc-plugin-markdown@^4.9.0)
+    // Sortie actuelle : docs/documentation-implementation/typedoc/
+    "**/typedoc/**",
+
+    // Filets de sécurité si l'output TypeDoc est déplacé un jour
+    "**/api-types.md",
+    "**/api-reference/lib/**"
+  ],
+
+  "config": {
+    // ===== Règles DÉSACTIVÉES (bruit pur) ====================================
+
+    // MD013 line-length — pénible sur de la prose Arc42 ; soft-wrap des
+    // éditeurs modernes suffit, casser à 80 col. nuit aux diffs git.
+    "MD013": false,
+
+    // MD033 no-inline-html — nécessaire pour MkDocs Material :
+    // !!! note / !!! warning, <br/> dans les cellules de table et Mermaid,
+    // <details>, <sub>, <sup>, <kbd>. Désactivation globale plus robuste
+    // qu'une whitelist de balises.
+    "MD033": false,
+
+    // MD060 table-column-style — cosmétique pur (alignement des |).
+    // Aucun impact sur le rendu HTML ; impossible à tenir sur des tables
+    // avec largeurs de colonnes très variables.
+    "MD060": false,
+
+    // ===== Règles RELÂCHÉES ==================================================
+
+    // MD024 no-duplicate-heading — autoriser des titres identiques tant
+    // qu'ils ne sont pas frères directs : sections "Notes", "Source de vérité",
+    // "Exemple" légitimement répétées sous des H2 différents.
+    "MD024": { "siblings_only": true }
+
+    // ===== Règles MAINTENUES STRICTES (par défaut, true) =====================
+    //
+    // MD025 single-title          — un seul H1 par fichier
+    // MD031 blanks-around-fences  — auto-fixable
+    // MD032 blanks-around-lists   — auto-fixable
+    // MD036 no-emphasis-as-heading — fix manuel (utiliser un vrai H#)
+    // MD040 fenced-code-language  — important pour la coloration
+    // MD034 no-bare-urls          — auto-fixable (<url> ou [text](url))
+    // MD001 heading-increment     — hiérarchie H1 → H2 → H3
+    // MD022 blanks-around-headings — auto-fixable
+    // MD056 table-column-count    — cellules manquantes/en trop
+    // MD029 ol-prefix             — numérotation cohérente
+  }
+}

@@ -5,26 +5,37 @@
 ## Installation en local (évitez en local, priorisez sur docker)
 
 1. Aller dans le dossier frontend :
+
    ```bash
    cd frontend
    ```
+
 2. Installer les dépendances :
+
    ```bash
    npm i
    ```
+
 3. Aller dans le dossier backend :
+
    ```bash
    cd ../backend
    ```
+
 4. Installer les dépendances :
+
    ```bash
    npm i
    ```
+
 5. Revenez à la racine
+
    ```bash
    cd ../
    ```
+
 6. Installes les dépendances
+
    ```bash
    npm i
    ```
@@ -42,17 +53,18 @@ Faites attention de bien vous situer dans le backend ou le frontend.
 
 2. Vérifier le lancement des services :
 
-- http://localhost renvoie la page principale de NextJS
-- http://localhost/api/health renvoie le json avec `status: "ok"`
-- http://localhost:8080/ -> se connecter au système PostgreSQL et au serveur postgres avec les identifiants du .env
+- <http://localhost> renvoie la page principale de NextJS
+- <http://localhost/api/health> renvoie le json avec `status: "ok"`
+- <http://localhost:8080/> -> se connecter au système PostgreSQL et au serveur postgres avec les identifiants du .env
 
-3. Eteindre les containers :
+1. Eteindre les containers :
 
    ```bash
    npm run docker:down
    ```
 
-4. Rallumer les containers :
+2. Rallumer les containers :
+
    ```bash
    npm run docker:up
    ```
@@ -71,12 +83,15 @@ Faites attention de bien vous situer dans le backend ou le frontend.
 - ```bash
    npm run lint
   ```
+
   -> vérifie les erreurs
+
 - ```bash
    npm run format
   ```
+
   -> réparation auto
 - Revenir à l'étape 5. 2. Si aucune erreur (avertissement ok)
 - git push (PUSHEZ)
 
-9. Créer une PR manuelle de votre branch à dev.
+1. Créer une PR manuelle de votre branch à dev.

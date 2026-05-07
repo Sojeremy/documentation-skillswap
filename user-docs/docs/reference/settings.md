@@ -103,6 +103,7 @@ Les intérêts fonctionnent comme les compétences :
 | **Modifier** | Changer votre mot de passe actuel |
 
 **Exigences du mot de passe** :
+
 - Minimum 8 caractères
 - Au moins une majuscule
 - Au moins une minuscule
@@ -135,6 +136,7 @@ Les intérêts fonctionnent comme les compétences :
 | **Supprimer le compte** | Suppression définitive de toutes vos données |
 
 **Données supprimées** :
+
 - Profil et informations personnelles
 - Compétences et intérêts
 - Toutes les conversations
@@ -142,6 +144,7 @@ Les intérêts fonctionnent comme les compétences :
 - Historique de suivi
 
 **Processus de suppression** :
+
 1. Cliquez sur "Supprimer mon compte"
 2. Entrez votre mot de passe
 3. Confirmez la suppression
