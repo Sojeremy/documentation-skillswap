@@ -79,8 +79,8 @@ mindmap
 | **Performance** | Temps de réponse < 500ms | Lighthouse |
 | **Disponibilité** | 99% uptime | Monitoring |
 | **Sécurité** | Protection des données personnelles | OWASP Top 10 |
-| **Accessibilité** | WCAG 2.1 AA | Axe-core |
-| **Maintenabilité** | Code coverage > 70% | Vitest |
+| **Accessibilité** | RGAA 4.1 / WCAG 2.1 AA | Audit prévu (axe-core, Lighthouse) — non mesuré au 2026-05-07 |
+| **Maintenabilité** | Tests d'intégration sur les controllers backend | `node --test` natif (7 specs) — coverage non mesuré |
 
 ---
 

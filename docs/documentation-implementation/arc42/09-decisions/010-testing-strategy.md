@@ -6,7 +6,7 @@ Accepté (2025-01)
 
 ## Contexte
 
-Le frontend SkillSwap utilise l'architecture Atomic Design avec **53 composants** React et **23 fichiers** de logique métier (hooks, lib, validation). Une approche naïve consistant à tout tester avec un seul outil (Jest/Vitest) créerait :
+Le frontend SkillSwap utilise l'architecture Atomic Design avec **58 composants** React et **31 fichiers** de logique métier (21 hooks + 6 utilitaires `lib/` + 4 validators Zod, comptages au 2026-05-07). Une approche naïve consistant à tout tester avec un seul outil (Jest/Vitest) créerait :
 
 - ~90 fichiers de tests
 - Une duplication significative entre tests unitaires et documentation Storybook
@@ -136,14 +136,40 @@ export const AllVariants: Story = {
 };
 ```
 
+## Statut d'implémentation au 2026-05-07
+
+Cette ADR documente une **décision d'architecture** et la cible visée. À la
+date de la soutenance, l'implémentation est partielle et asymétrique :
+
+| Brique de l'ADR                                    | Présence dans le dépôt de production                                                       | Source de vérité                                          |
+| -------------------------------------------------- | ------------------------------------------------------------------------------------------ | --------------------------------------------------------- |
+| **Vitest** (tests unitaires logique métier)        | ❌ Non installé dans `frontend/package.json`                                               | `grep -i vitest frontend/package.json` → 0 résultat       |
+| **Playwright** (E2E)                               | ❌ Non installé dans `frontend/package.json`                                               | idem                                                      |
+| **Storybook + addon-a11y + Chromatic**             | ❌ Aucun package `@storybook/*` dans `frontend/package.json`                               | idem                                                      |
+| **TypeDoc** (hooks/lib)                            | ❌ Non installé                                                                            | idem                                                      |
+| **`node --test` natif** (backend, tests d'intégration) | ✅ 7 fichiers `*.spec.test.ts` ; 5/7 en échec sur fixture (cf. [10.2 Tests](../10-quality/testing.md)) | `find backend -name "*.spec.test.ts"`            |
+| **Couverture mesurée**                             | ❌ Aucun outil branché en CI                                                               | -                                                         |
+
+L'intégration de **Vitest, Playwright, Storybook + Chromatic + addon-a11y, et
+TypeDoc** a été planifiée et documentée dans `docs/documentation-strategy/`,
+puis ajoutée au **périmètre documentaire post-soutenance**. La mise en
+œuvre dans le code frontend reste à faire (Roadmap §4-§9 de
+[10.2 Tests](../10-quality/testing.md)).
+
+> Cette ADR est conservée telle quelle pour ne pas réécrire l'histoire :
+> elle reflète la décision prise au moment de l'analyse architecturale.
+> Le présent encart en consigne l'état d'avancement réel.
+
+---
+
 ## Liens
 
 !!! note "Documents de stratégie"
     Les plans d'action détaillés se trouvent dans le dossier `docs/documentation-strategy/` :
 
-    - `08-storybook.md` - Configuration et stories des composants UI
-    - `09-typedoc.md` - Documentation des hooks et utilitaires
-    - `10-tests.md` - Tests Vitest et Playwright
+    - `08-storybook.md` - Configuration et stories des composants UI (intention)
+    - `09-typedoc.md` - Documentation des hooks et utilitaires (intention)
+    - `10-tests.md` - Tests Vitest et Playwright (intention)
 
 ---
 
