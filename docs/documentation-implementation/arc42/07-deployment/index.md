@@ -164,12 +164,26 @@ docker compose -p skillswap -f devops/docker-compose.prod.yml logs --tail=80 bac
 
 ## 7.5 Pipeline documentaire
 
-La documentation MkDocs publiée sur [`docs.skill-swap.fr`](https://docs.skill-swap.fr)
-est déployée via un workflow GitHub Actions dédié (déclenché manuellement),
-qui pousse vers Vercel.
+La documentation est déployée sur Vercel via **3 projets distincts** connectés
+au repo `documentation-skillswap` en auto-deploy GitHub natif :
+
+| Projet Vercel              | URL publique                            | Source dans le repo | Stack             |
+| -------------------------- | --------------------------------------- | ------------------- | ----------------- |
+| `skillswap-docs`           | https://skillswap-docs.vercel.app       | `docs/`             | MkDocs Material   |
+| `skillswap-guide`          | https://skillswap-guide.vercel.app      | `user-docs/`        | Docusaurus        |
+| `skillswap-storybook`      | https://skillswap-storybook.vercel.app  | `storybook/`        | Storybook 10      |
+
+Chaque projet a un fichier `vercel.json` qui définit son build (commande,
+output directory, headers de sécurité). Tout `push` sur `main` déclenche
+automatiquement un build sur les projets dont les fichiers ont changé.
+
+Un workflow GitHub Actions de fallback (`deploy-docs.yml`, `workflow_dispatch`)
+est conservé pour permettre un déploiement manuel en cas de problème avec
+l'intégration Vercel.
 
 > Ce pipeline documentaire est indépendant du déploiement applicatif :
-> écrire dans `docs/` ne déclenche **pas** un redéploiement de l'application.
+> écrire dans `docs/`, `user-docs/` ou `storybook/` ne déclenche **pas** un
+> redéploiement de l'application SkillSwap.
 
 ---
 
