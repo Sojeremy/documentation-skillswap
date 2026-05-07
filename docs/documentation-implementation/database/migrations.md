@@ -4,9 +4,14 @@ Ce document retrace l'évolution du schéma de base de données SkillSwap.
 
 ## Vue d'ensemble
 
-| Migration | Date | Description |
-|-----------|------|-------------|
-| `init` | 2024-12 | Création initiale du schéma |
+| # | Migration | Date | Description |
+|---|-----------|------|-------------|
+| 1 | `20260112133206_init_db` | 2026-01-12 | Création initiale (14 tables, 3 enums, FK, index) |
+| 2 | `20260114134738_add_category_slug` | 2026-01-14 | Ajout colonne `slug` (NOT NULL) sur `category` + index unique |
+| 3 | `20260116161218_create_relation_table_user_available` | 2026-01-16 | Refonte `Available` : jonction `user_has_available`, ajout enum `Time`, colonne `time_slot` |
+| 4 | `20260117012249_fix_snake_case` | 2026-01-17 | Correction `user.avatarUrl` → `user.avatar_url` |
+| 5 | `20260118042859_add_unique_constrain` | 2026-01-18 | Index uniques composites sur `evaluation` et `follow` |
+| 6 | `20260120123059_make_the_comment_field_in_the_rating_table_optional` | 2026-01-20 | `evaluation.comments` passe NULLABLE |
 
 ## Commandes Prisma
 
@@ -47,8 +52,8 @@ npx prisma generate
 
 ## Migration initiale
 
-**Nom** : `init`
-**Date** : Décembre 2024
+**Nom** : `20260112133206_init_db`
+**Date** : 12 janvier 2026
 
 ### Tables créées
 
@@ -69,12 +74,13 @@ npx prisma generate
 | `follow` | Abonnements |
 | `refresh_token` | Tokens de refresh |
 
-### Enums créés
+### Enums créés à l'init
 
-- `RoleOfUser`
-- `StatusOfConversation`
-- `dayInAWeek`
-- `Time`
+- `RoleOfUser` (1 valeur : `Membre`)
+- `StatusOfConversation` (`Open`, `Close`)
+- `dayInAWeek` (`Lundi` à `Dimanche`)
+
+L'enum `Time` (`Morning`, `Afternoon`) a été ajouté ultérieurement par la migration 3 lors de la refonte de la table `Available`.
 
 ### SQL généré (extrait)
 
@@ -111,6 +117,71 @@ CREATE UNIQUE INDEX "user_email_key" ON "user"("email");
 -- AddForeignKey
 ALTER TABLE "user" ADD CONSTRAINT "user_role_id_fkey"
     FOREIGN KEY ("role_id") REFERENCES "role"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+```
+
+---
+
+## Migrations suivantes
+
+### 2 — `20260114134738_add_category_slug`
+
+**Date** : 14 janvier 2026
+
+Ajoute une colonne `slug TEXT NOT NULL` sur `category` avec un index unique. Permet l'utilisation de slugs URL-friendly pour les pages catégories.
+
+```sql
+ALTER TABLE "category" ADD COLUMN "slug" TEXT NOT NULL;
+CREATE UNIQUE INDEX "category_slug_key" ON "category"("slug");
+```
+
+### 3 — `20260116161218_create_relation_table_user_available`
+
+**Date** : 16 janvier 2026
+
+Refonte du modèle de disponibilités :
+
+- Suppression des colonnes `start`, `end`, `user_id` de `available`
+- Ajout de l'enum `Time` (`Morning`, `Afternoon`)
+- Ajout de la colonne `time_slot` sur `available`
+- Création de la table de jonction `user_has_available` (PK composite `(user_id, available_id)`)
+
+Cette migration normalise le modèle : un créneau (`available`) devient indépendant de l'utilisateur, plusieurs utilisateurs peuvent partager le même créneau.
+
+### 4 — `20260117012249_fix_snake_case`
+
+**Date** : 17 janvier 2026
+
+Renomme `user.avatarUrl` en `user.avatar_url`. Corrige l'oubli de `@map()` lors de la migration initiale (les autres colonnes camelCase étaient déjà correctement mappées).
+
+```sql
+ALTER TABLE "user" DROP COLUMN "avatarUrl",
+ADD COLUMN "avatar_url" TEXT;
+```
+
+### 5 — `20260118042859_add_unique_constrain`
+
+**Date** : 18 janvier 2026
+
+Ajoute deux contraintes d'unicité métier :
+
+- `(evaluator_id, evaluated_id)` sur `evaluation` : un utilisateur ne peut évaluer un autre qu'une seule fois.
+- `(followed_id, follower_id)` sur `follow` : un utilisateur ne peut suivre un autre qu'une seule fois.
+
+```sql
+CREATE UNIQUE INDEX "evaluation_evaluator_id_evaluated_id_key"
+  ON "evaluation"("evaluator_id", "evaluated_id");
+CREATE UNIQUE INDEX "follow_followed_id_follower_id_key"
+  ON "follow"("followed_id", "follower_id");
+```
+
+### 6 — `20260120123059_make_the_comment_field_in_the_rating_table_optional`
+
+**Date** : 20 janvier 2026
+
+Rend le champ `comments` de la table `evaluation` optionnel (NULL autorisé). Permet de laisser une note sans commentaire textuel.
+
+```sql
+ALTER TABLE "evaluation" ALTER COLUMN "comments" DROP NOT NULL;
 ```
 
 ---
@@ -202,20 +273,15 @@ npx prisma db seed
 ### Données de seed
 
 - 1 rôle : `Membre`
-- 8 catégories : Langues, Développement Web, Design, etc.
-- ~30 compétences par catégorie
+- 8 catégories : Développement Web, Design, Marketing, Langues, Cuisine, Sport, Musique, Bricolage
+- 28 compétences au total (3 à 5 par catégorie)
 - 14 créneaux de disponibilité (7 jours × 2 périodes)
 
 ---
 
 ## Évolutions futures
 
-| Migration planifiée | Description |
-|---------------------|-------------|
-| `add_user_premium` | Ajouter statut premium |
-| `add_message_read_at` | Ajouter indicateur de lecture |
-| `add_notification` | Système de notifications |
-| `add_skill_level` | Niveau de compétence (débutant, intermédiaire, expert) |
+Aucune migration formellement planifiée à ce jour. Les évolutions du schéma seront ajoutées au fur et à mesure des besoins, en suivant les bonnes pratiques décrites ci-dessus.
 
 ## Voir aussi
 
