@@ -20,7 +20,7 @@ Toutes les routes authentifiées utilisent le **cookie HTTP-only `accessToken`**
 | ------- | ----------- | ----------- | ----------------------------------- | ----- |
 | POST    | `/register` | Public      | Inscription                         | Body : `firstname, lastname, email, password, confirmation` (Zod `registerSchema`). Set-Cookie `accessToken` + `refreshToken` |
 | POST    | `/login`    | Public      | Connexion                           | Body : `email, password` (Zod `loginSchema`). Set-Cookie tokens |
-| POST    | `/logout`   | Public      | Déconnexion                         | Lit le `refreshToken` cookie pour le supprimer en BDD ; `clearCookie` sur les tokens |
+| POST    | `/logout`   | Public      | Déconnexion                         | Lit le `refreshToken` cookie pour le supprimer en BDD ; `clearCookie` sur les 3 cookies (`accessToken`, `accessTokenExpires`, `refreshToken`) |
 | POST    | `/refresh`  | Public      | Rafraîchir l'accessToken            | Lit le `refreshToken` cookie ; **rotation systématique** : tous les refresh tokens de l'utilisateur sont supprimés avant émission du nouveau |
 | GET     | `/me`       | `checkAuth` | Récupérer l'utilisateur courant   | Renvoie l'utilisateur identifié par le cookie `accessToken` |
 
@@ -108,7 +108,7 @@ Toutes les routes authentifiées utilisent le **cookie HTTP-only `accessToken`**
 
 | Méthode | Route | Auth        | Description |
 | ------- | ----- | ----------- | ----------- |
-| GET     | `/`   | `checkAuth` | Liste plate des compétences (toutes catégories confondues). 28 compétences en seed prod. |
+| GET     | `/`   | `checkAuth` | Liste plate des compétences avec leur catégorie associée (`include category: { id, name, slug }`). 28 compétences en seed prod. |
 
 ---
 
@@ -116,7 +116,7 @@ Toutes les routes authentifiées utilisent le **cookie HTTP-only `accessToken`**
 
 | Méthode | Route | Auth        | Description |
 | ------- | ----- | ----------- | ----------- |
-| GET     | `/`   | `checkAuth` | Liste plate des disponibilités (référentiel : 14 créneaux = 7 jours × 2 demi-journées) |
+| GET     | `/`   | `checkAuth` | Liste plate du référentiel des 14 créneaux (7 jours × 2 demi-journées Morning/Afternoon). Throw 404 (`NotFoundError`) si la table est vide. |
 
 ---
 

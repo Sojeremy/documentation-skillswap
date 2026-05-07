@@ -134,8 +134,16 @@ const followers = await prisma.follow.findMany({
 
 | Règle | Description |
 |-------|-------------|
-| Suivi mutuel requis | Pour créer une conversation, les deux utilisateurs doivent se suivre |
-| Notation requiert suivi | Pour noter un utilisateur, il faut le suivre |
+| Follow simple requis pour créer une conversation | Le créateur de la conversation doit suivre le destinataire (middleware `requireSimpleFollow` — vérification unidirectionnelle, **pas de mutual follow** en prod malgré ce que les versions antérieures de la doc affirmaient) |
+| Follow simple requis pour noter | Pour noter un utilisateur, le notateur doit le suivre (middleware `requireFollow` paramétré `allowSelf: false`) |
+
+!!! note "Middleware `requireMutualFollow` non utilisé en prod"
+    Un middleware `requireMutualFollow` (vérification bidirectionnelle, sender
+    et receiver doivent se suivre l'un l'autre) est défini dans
+    `backend/src/middlewares/conv.middleware.ts` mais n'est appliqué sur aucun
+    endpoint des routers. À ce jour, la règle "mutual follow" n'est pas effective
+    en production : la création de conversation, comme la notation, n'exige
+    qu'un follow unidirectionnel.
 
 ## Voir aussi
 
