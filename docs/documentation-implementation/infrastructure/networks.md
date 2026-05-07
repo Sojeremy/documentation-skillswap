@@ -87,7 +87,7 @@ sequenceDiagram
     F-->>N: HTML
     N-->>C: HTML
 
-    C->>N: POST /api/auth/login
+    C->>N: POST /api/v1/auth/login
     N->>B: proxy_pass backend:3000
     B->>P: SELECT * FROM user
     P-->>B: User data

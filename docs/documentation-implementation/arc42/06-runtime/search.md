@@ -19,7 +19,7 @@ sequenceDiagram
     Note over F: Reset timer
     Note over F: Attente 300ms...
     F->>F: setDebouncedQuery("React Native")
-    F->>B: GET /api/search?q=React+Native
+    F->>B: GET /api/v1/search?q=React+Native
     B->>MS: POST /indexes/members/search
     MS-->>B: { hits: [id1, id2, id3] }
     B->>DB: SELECT * FROM user WHERE id IN (id1, id2, id3)

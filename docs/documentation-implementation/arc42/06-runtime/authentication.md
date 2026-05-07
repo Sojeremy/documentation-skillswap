@@ -15,7 +15,7 @@ sequenceDiagram
     alt Validation échoue
         F-->>U: Affiche erreurs inline
     else Validation OK
-        F->>B: POST /api/auth/register
+        F->>B: POST /api/v1/auth/register
         B->>B: Validation Zod (server-side)
         alt Email déjà utilisé
             B-->>F: 409 Conflict
@@ -53,7 +53,7 @@ sequenceDiagram
     participant DB as PostgreSQL
 
     U->>F: Saisit email + mot de passe
-    F->>B: POST /api/auth/login
+    F->>B: POST /api/v1/auth/login
     B->>DB: SELECT user WHERE email = ?
     alt User non trouvé
         B-->>F: 401 Unauthorized
@@ -94,9 +94,9 @@ sequenceDiagram
     Note over U,F: accessToken expiré
 
     U->>F: Requête API
-    F->>B: GET /api/profile (accessToken expiré)
+    F->>B: GET /api/v1/profiles/:id (accessToken expiré)
     B-->>F: 401 Unauthorized
-    F->>B: POST /api/auth/refresh (refreshToken)
+    F->>B: POST /api/v1/auth/refresh (refreshToken)
     B->>DB: SELECT refresh_token WHERE token = ?
     alt Token valide et non expiré
         B->>DB: DELETE ancien refresh_token
@@ -126,7 +126,7 @@ sequenceDiagram
     participant DB as PostgreSQL
 
     U->>F: Clique "Déconnexion"
-    F->>B: POST /api/auth/logout
+    F->>B: POST /api/v1/auth/logout
     B->>DB: DELETE refresh_token WHERE token = ?
     B-->>F: 200 OK + Set-Cookie (expire tokens)
     F->>F: Supprime état utilisateur

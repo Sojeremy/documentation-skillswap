@@ -26,7 +26,7 @@ sequenceDiagram
 
     Note over C: Cookies envoyés automatiquement<br/>par le navigateur
 
-    C->>A: GET /api/v1/profile/:id (Cookie: accessToken)
+    C->>A: GET /api/v1/profiles/:id (Cookie: accessToken)
     A->>A: checkAuth → jwt.verify(accessToken, secret)
     alt Token valide
         A-->>C: 200 + data

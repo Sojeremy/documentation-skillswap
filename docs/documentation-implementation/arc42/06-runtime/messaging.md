@@ -12,7 +12,7 @@ sequenceDiagram
 
     U->>F: Écrit un message et clique "Envoyer"
     F->>F: Validation (message non vide)
-    F->>B: POST /api/conversations/:id/messages
+    F->>B: POST /api/v1/conversations/:id/messages
     B->>B: Vérifie auth (JWT)
     B->>B: Vérifie que user appartient à la conv
     alt Non autorisé
@@ -46,7 +46,7 @@ sequenceDiagram
     participant DB as PostgreSQL
 
     U->>F: Clique "Contacter" sur profil B
-    F->>B: POST /api/conversations
+    F->>B: POST /api/v1/conversations
     Note right of F: { participantId: B.id, message: "..." }
     B->>DB: Vérifie si conv existe entre A et B
     alt Conversation existe
@@ -83,7 +83,7 @@ sequenceDiagram
     participant DB as PostgreSQL
 
     U->>F: Ouvre la page messagerie
-    F->>B: GET /api/conversations
+    F->>B: GET /api/v1/conversations
     B->>DB: SELECT conversations JOIN user_has_conversation
     Note right of B: Inclut dernier message et participant
     DB-->>B: Liste des conversations

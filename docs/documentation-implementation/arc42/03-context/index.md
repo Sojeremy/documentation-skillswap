@@ -92,7 +92,7 @@ sequenceDiagram
 
     U->>F: Remplit le formulaire
     F->>F: Validation Zod (client)
-    F->>B: POST /api/auth/register
+    F->>B: POST /api/v1/auth/register
     B->>B: Validation Zod (serveur)
     B->>B: Hash du mot de passe (argon2id)
     B->>DB: INSERT user
@@ -115,7 +115,7 @@ sequenceDiagram
 
     U->>F: Tape "React" dans la recherche
     F->>F: Debounce 300ms
-    F->>B: GET /api/search?q=React
+    F->>B: GET /api/v1/search?q=React
     B->>MS: Search "React"
     MS-->>B: Liste des IDs matchés
     B->>DB: SELECT users WHERE id IN (...)
