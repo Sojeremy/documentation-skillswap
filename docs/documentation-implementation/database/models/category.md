@@ -82,7 +82,7 @@ const categories = await prisma.category.findMany({
 
 ```typescript
 const category = await prisma.category.findUnique({
-  where: { slug: 'developpement-web' },
+  where: { slug: 'dev-web' },
   include: { skills: true }
 });
 ```

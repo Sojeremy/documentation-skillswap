@@ -130,14 +130,14 @@ curl -X GET http://localhost:3000/api/v1/categories
 {
   "success": true,
   "data": [
-    { "id": 1, "name": "Langues", "slug": "langues" },
-    { "id": 2, "name": "Développement Web", "slug": "developpement-web" },
-    { "id": 3, "name": "Design", "slug": "design" },
-    { "id": 4, "name": "Musique", "slug": "musique" },
-    { "id": 5, "name": "Sport", "slug": "sport" },
-    { "id": 6, "name": "Cuisine", "slug": "cuisine" },
-    { "id": 7, "name": "Photo/Vidéo", "slug": "photo-video" },
-    { "id": 8, "name": "Autre", "slug": "autre" }
+    { "id": 1, "name": "Développement Web", "slug": "dev-web" },
+    { "id": 2, "name": "Design", "slug": "design" },
+    { "id": 3, "name": "Marketing", "slug": "marketing" },
+    { "id": 4, "name": "Langues", "slug": "langues" },
+    { "id": 5, "name": "Cuisine", "slug": "cuisine" },
+    { "id": 6, "name": "Sport", "slug": "sport" },
+    { "id": 7, "name": "Musique", "slug": "musique" },
+    { "id": 8, "name": "Bricolage", "slug": "bricolage" }
   ]
 }
 ```

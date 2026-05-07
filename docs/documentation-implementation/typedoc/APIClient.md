@@ -297,7 +297,7 @@ Recherche des membres avec filtres et pagination.
 ```tsx
 const { data: results } = await api.searchMembers({
   q: 'javascript',
-  category: 'developpement-web',
+  category: 'dev-web',
   page: 1,
   limit: 12
 });
