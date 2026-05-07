@@ -3,6 +3,11 @@
    output   = "./generated/prisma"
  }
 
+generator erd {
+  provider = "prisma-erd-generator"
+  output   = "../../docs/documentation-implementation/arc42/diagrams/erd.svg"
+}
+
 datasource db {
   provider = "postgresql"
 }
