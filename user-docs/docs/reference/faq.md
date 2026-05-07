@@ -19,14 +19,14 @@ Retrouvez ici les réponses aux questions les plus posées sur SkillSwap.
 
 **Voir** : [Premiers pas sur SkillSwap](/tutorials/getting-started)
 
-### J'ai oublié mon mot de passe
+### Comment récupérer un mot de passe oublié ?
 
 1. Sur la page de connexion, cliquez sur "Mot de passe oublié"
 2. Entrez votre adresse email
 3. Suivez le lien reçu par email
 4. Créez un nouveau mot de passe
 
-### Comment supprimer mon compte ?
+### Comment supprimer son compte ?
 
 1. Allez dans Paramètres
 2. Section "Zone de danger"
@@ -35,7 +35,7 @@ Retrouvez ici les réponses aux questions les plus posées sur SkillSwap.
 
 **Attention** : Cette action est irréversible.
 
-### Puis-je changer mon adresse email ?
+### Comment changer son adresse email ?
 
 Oui, dans les paramètres du compte, section "Informations personnelles".
 
@@ -57,7 +57,7 @@ Oui, dans les paramètres du compte, section "Informations personnelles".
 | **Compétence** | Ce que vous pouvez enseigner |
 | **Intérêt** | Ce que vous voulez apprendre |
 
-### Comment choisir mon niveau de compétence ?
+### Comment choisir son niveau de compétence ?
 
 - **Débutant** : Vous connaissez les bases et pouvez initier quelqu'un
 - **Intermédiaire** : Vous maîtrisez bien le sujet
@@ -65,7 +65,7 @@ Oui, dans les paramètres du compte, section "Informations personnelles".
 
 Soyez honnête : un niveau surévalué mènera à des déceptions.
 
-### Ma compétence n'est pas dans la liste
+### Que faire si une compétence est absente de la liste ?
 
 Vérifiez qu'elle n'existe pas sous un autre nom. Si elle manque vraiment, contactez l'équipe via le support pour suggérer son ajout.
 
@@ -81,7 +81,7 @@ Utilisez la barre de recherche pour chercher par :
 
 **Voir** : [Rechercher des membres](/how-to/search-members)
 
-### Pourquoi je ne trouve personne ?
+### Pourquoi aucun membre n'apparaît dans les résultats ?
 
 Possibles raisons :
 
@@ -99,7 +99,7 @@ Essayez d'élargir votre recherche ou d'utiliser des synonymes.
 
 **Voir** : [Envoyer un message](/how-to/send-message)
 
-### Puis-je contacter n'importe qui ?
+### Tous les membres peuvent-ils être contactés ?
 
 Oui, tous les membres peuvent être contactés. Soyez respectueux et pertinent dans vos demandes.
 
@@ -135,15 +135,15 @@ C'est à vous de décider avec votre partenaire :
 
 ## Évaluations
 
-### Quand puis-je évaluer ?
+### Quand est-il possible d'évaluer un membre ?
 
 Après qu'une conversation a été clôturée, le bouton "Évaluer" apparaît.
 
-### Puis-je modifier une évaluation ?
+### Une évaluation peut-elle être modifiée ?
 
 Non, les évaluations sont définitives une fois envoyées.
 
-### Que faire si je reçois une mauvaise évaluation ?
+### Que faire en cas de réception d'une évaluation négative ?
 
 - Analysez le commentaire pour vous améliorer
 - Les évaluations injustes se noient parmi les bonnes
@@ -161,11 +161,11 @@ Non, mais fortement encouragées. Elles aident la communauté.
 
 Sur son profil, cliquez sur le bouton "Suivre".
 
-### Où voir mes membres suivis ?
+### Où consulter la liste des membres suivis ?
 
 Dans la section Messages, lors de la création d'une nouvelle conversation, vos suivis apparaissent en priorité.
 
-### Le membre sait-il que je le suis ?
+### Le membre est-il informé qu'il est suivi ?
 
 Oui, le membre peut voir qui le suit.
 
@@ -192,7 +192,7 @@ Non, elles sont indicatives. Vous confirmez toujours les créneaux précis par m
 3. Videz le cache de votre navigateur
 4. Essayez un autre navigateur
 
-### Je ne reçois pas les emails
+### Que faire en cas d'emails non reçus ?
 
 1. Vérifiez votre dossier spam
 2. Ajoutez SkillSwap à vos contacts autorisés

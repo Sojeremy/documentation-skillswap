@@ -10,7 +10,7 @@ Vous rencontrez un problème sur SkillSwap ? Cette page regroupe les solutions a
 
 ## Connexion et compte
 
-### Je ne peux pas me connecter
+### Connexion impossible
 
 **Symptômes** : Message "Identifiants incorrects" ou page qui ne charge pas.
 
@@ -22,11 +22,11 @@ Vous rencontrez un problème sur SkillSwap ? Cette page regroupe les solutions a
 4. Videz le cache de votre navigateur
 5. Essayez avec un autre navigateur
 
-### J'ai oublié mon mot de passe
+### Mot de passe oublié
 
 Actuellement, la réinitialisation de mot de passe n'est pas disponible en self-service. Contactez l'équipe SkillSwap pour obtenir de l'aide.
 
-### Mon compte a été créé mais je ne reçois pas de confirmation
+### Email de confirmation non reçu après inscription
 
 L'inscription ne nécessite pas de confirmation par email. Vous pouvez vous connecter immédiatement après l'inscription.
 
@@ -34,7 +34,7 @@ L'inscription ne nécessite pas de confirmation par email. Vous pouvez vous conn
 
 ## Profil
 
-### Mon avatar ne s'affiche pas
+### Avatar non affiché
 
 **Causes possibles** :
 
@@ -49,7 +49,7 @@ L'inscription ne nécessite pas de confirmation par email. Vous pouvez vous conn
 3. Réessayez le téléchargement
 4. Si le problème persiste, actualisez la page
 
-### Mes compétences ne s'enregistrent pas
+### Compétences non enregistrées
 
 **Vérifiez** :
 
@@ -57,7 +57,7 @@ L'inscription ne nécessite pas de confirmation par email. Vous pouvez vous conn
 - Vous n'avez pas atteint la limite de 5 compétences
 - Vous n'essayez pas d'ajouter une compétence déjà présente
 
-### Les modifications de mon profil ne sont pas visibles
+### Modifications de profil non visibles
 
 1. Actualisez la page (F5)
 2. Déconnectez-vous et reconnectez-vous
@@ -67,7 +67,7 @@ L'inscription ne nécessite pas de confirmation par email. Vous pouvez vous conn
 
 ## Messagerie
 
-### Je ne peux pas envoyer de message à un membre
+### Envoi de message impossible vers un membre
 
 **Condition requise** : Vous devez suivre le membre pour lui envoyer un message.
 
@@ -90,7 +90,7 @@ L'inscription ne nécessite pas de confirmation par email. Vous pouvez vous conn
 2. Désactivez temporairement votre bloqueur de publicités
 3. Essayez avec un autre navigateur
 
-### Je ne reçois plus de notifications de messages
+### Notifications de messages non reçues
 
 Les notifications dans l'application nécessitent que vous soyez connecté. Actualisez la page pour voir les nouveaux messages.
 
@@ -106,7 +106,7 @@ Les notifications dans l'application nécessitent que vous soyez connecté. Actu
 - Le filtre de catégorie (désactivez-le pour voir tous les résultats)
 - Essayez des termes plus génériques
 
-### Les résultats ne correspondent pas à ma recherche
+### Résultats de recherche non pertinents
 
 La recherche fonctionne sur :
 
@@ -119,7 +119,7 @@ Essayez de rechercher directement le nom d'une compétence (ex: "React", "Piano"
 
 ## Évaluations
 
-### Je ne peux pas noter un membre
+### Évaluation d'un membre impossible
 
 **Conditions requises** :
 
@@ -127,7 +127,7 @@ Essayez de rechercher directement le nom d'une compétence (ex: "React", "Piano"
 2. Ce membre doit vous suivre (suivi mutuel)
 3. Vous ne l'avez pas déjà évalué
 
-### Ma note n'apparaît pas sur le profil
+### Évaluation non affichée sur le profil
 
 Les notes sont visibles immédiatement. Si elle n'apparaît pas :
 
