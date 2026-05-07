@@ -46,7 +46,7 @@ const role = await prisma.role.create({
 ```
 
 !!! note "Évolution future"
-    Des rôles supplémentaires pourront être ajoutés : `Admin`, `Moderateur`, `Premium`.
+    L'enum est extensible : la table `Role` est prête à accueillir d'autres valeurs si le besoin métier émerge.
 
 ---
 
@@ -118,6 +118,9 @@ enum dayInAWeek {
   Dimanche
 }
 ```
+
+!!! info "Naming"
+    L'enum `dayInAWeek` ne suit pas la convention PascalCase des trois autres enums du schéma (`RoleOfUser`, `StatusOfConversation`, `Time`). Dette de naming mineure héritée du schéma initial.
 
 ### Valeurs
 
@@ -234,30 +237,44 @@ ALTER TYPE "StatusOfConversation" ADD VALUE 'Archived';
 
 ## Types TypeScript générés
 
-Prisma génère automatiquement les types correspondants :
+Le generator `prisma-client-ts` génère automatiquement le fichier `enums.ts` qui exporte chaque enum sous forme d'objet `as const` accompagné de son type littéral :
 
 ```typescript
-// generated/prisma/index.ts
-export const RoleOfUser: {
-  Membre: 'Membre'
-};
+// backend/prisma/generated/prisma/enums.ts (extrait)
 
-export const StatusOfConversation: {
+export const RoleOfUser = {
+  Membre: 'Membre'
+} as const
+
+export type RoleOfUser = (typeof RoleOfUser)[keyof typeof RoleOfUser]
+
+
+export const StatusOfConversation = {
   Open: 'Open',
   Close: 'Close'
-};
+} as const
 
-export const dayInAWeek: {
-  Lundi: 'Lundi',
-  Mardi: 'Mardi',
-  // ...
-};
+export type StatusOfConversation = (typeof StatusOfConversation)[keyof typeof StatusOfConversation]
 
-export const Time: {
+
+export const Time = {
   Morning: 'Morning',
   Afternoon: 'Afternoon'
-};
+} as const
+
+export type Time = (typeof Time)[keyof typeof Time]
+
+
+export const dayInAWeek = {
+  Lundi: 'Lundi',
+  Mardi: 'Mardi',
+  // ... (Mercredi, Jeudi, Vendredi, Samedi, Dimanche)
+} as const
+
+export type dayInAWeek = (typeof dayInAWeek)[keyof typeof dayInAWeek]
 ```
+
+Cela permet d'utiliser à la fois la valeur (`RoleOfUser.Membre`) et le type (`name: RoleOfUser`) dans le code TypeScript.
 
 ## Voir aussi
 

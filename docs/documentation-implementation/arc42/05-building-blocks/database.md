@@ -44,7 +44,7 @@ Le mot `user` est un mot-clé réservé en SQL ; pour cette raison, toutes les r
 | `UserHasAvailable`    | `user_has_available`     | Jonction         |
 | `UserHasConversation` | `user_has_conversation`  | Jonction         |
 
-Côté colonnes, le pattern est systématique : `firstName` reste tel quel, mais
+Côté colonnes, le pattern est systématique : `firstname` reste tel quel, mais
 `postalCode → postal_code`, `avatarUrl → avatar_url`, `roleId → role_id`,
 `createdAt → created_at`, `updatedAt → updated_at`, etc.
 

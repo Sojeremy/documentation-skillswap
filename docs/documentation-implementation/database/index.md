@@ -88,6 +88,7 @@ erDiagram
         int id PK
         string content
         int senderId FK
+        int receiverId FK
         int conversationId FK
         datetime createdAt
         datetime updatedAt
@@ -141,7 +142,7 @@ Représente un membre inscrit sur SkillSwap. C'est le modèle central qui connec
 | email | String | Unique | Email de connexion |
 | firstname | String | Required | Prénom |
 | lastname | String | Required | Nom |
-| password | String | Required | Hash argon2id |
+| password | String | Required | Hash argon2 (variante argon2id par défaut de la lib) |
 | address | String? | Optional | Adresse |
 | postalCode | Int? | Optional | Code postal |
 | city | String? | Optional | Ville |
@@ -221,7 +222,7 @@ Note et commentaire laissé par un utilisateur à un autre.
 | Champ | Type | Contraintes | Description |
 | ----- | ---- | ----------- | ----------- |
 | id | Int | PK, Auto | Identifiant unique |
-| score | Int | Required | Note de 0 à 5 |
+| score | Int | Required | Note de 0 à 5 (validation applicative, non contraint en BDD) |
 | comments | String? | Optional | Commentaire |
 | evaluatorId | Int | FK → User | Auteur de la note |
 | evaluatedId | Int | FK → User | Utilisateur noté |
