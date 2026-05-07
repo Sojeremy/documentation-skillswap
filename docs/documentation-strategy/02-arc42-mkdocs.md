@@ -57,7 +57,7 @@ docs/
     │   ├── 05-building-blocks/     # ✅ ÉCLATÉ
     │   │   ├── index.md            # Vue d'ensemble + C4 Container
     │   │   ├── frontend.md         # 57 composants, 10 hooks, patterns
-    │   │   ├── backend.md          # Architecture en couches, 31 endpoints
+    │   │   ├── backend.md          # Architecture en couches, 38 endpoints
     │   │   └── database.md         # 14 modèles Prisma
     │   ├── 06-runtime/             # ✅ ÉCLATÉ
     │   │   ├── index.md            # Vue d'ensemble des scénarios

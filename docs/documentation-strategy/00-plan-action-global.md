@@ -23,7 +23,7 @@
 | MkDocs configuré | ✅ | Site fonctionnel sur localhost:8000 |
 | Arc42 (12 sections) | ✅ | 32 fichiers en sous-dossiers hiérarchiques |
 | ADRs (9 décisions) | ✅ | 9 fichiers individuels dans `arc42/09-decisions/` |
-| OpenAPI/Swagger | ✅ | 31 endpoints documentés, validation réussie |
+| OpenAPI/Swagger | ✅ | 38 endpoints documentés, validation réussie |
 | Documentation BDD | ✅ | 14 modèles, ERD, relations, enums |
 | Infrastructure Docker | ✅ | Services, réseaux, volumes documentés |
 | Frontend (composants) | ✅ | 57 composants, 10 hooks dans `arc42/05-building-blocks/` |
@@ -131,7 +131,7 @@ flowchart TD
 
 | Jour | Fichier | Livrables |
 | ---- | ------- | --------- |
-| J4-J5 | 04-api-openapi | openapi.yaml complet (31 endpoints), Swagger UI |
+| J4-J5 | 04-api-openapi | openapi.yaml complet (38 endpoints), Swagger UI |
 | J5-J6 | 05-database | ERD généré, 14 modèles documentés, SchemaSpy |
 | J6-J7 | 06-docker | Diagramme docker-compose, section Arc42 §7 |
 

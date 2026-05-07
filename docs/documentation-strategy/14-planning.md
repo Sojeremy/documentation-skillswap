@@ -107,7 +107,7 @@ Semaine 5 (J28-J30)   : Tests + Deploiement
 
 | Tâche | Fichier stratégie | Jours | Livrables |
 | ----- | ----------------- | ----- | --------- |
-| OpenAPI specification | 04-api-openapi.md | J9-J10 | 31 endpoints documentés |
+| OpenAPI specification | 04-api-openapi.md | J9-J10 | 38 endpoints documentés |
 | Database documentation | 05-database.md | J11 | ERD + SchemaSpy |
 | Docker documentation | 06-docker.md | J11 | Infra documentée |
 

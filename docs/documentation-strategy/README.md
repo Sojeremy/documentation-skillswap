@@ -27,7 +27,7 @@
 | MkDocs Material | ✅ Configuré | Site fonctionnel localhost:8000 |
 | Arc42 (12 sections) | ✅ 32 fichiers | Structure hiérarchique en sous-dossiers |
 | ADRs (9 décisions) | ✅ Éclatés | 9 fichiers individuels dans `arc42/09-decisions/` |
-| OpenAPI/Swagger | ✅ 31 endpoints | Validation réussie |
+| OpenAPI/Swagger | ✅ 38 endpoints | Validation réussie |
 | Documentation BDD | ✅ 14 modèles | ERD, relations, enums, migrations |
 | Infrastructure Docker | ✅ Complète | Services, réseaux, volumes, troubleshooting |
 | Frontend | ✅ Éclaté | 57 composants, 10 hooks dans `arc42/05-building-blocks/` |

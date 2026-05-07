@@ -13,7 +13,7 @@ Documentation technique utilisant [MkDocs Material](https://squidfunk.github.io/
 | Phase                        | Statut   | Contenu                                              |
 | ---------------------------- | -------- | ---------------------------------------------------- |
 | **Phase A : Fondations**     | ✅ 100%  | MkDocs + Arc42 (12 sections) + Diagrammes C4/Mermaid |
-| **Phase B : Backend**        | ✅ 100%  | OpenAPI (31 endpoints) + Database (14 modèles) + Docker |
+| **Phase B : Backend**        | ✅ 100%  | OpenAPI (38 endpoints) + Database (14 modèles) + Docker |
 | **Phase C : Frontend**       | ✅ 100%  | Consolidé dans `arc42/05-building-blocks.md` (57 composants, 10 hooks) |
 | **Phase D : Qualité**        | ⏳ 0%   | Vitest + Playwright                                  |
 | **Phase E : Finalisation**   | ⏳ 0%   | Fiches soutenance + Déploiement Vercel               |

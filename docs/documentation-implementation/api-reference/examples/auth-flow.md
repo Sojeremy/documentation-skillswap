@@ -79,8 +79,8 @@ const registerSchema = z.object({
 
 | Cookie | Valeur | Durée | HttpOnly |
 |--------|--------|-------|----------|
-| `accessToken` | JWT signé | 15 min | Non |
-| `accessTokenExpires` | Timestamp | 15 min | Non |
+| `accessToken` | JWT signé | 1 heure | Non |
+| `accessTokenExpires` | Timestamp | 1 heure | Non |
 | `refreshToken` | UUID | 30 jours | **Oui** |
 
 ### Erreurs possibles
@@ -136,7 +136,7 @@ curl -X GET http://localhost:3000/api/v1/auth/me \
 
 ## Étape 3 : Rafraîchir le token
 
-Quand l'`accessToken` expire (après 15min), utilisez le `refreshToken` pour en obtenir un nouveau.
+Quand l'`accessToken` expire (après 1 heure), utilisez le `refreshToken` pour en obtenir un nouveau.
 
 ### Requête
 
@@ -289,7 +289,7 @@ api.interceptors.response.use(
 | Mesure | Description |
 |--------|-------------|
 | **HTTP-only cookie** | Le `refreshToken` est inaccessible via JavaScript |
-| **Expiration courte** | L'`accessToken` expire en 15 minutes |
+| **Expiration courte** | L'`accessToken` expire en 1 heure (`TOKEN_EXPIRE` env, défaut 3600 s) |
 | **Rotation des tokens** | Nouveau `refreshToken` à chaque refresh |
 | **Validation Zod** | Tous les inputs sont validés côté serveur |
 

@@ -10,7 +10,7 @@
 
 | Livrable | Statut | Notes |
 |----------|--------|-------|
-| openapi.yaml | ✅ Terminé | 31/31 endpoints documentés |
+| openapi.yaml | ✅ Terminé | 38/38 endpoints documentés |
 | Swagger UI intégré | ✅ Terminé | Accessible dans MkDocs |
 | Guide authentification | ✅ Terminé | authentication.md complet |
 | Codes d'erreur | ✅ Terminé | errors.md documenté |
@@ -58,7 +58,7 @@ schema.prisma  →  TypeScript Types  →  OpenAPI YAML  →  Swagger UI
 | **Conversations** | 8 | 8/8 | CRUD conversations et messages |
 | **Follows** | 4 | 4/4 | followers, following, follow/unfollow |
 | **Categories** | 1 | 0/1 | Liste des catégories |
-| **Total** | **31** | **26/31** | 6 publics, 25 authentifiés |
+| **Total** | **38** | **38/38** | 8 publics, 30 authentifiés |
 
 ### Authentification
 
@@ -228,7 +228,7 @@ npx @redocly/cli lint openapi.yaml
 
 | Étape | Action | Livrable | Validation |
 | ----- | ------ | -------- | ---------- |
-| 1.1 | Analyser les routes backend | Inventaire complet | 31 endpoints listés |
+| 1.1 | Analyser les routes backend | Inventaire complet | 38 endpoints listés |
 | 1.2 | Créer la structure `/docs/docs/api/` | Dossier + fichiers vides | `ls -la` |
 | 1.3 | Installer mkdocs-swagger-ui-tag | Plugin actif | `mkdocs serve` OK |
 | 1.4 | Créer le squelette `openapi.yaml` | Header + info | Syntaxe valide |
@@ -286,7 +286,7 @@ npx @redocly/cli lint openapi.yaml
 
 ### Obligatoires (must-have)
 
-- [x] 31/31 endpoints documentés dans `openapi.yaml`
+- [x] 38/38 endpoints documentés dans `openapi.yaml`
 - [x] Swagger UI accessible et fonctionnel dans MkDocs
 - [x] Schemas `components/schemas` sans duplication
 - [x] Guide authentification (JWT flow) rédigé
@@ -349,7 +349,7 @@ npm install -g openapi-to-postmanv2
 ```plaintext
 docs/docs/api/
 ├── [ ] index.md              # Overview + Swagger UI
-├── [ ] openapi.yaml          # 31 endpoints documentés
+├── [ ] openapi.yaml          # 38 endpoints documentés
 ├── [ ] authentication.md     # Guide JWT complet
 ├── [ ] errors.md             # Format erreurs standard
 └── [ ] examples/

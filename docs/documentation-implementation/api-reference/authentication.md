@@ -6,8 +6,8 @@ SkillSwap utilise une authentification basée sur **JWT (JSON Web Tokens)** avec
 
 | Token | Durée | Stockage | Usage |
 | ----- | ----- | -------- | ----- |
-| `accessToken` | 15 min | Cookie HTTP-only | Authentifier les requêtes |
-| `refreshToken` | 7 jours | Cookie HTTP-only | Renouveler l'accessToken |
+| `accessToken` | 1 heure | Cookie HTTP-only | Authentifier les requêtes |
+| `refreshToken` | 30 jours | Cookie HTTP-only | Renouveler l'accessToken |
 
 ---
 
