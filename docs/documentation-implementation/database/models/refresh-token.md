@@ -44,13 +44,13 @@ model RefreshToken {
 ```sql
 CREATE TABLE "refresh_token" (
   id SERIAL PRIMARY KEY,
-  token VARCHAR UNIQUE NOT NULL,
+  token TEXT UNIQUE NOT NULL,
   user_id INTEGER NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
   expire_at TIMESTAMP NOT NULL,
   issued_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_refresh_token_user_id ON refresh_token(user_id);
+CREATE INDEX "refresh_token_user_id_idx" ON "refresh_token"("user_id");
 ```
 
 ## Cycle de vie

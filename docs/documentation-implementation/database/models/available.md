@@ -66,16 +66,16 @@ Il existe 14 créneaux possibles (7 jours × 2 périodes) :
 ## Table SQL
 
 ```sql
+CREATE TYPE "dayInAWeek" AS ENUM ('Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche');
+CREATE TYPE "Time" AS ENUM ('Morning', 'Afternoon');
+
 CREATE TABLE "available" (
   id SERIAL PRIMARY KEY,
-  day VARCHAR NOT NULL,
-  time_slot VARCHAR NOT NULL,
+  day "dayInAWeek" NOT NULL,
+  time_slot "Time" NOT NULL,
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
 );
-
-CREATE TYPE "dayInAWeek" AS ENUM ('Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche');
-CREATE TYPE "Time" AS ENUM ('Morning', 'Afternoon');
 ```
 
 ## Exemples

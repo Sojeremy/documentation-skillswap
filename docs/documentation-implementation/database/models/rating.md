@@ -28,7 +28,7 @@ model Rating {
 | Champ | Type | Nullable | Description |
 |-------|------|----------|-------------|
 | `id` | Int | Non | Identifiant unique |
-| `score` | Int | Non | Note (1-5) |
+| `score` | Int | Non | Note (1-5, validation applicative) |
 | `comments` | String | Oui | Commentaire optionnel |
 | `evaluatorId` | Int | Non | FK vers User (celui qui note) |
 | `evaluatedId` | Int | Non | FK vers User (celui qui est noté) |
@@ -58,7 +58,7 @@ erDiagram
 ```sql
 CREATE TABLE "evaluation" (
   id SERIAL PRIMARY KEY,
-  score INTEGER NOT NULL CHECK (score >= 1 AND score <= 5),
+  score INTEGER NOT NULL,
   comments TEXT,
   evaluator_id INTEGER NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
   evaluated_id INTEGER NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,

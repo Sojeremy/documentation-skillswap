@@ -49,7 +49,7 @@ model User {
 | `firstname` | String | Non | Prénom |
 | `lastname` | String | Non | Nom de famille |
 | `email` | String | Non | Email unique (login) |
-| `password` | String | Non | Hash argon2id du mot de passe |
+| `password` | String | Non | Hash argon2 (variante argon2id par défaut de la lib) |
 | `address` | String | Oui | Adresse postale |
 | `postalCode` | Int | Oui | Code postal |
 | `city` | String | Oui | Ville |
@@ -105,15 +105,15 @@ erDiagram
 ```sql
 CREATE TABLE "user" (
   id SERIAL PRIMARY KEY,
-  firstname VARCHAR NOT NULL,
-  lastname VARCHAR NOT NULL,
-  email VARCHAR UNIQUE NOT NULL,
-  password VARCHAR NOT NULL,
-  address VARCHAR,
+  firstname TEXT NOT NULL,
+  lastname TEXT NOT NULL,
+  email TEXT UNIQUE NOT NULL,
+  password TEXT NOT NULL,
+  address TEXT,
   postal_code INTEGER,
-  city VARCHAR,
+  city TEXT,
   age INTEGER,
-  avatar_url VARCHAR,
+  avatar_url TEXT,
   description TEXT,
   role_id INTEGER NOT NULL REFERENCES role(id) ON DELETE CASCADE,
   created_at TIMESTAMP DEFAULT NOW(),
