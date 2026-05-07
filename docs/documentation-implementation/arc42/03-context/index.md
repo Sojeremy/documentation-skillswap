@@ -94,7 +94,7 @@ sequenceDiagram
     F->>F: Validation Zod (client)
     F->>B: POST /api/auth/register
     B->>B: Validation Zod (serveur)
-    B->>B: Hash du mot de passe (bcrypt)
+    B->>B: Hash du mot de passe (argon2id)
     B->>DB: INSERT user
     DB-->>B: User créé
     B->>B: Génère JWT + Refresh Token

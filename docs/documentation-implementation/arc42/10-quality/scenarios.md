@@ -26,9 +26,9 @@
 
 | ID | Scénario | Exigence |
 | -- | -------- | -------- |
-| S1 | Stockage mot de passe | Hash bcrypt (10 rounds) |
-| S2 | Transmission données | HTTPS obligatoire |
-| S3 | Session expirée | JWT 15min, refresh 7j |
+| S1 | Stockage mot de passe | Hash argon2id (paramètres par défaut) |
+| S2 | Transmission données | HTTPS obligatoire (TLS 1.2/1.3) |
+| S3 | Session expirée | accessToken 1 h, refreshToken 30 j (rotation à chaque refresh) |
 | S4 | Accès non autorisé | 401/403 approprié |
 
 ---

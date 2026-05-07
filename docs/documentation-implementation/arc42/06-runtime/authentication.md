@@ -21,10 +21,10 @@ sequenceDiagram
             B-->>F: 409 Conflict
             F-->>U: "Email déjà utilisé"
         else Email disponible
-            B->>B: Hash password (bcrypt, 10 rounds)
+            B->>B: Hash password (argon2id)
             B->>DB: INSERT INTO user
             DB-->>B: User créé (id)
-            B->>B: Génère JWT (15min) + Refresh Token (7j)
+            B->>B: Génère JWT (1 h) + Refresh Token (30 j)
             B->>DB: INSERT INTO refresh_token
             B-->>F: 201 Created + { user, tokens }
             F->>F: Stocke tokens (cookies httpOnly)
@@ -36,9 +36,9 @@ sequenceDiagram
 ### Points clés
 
 - **Double validation** : Zod côté client ET serveur
-- **Hash sécurisé** : bcrypt avec 10 rounds
-- **Tokens séparés** : accessToken (15min) + refreshToken (7j)
-- **Stockage sécurisé** : Cookies HTTP-only
+- **Hash sécurisé** : argon2id (paramètres par défaut de la lib)
+- **Tokens séparés** : accessToken (1 h, `TOKEN_EXPIRE=3600`) + refreshToken (30 j)
+- **Stockage sécurisé** : Cookies `httpOnly` + `secure`+`sameSite=strict` en prod
 
 ---
 
@@ -59,7 +59,7 @@ sequenceDiagram
         B-->>F: 401 Unauthorized
         F-->>U: "Identifiants incorrects"
     else User trouvé
-        B->>B: Compare password (bcrypt)
+        B->>B: Compare password (argon2.verify)
         alt Password incorrect
             B-->>F: 401 Unauthorized
             F-->>U: "Identifiants incorrects"

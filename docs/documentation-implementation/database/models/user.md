@@ -49,7 +49,7 @@ model User {
 | `firstname` | String | Non | Prénom |
 | `lastname` | String | Non | Nom de famille |
 | `email` | String | Non | Email unique (login) |
-| `password` | String | Non | Hash bcrypt du mot de passe |
+| `password` | String | Non | Hash argon2id du mot de passe |
 | `address` | String | Oui | Adresse postale |
 | `postalCode` | Int | Oui | Code postal |
 | `city` | String | Oui | Ville |

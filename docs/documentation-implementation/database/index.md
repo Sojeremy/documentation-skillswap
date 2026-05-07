@@ -141,7 +141,7 @@ Représente un membre inscrit sur SkillSwap. C'est le modèle central qui connec
 | email | String | Unique | Email de connexion |
 | firstname | String | Required | Prénom |
 | lastname | String | Required | Nom |
-| password | String | Required | Hash bcrypt |
+| password | String | Required | Hash argon2id |
 | address | String? | Optional | Adresse |
 | postalCode | Int? | Optional | Code postal |
 | city | String? | Optional | Ville |

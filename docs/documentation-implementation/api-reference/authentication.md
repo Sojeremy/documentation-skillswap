@@ -25,7 +25,7 @@ sequenceDiagram
     U->>F: Remplit formulaire
     F->>B: POST /auth/register
     B->>B: Valide données (Zod)
-    B->>B: Hash password (bcrypt)
+    B->>B: Hash password (argon2id)
     B->>DB: INSERT user
     B->>B: Génère JWT + Refresh
     B-->>F: 201 + Set-Cookie
@@ -168,10 +168,15 @@ Les tokens sont stockés dans des cookies avec les options :
 
 ### Hachage des mots de passe
 
-Les mots de passe sont hachés avec **bcrypt** (10 rounds) :
+Les mots de passe sont hachés avec **argon2** (variante `argon2id`, paramètres
+par défaut de la lib `argon2@^0.44.0`) :
 
 ```typescript
-const hashedPassword = await bcrypt.hash(password, 10);
+import argon2 from 'argon2';
+
+const hashedPassword = await argon2.hash(password);
+// vérification :
+const isValid = await argon2.verify(hashedPassword, password);
 ```
 
 ### Middleware checkAuth

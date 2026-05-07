@@ -114,10 +114,10 @@ graph TB
 
 | Objectif | Stratégie | Outils |
 | -------- | --------- | ------ |
-| **Maintenabilité** | Clean Code, SOLID, documentation | ESLint, Prettier, TypeDoc |
-| **Testabilité** | Tests unitaires, E2E | Vitest, Playwright |
-| **Performance** | SSR, caching, lazy loading | Next.js, TanStack Query |
-| **Sécurité** | Validation, sanitization, HTTPS | Zod, Helmet, bcrypt |
+| **Maintenabilité** | Clean Code, SOLID, documentation | ESLint, Prettier, Husky pre-commit (TypeDoc en V2) |
+| **Testabilité** | Tests d'intégration backend | `node --test` natif (7 specs) — Vitest/Playwright frontend prévus en V2 |
+| **Performance** | SSR, caching, lazy loading | Next.js (App Router) |
+| **Sécurité** | Validation, hashing, HTTPS, cookies httpOnly | Zod, argon2, JWT, Nginx (TLS) |
 
 ---
 

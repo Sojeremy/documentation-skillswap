@@ -147,7 +147,7 @@ qui connecte toutes les fonctionnalités : compétences, messagerie,
 | email | String | Unique | Email de connexion |
 | firstname | String | Required | Prénom |
 | lastname | String | Required | Nom |
-| password | String | Required | Hash bcrypt |
+| password | String | Required | Hash argon2id |
 | city | String? | Optional | Ville |
 | avatarUrl | String? | Optional | URL photo profil |
 | description | String? | Optional | Bio |
