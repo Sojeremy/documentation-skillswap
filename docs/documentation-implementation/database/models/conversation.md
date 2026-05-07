@@ -57,15 +57,15 @@ erDiagram
 ## Table SQL
 
 ```sql
+CREATE TYPE "StatusOfConversation" AS ENUM ('Open', 'Close');
+
 CREATE TABLE "conversation" (
   id SERIAL PRIMARY KEY,
-  status VARCHAR DEFAULT 'Open',
-  title VARCHAR NOT NULL,
+  status "StatusOfConversation" NOT NULL DEFAULT 'Open',
+  title TEXT NOT NULL,
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
 );
-
-CREATE TYPE "StatusOfConversation" AS ENUM ('Open', 'Close');
 ```
 
 ## Exemples

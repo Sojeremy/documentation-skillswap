@@ -43,19 +43,19 @@ enum RoleOfUser {
 | 1 | Membre | Rôle par défaut |
 
 !!! note "Évolution future"
-    D'autres rôles pourront être ajoutés (Admin, Moderateur, etc.).
+    L'enum `RoleOfUser` est extensible : la table est prête à accueillir d'autres valeurs si le besoin métier émerge.
 
 ## Table SQL
 
 ```sql
+CREATE TYPE "RoleOfUser" AS ENUM ('Membre');
+
 CREATE TABLE "role" (
   id SERIAL PRIMARY KEY,
-  name VARCHAR DEFAULT 'Membre',
+  name "RoleOfUser" NOT NULL DEFAULT 'Membre',
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
 );
-
-CREATE TYPE "RoleOfUser" AS ENUM ('Membre');
 ```
 
 ## Voir aussi

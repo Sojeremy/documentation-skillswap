@@ -43,8 +43,8 @@ model Category {
 ```sql
 CREATE TABLE "category" (
   id SERIAL PRIMARY KEY,
-  name VARCHAR NOT NULL,
-  slug VARCHAR UNIQUE NOT NULL,
+  name TEXT NOT NULL,
+  slug TEXT UNIQUE NOT NULL,
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
 );
@@ -52,16 +52,18 @@ CREATE TABLE "category" (
 
 ## Catégories actuelles
 
+Les 8 catégories sont créées par le seed (`backend/src/models/seeding.ts`) dans cet ordre :
+
 | ID | Nom | Slug |
 |----|-----|------|
-| 1 | Langues | langues |
-| 2 | Développement Web | developpement-web |
-| 3 | Design | design |
-| 4 | Musique | musique |
-| 5 | Sport | sport |
-| 6 | Cuisine | cuisine |
-| 7 | Photo/Vidéo | photo-video |
-| 8 | Autre | autre |
+| 1 | Développement Web | dev-web |
+| 2 | Design | design |
+| 3 | Marketing | marketing |
+| 4 | Langues | langues |
+| 5 | Cuisine | cuisine |
+| 6 | Sport | sport |
+| 7 | Musique | musique |
+| 8 | Bricolage | bricolage |
 
 ## Exemples
 

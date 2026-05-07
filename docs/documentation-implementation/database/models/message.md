@@ -61,7 +61,7 @@ CREATE TABLE "message" (
   sender_id INTEGER NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
   receiver_id INTEGER NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
   content TEXT NOT NULL,
-  conversation_id INTEGER NOT NULL REFERENCES conversation(id) ON DELETE CASCADE,
+  conversation_id INTEGER NOT NULL REFERENCES "conversation"(id) ON DELETE CASCADE,
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
 );

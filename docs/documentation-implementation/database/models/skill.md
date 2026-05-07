@@ -51,8 +51,8 @@ erDiagram
 ```sql
 CREATE TABLE "skill" (
   id SERIAL PRIMARY KEY,
-  name VARCHAR NOT NULL,
-  category_id INTEGER NOT NULL REFERENCES category(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  category_id INTEGER NOT NULL REFERENCES "category"(id) ON DELETE CASCADE,
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
 );
@@ -87,17 +87,20 @@ const popularSkills = await prisma.skill.findMany({
 
 ## Données de seed
 
+Le seed (`backend/src/models/seeding.ts`) crée 28 compétences réparties sur les 8 catégories. Extrait illustratif :
+
 ```typescript
-const skills = [
-  { name: 'React', categoryId: 2 },
-  { name: 'Vue.js', categoryId: 2 },
-  { name: 'Node.js', categoryId: 2 },
-  { name: 'Piano', categoryId: 4 },
-  { name: 'Guitare', categoryId: 4 },
-  { name: 'Anglais', categoryId: 1 },
-  { name: 'Espagnol', categoryId: 1 }
+const skillsData = [
+  { name: 'JavaScript', categoryId: allCategories[0].id },  // Développement Web
+  { name: 'React', categoryId: allCategories[0].id },
+  { name: 'Figma', categoryId: allCategories[1].id },        // Design
+  { name: 'Anglais', categoryId: allCategories[3].id },      // Langues
+  { name: 'Piano', categoryId: allCategories[6].id },        // Musique
+  // ... (28 compétences au total)
 ];
 ```
+
+Voir [migrations.md § Données de seed](../migrations.md#données-de-seed) pour la liste complète.
 
 ## Voir aussi
 
