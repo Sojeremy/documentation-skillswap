@@ -35,7 +35,7 @@ const profile = await api.getProfile(userId);
 
 ### ApiError
 
-Defined in: [lib/api-client.ts:358](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/lib/api-client.ts#L358)
+Defined in: [lib/api-client.ts:358](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/lib/api-client.ts#L358)
 
 #### Extends
 
@@ -47,7 +47,7 @@ Defined in: [lib/api-client.ts:358](https://github.com/O-clock-Dublin/projet-ski
 
 > **new ApiError**(`message`, `status`): [`ApiError`](#apierror)
 
-Defined in: [lib/api-client.ts:359](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/lib/api-client.ts#L359)
+Defined in: [lib/api-client.ts:359](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/lib/api-client.ts#L359)
 
 ###### Parameters
 
@@ -68,7 +68,7 @@ Defined in: [lib/api-client.ts:359](https://github.com/O-clock-Dublin/projet-ski
 
 | Property | Modifier | Type | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="status"></a> `status` | `public` | `number` | [lib/api-client.ts:361](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/lib/api-client.ts#L361) |
+| <a id="status"></a> `status` | `public` | `number` | [lib/api-client.ts:361](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/lib/api-client.ts#L361) |
 
 ## Variables
 
@@ -76,7 +76,7 @@ Defined in: [lib/api-client.ts:359](https://github.com/O-clock-Dublin/projet-ski
 
 > `const` **api**: `ApiClient`
 
-Defined in: [lib/api-client.ts:372](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/lib/api-client.ts#L372)
+Defined in: [lib/api-client.ts:372](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/lib/api-client.ts#L372)
 
 ## References
 

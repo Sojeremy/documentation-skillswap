@@ -35,7 +35,7 @@ function MyComponent() {
 
 > **useAutoScroll**\<`T`\>(`dependency`): `RefObject`\<`HTMLDivElement` \| `null`\>
 
-Defined in: [hooks/useAutoScroll.ts:33](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/hooks/useAutoScroll.ts#L33)
+Defined in: [hooks/useAutoScroll.ts:33](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/hooks/useAutoScroll.ts#L33)
 
 Hook to automatically scroll to the bottom when content changes.
 
@@ -86,7 +86,7 @@ function MessageThread({ conversationId, messages }) {
 
 > **useFormState**\<`T`\>(`options`): `UseFormStateReturn`\<`T`\>
 
-Defined in: [hooks/useFormState.ts:100](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/hooks/useFormState.ts#L100)
+Defined in: [hooks/useFormState.ts:100](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/hooks/useFormState.ts#L100)
 
 Generic form state management hook with Zod validation.
 
@@ -160,7 +160,7 @@ resetForm();
 
 > **useIsMobile**(`breakpoint`): `boolean`
 
-Defined in: [hooks/useIsMobile.ts:31](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/hooks/useIsMobile.ts#L31)
+Defined in: [hooks/useIsMobile.ts:31](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/hooks/useIsMobile.ts#L31)
 
 Hook for detecting mobile viewport based on screen width.
 
@@ -209,7 +209,7 @@ const isTablet = useIsMobile(1024);
 
 > **useSearch**(`options`): `UseSearchReturn`
 
-Defined in: [hooks/useSearch.ts:105](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/hooks/useSearch.ts#L105)
+Defined in: [hooks/useSearch.ts:105](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/hooks/useSearch.ts#L105)
 
 Hook for searching members with debounce, pagination, and category filtering.
 
@@ -279,7 +279,7 @@ function AdvancedSearch() {
 
 > **useConversationActions**(`__namedParameters`): `object`
 
-Defined in: [hooks/messaging/useConversationActions.ts:33](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/hooks/messaging/useConversationActions.ts#L33)
+Defined in: [hooks/messaging/useConversationActions.ts:33](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/hooks/messaging/useConversationActions.ts#L33)
 
 Hook for conversation CRUD actions
 Responsibilities: create, rate, close, delete, send message
@@ -296,14 +296,14 @@ Responsibilities: create, rate, close, delete, send message
 
 | Name | Type | Defined in |
 | ------ | ------ | ------ |
-| `handleBack()` | () => `void` | [hooks/messaging/useConversationActions.ts:152](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/hooks/messaging/useConversationActions.ts#L152) |
-| `handleViewProfile()` | (`profilId`) => `void` | [hooks/messaging/useConversationActions.ts:153](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/hooks/messaging/useConversationActions.ts#L153) |
-| `handleNewConversation()` | () => `Promise`\<`void`\> | [hooks/messaging/useConversationActions.ts:154](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/hooks/messaging/useConversationActions.ts#L154) |
-| `handleAddConversation()` | (`data`) => `Promise`\<`void`\> | [hooks/messaging/useConversationActions.ts:155](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/hooks/messaging/useConversationActions.ts#L155) |
-| `handleRatingUser()` | (`data`) => `Promise`\<`void`\> | [hooks/messaging/useConversationActions.ts:156](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/hooks/messaging/useConversationActions.ts#L156) |
-| `handleEncloseConversation()` | () => `Promise`\<`void`\> | [hooks/messaging/useConversationActions.ts:157](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/hooks/messaging/useConversationActions.ts#L157) |
-| `handleDeleteConversation()` | () => `Promise`\<`void`\> | [hooks/messaging/useConversationActions.ts:158](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/hooks/messaging/useConversationActions.ts#L158) |
-| `handleSendMessage()` | (`msg`) => `Promise`\<`void`\> | [hooks/messaging/useConversationActions.ts:159](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/hooks/messaging/useConversationActions.ts#L159) |
+| `handleBack()` | () => `void` | [hooks/messaging/useConversationActions.ts:152](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/hooks/messaging/useConversationActions.ts#L152) |
+| `handleViewProfile()` | (`profilId`) => `void` | [hooks/messaging/useConversationActions.ts:153](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/hooks/messaging/useConversationActions.ts#L153) |
+| `handleNewConversation()` | () => `Promise`\<`void`\> | [hooks/messaging/useConversationActions.ts:154](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/hooks/messaging/useConversationActions.ts#L154) |
+| `handleAddConversation()` | (`data`) => `Promise`\<`void`\> | [hooks/messaging/useConversationActions.ts:155](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/hooks/messaging/useConversationActions.ts#L155) |
+| `handleRatingUser()` | (`data`) => `Promise`\<`void`\> | [hooks/messaging/useConversationActions.ts:156](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/hooks/messaging/useConversationActions.ts#L156) |
+| `handleEncloseConversation()` | () => `Promise`\<`void`\> | [hooks/messaging/useConversationActions.ts:157](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/hooks/messaging/useConversationActions.ts#L157) |
+| `handleDeleteConversation()` | () => `Promise`\<`void`\> | [hooks/messaging/useConversationActions.ts:158](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/hooks/messaging/useConversationActions.ts#L158) |
+| `handleSendMessage()` | (`msg`) => `Promise`\<`void`\> | [hooks/messaging/useConversationActions.ts:159](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/hooks/messaging/useConversationActions.ts#L159) |
 
 ***
 
@@ -311,7 +311,7 @@ Responsibilities: create, rate, close, delete, send message
 
 > **useConversationList**(): `object`
 
-Defined in: [hooks/messaging/useConversationList.ts:13](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/hooks/messaging/useConversationList.ts#L13)
+Defined in: [hooks/messaging/useConversationList.ts:13](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/hooks/messaging/useConversationList.ts#L13)
 
 Hook for managing the list of conversations
 Responsibilities: fetch, add, update, remove conversations
@@ -322,11 +322,11 @@ Responsibilities: fetch, add, update, remove conversations
 
 | Name | Type | Defined in |
 | ------ | ------ | ------ |
-| `conversations` | [`Conversation`](lib/api-types.md#conversation)[] | [hooks/messaging/useConversationList.ts:59](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/hooks/messaging/useConversationList.ts#L59) |
-| `isLoading` | `boolean` | [hooks/messaging/useConversationList.ts:60](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/hooks/messaging/useConversationList.ts#L60) |
-| `addConversation()` | (`conv`) => `void` | [hooks/messaging/useConversationList.ts:61](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/hooks/messaging/useConversationList.ts#L61) |
-| `updateConversation()` | (`id`, `updates`) => `void` | [hooks/messaging/useConversationList.ts:62](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/hooks/messaging/useConversationList.ts#L62) |
-| `removeConversation()` | (`id`) => `void` | [hooks/messaging/useConversationList.ts:63](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/hooks/messaging/useConversationList.ts#L63) |
+| `conversations` | [`Conversation`](lib/api-types.md#conversation)[] | [hooks/messaging/useConversationList.ts:59](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/hooks/messaging/useConversationList.ts#L59) |
+| `isLoading` | `boolean` | [hooks/messaging/useConversationList.ts:60](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/hooks/messaging/useConversationList.ts#L60) |
+| `addConversation()` | (`conv`) => `void` | [hooks/messaging/useConversationList.ts:61](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/hooks/messaging/useConversationList.ts#L61) |
+| `updateConversation()` | (`id`, `updates`) => `void` | [hooks/messaging/useConversationList.ts:62](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/hooks/messaging/useConversationList.ts#L62) |
+| `removeConversation()` | (`id`) => `void` | [hooks/messaging/useConversationList.ts:63](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/hooks/messaging/useConversationList.ts#L63) |
 
 ***
 
@@ -334,7 +334,7 @@ Responsibilities: fetch, add, update, remove conversations
 
 > **useFollowedUsers**(): `object`
 
-Defined in: [hooks/messaging/useFollowedUsers.ts:12](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/hooks/messaging/useFollowedUsers.ts#L12)
+Defined in: [hooks/messaging/useFollowedUsers.ts:12](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/hooks/messaging/useFollowedUsers.ts#L12)
 
 Hook for managing followed users (used in new conversation dialog)
 Responsibilities: fetch and store followed users list
@@ -345,8 +345,8 @@ Responsibilities: fetch and store followed users list
 
 | Name | Type | Defined in |
 | ------ | ------ | ------ |
-| `followedUsers` | [`UserInfo`](lib/api-types.md#userinfo)[] \| `undefined` | [hooks/messaging/useFollowedUsers.ts:25](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/hooks/messaging/useFollowedUsers.ts#L25) |
-| `fetchFollowedUsers()` | () => `Promise`\<`void`\> | [hooks/messaging/useFollowedUsers.ts:26](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/hooks/messaging/useFollowedUsers.ts#L26) |
+| `followedUsers` | [`UserInfo`](lib/api-types.md#userinfo)[] \| `undefined` | [hooks/messaging/useFollowedUsers.ts:25](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/hooks/messaging/useFollowedUsers.ts#L25) |
+| `fetchFollowedUsers()` | () => `Promise`\<`void`\> | [hooks/messaging/useFollowedUsers.ts:26](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/hooks/messaging/useFollowedUsers.ts#L26) |
 
 ***
 
@@ -354,7 +354,7 @@ Responsibilities: fetch and store followed users list
 
 > **useSelectedConversation**(): `object`
 
-Defined in: [hooks/messaging/useSelectedConversation.ts:12](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/hooks/messaging/useSelectedConversation.ts#L12)
+Defined in: [hooks/messaging/useSelectedConversation.ts:12](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/hooks/messaging/useSelectedConversation.ts#L12)
 
 Hook for managing the currently selected conversation
 Responsibilities: selection state, fetch conversation details, clear selection
@@ -365,11 +365,11 @@ Responsibilities: selection state, fetch conversation details, clear selection
 
 | Name | Type | Defined in |
 | ------ | ------ | ------ |
-| `selectedConvId` | `number` \| `undefined` | [hooks/messaging/useSelectedConversation.ts:42](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/hooks/messaging/useSelectedConversation.ts#L42) |
-| `setSelectedConvId` | `Dispatch`\<`SetStateAction`\<`number` \| `undefined`\>\> | [hooks/messaging/useSelectedConversation.ts:43](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/hooks/messaging/useSelectedConversation.ts#L43) |
-| `selectedConv` | [`ConversationWithMsg`](lib/api-types.md#conversationwithmsg) \| `undefined` | [hooks/messaging/useSelectedConversation.ts:44](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/hooks/messaging/useSelectedConversation.ts#L44) |
-| `setSelectedConv` | `Dispatch`\<`SetStateAction`\<[`ConversationWithMsg`](lib/api-types.md#conversationwithmsg) \| `undefined`\>\> | [hooks/messaging/useSelectedConversation.ts:45](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/hooks/messaging/useSelectedConversation.ts#L45) |
-| `clearSelection()` | () => `void` | [hooks/messaging/useSelectedConversation.ts:46](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/hooks/messaging/useSelectedConversation.ts#L46) |
+| `selectedConvId` | `number` \| `undefined` | [hooks/messaging/useSelectedConversation.ts:42](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/hooks/messaging/useSelectedConversation.ts#L42) |
+| `setSelectedConvId` | `Dispatch`\<`SetStateAction`\<`number` \| `undefined`\>\> | [hooks/messaging/useSelectedConversation.ts:43](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/hooks/messaging/useSelectedConversation.ts#L43) |
+| `selectedConv` | [`ConversationWithMsg`](lib/api-types.md#conversationwithmsg) \| `undefined` | [hooks/messaging/useSelectedConversation.ts:44](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/hooks/messaging/useSelectedConversation.ts#L44) |
+| `setSelectedConv` | `Dispatch`\<`SetStateAction`\<[`ConversationWithMsg`](lib/api-types.md#conversationwithmsg) \| `undefined`\>\> | [hooks/messaging/useSelectedConversation.ts:45](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/hooks/messaging/useSelectedConversation.ts#L45) |
+| `clearSelection()` | () => `void` | [hooks/messaging/useSelectedConversation.ts:46](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/hooks/messaging/useSelectedConversation.ts#L46) |
 
 ***
 
@@ -377,7 +377,7 @@ Responsibilities: selection state, fetch conversation details, clear selection
 
 > **useMessaging**(): `object`
 
-Defined in: [hooks/useMessaging.ts:15](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/hooks/useMessaging.ts#L15)
+Defined in: [hooks/useMessaging.ts:15](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/hooks/useMessaging.ts#L15)
 
 Main messaging hook - composes smaller focused hooks
 Provides all conversation functionality to the ConversationPage
@@ -388,20 +388,20 @@ Provides all conversation functionality to the ConversationPage
 
 | Name | Type | Defined in |
 | ------ | ------ | ------ |
-| `selectedConvId` | `number` \| `undefined` | [hooks/useMessaging.ts:59](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/hooks/useMessaging.ts#L59) |
-| `setSelectedConvId` | `Dispatch`\<`SetStateAction`\<`number` \| `undefined`\>\> | [hooks/useMessaging.ts:60](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/hooks/useMessaging.ts#L60) |
-| `selectedConv` | [`ConversationWithMsg`](lib/api-types.md#conversationwithmsg) \| `undefined` | [hooks/useMessaging.ts:61](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/hooks/useMessaging.ts#L61) |
-| `conversations` | [`Conversation`](lib/api-types.md#conversation)[] | [hooks/useMessaging.ts:62](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/hooks/useMessaging.ts#L62) |
-| `followedUsers` | [`UserInfo`](lib/api-types.md#userinfo)[] \| `undefined` | [hooks/useMessaging.ts:63](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/hooks/useMessaging.ts#L63) |
-| `isConversationLoading` | `boolean` | [hooks/useMessaging.ts:64](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/hooks/useMessaging.ts#L64) |
-| `handleBack()` | () => `void` | [hooks/useMessaging.ts:66](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/hooks/useMessaging.ts#L66) |
-| `handleNewConversation()` | () => `Promise`\<`void`\> | [hooks/useMessaging.ts:67](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/hooks/useMessaging.ts#L67) |
-| `handleAddConversation()` | (`data`) => `Promise`\<`void`\> | [hooks/useMessaging.ts:68](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/hooks/useMessaging.ts#L68) |
-| `handleSendMessage()` | (`msg`) => `Promise`\<`void`\> | [hooks/useMessaging.ts:69](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/hooks/useMessaging.ts#L69) |
-| `handleViewProfile()` | (`profilId`) => `void` | [hooks/useMessaging.ts:70](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/hooks/useMessaging.ts#L70) |
-| `handleRatingUser()` | (`data`) => `Promise`\<`void`\> | [hooks/useMessaging.ts:71](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/hooks/useMessaging.ts#L71) |
-| `handleEncloseConversation()` | () => `Promise`\<`void`\> | [hooks/useMessaging.ts:72](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/hooks/useMessaging.ts#L72) |
-| `handleDeleteConversation()` | () => `Promise`\<`void`\> | [hooks/useMessaging.ts:73](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/hooks/useMessaging.ts#L73) |
+| `selectedConvId` | `number` \| `undefined` | [hooks/useMessaging.ts:59](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/hooks/useMessaging.ts#L59) |
+| `setSelectedConvId` | `Dispatch`\<`SetStateAction`\<`number` \| `undefined`\>\> | [hooks/useMessaging.ts:60](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/hooks/useMessaging.ts#L60) |
+| `selectedConv` | [`ConversationWithMsg`](lib/api-types.md#conversationwithmsg) \| `undefined` | [hooks/useMessaging.ts:61](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/hooks/useMessaging.ts#L61) |
+| `conversations` | [`Conversation`](lib/api-types.md#conversation)[] | [hooks/useMessaging.ts:62](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/hooks/useMessaging.ts#L62) |
+| `followedUsers` | [`UserInfo`](lib/api-types.md#userinfo)[] \| `undefined` | [hooks/useMessaging.ts:63](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/hooks/useMessaging.ts#L63) |
+| `isConversationLoading` | `boolean` | [hooks/useMessaging.ts:64](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/hooks/useMessaging.ts#L64) |
+| `handleBack()` | () => `void` | [hooks/useMessaging.ts:66](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/hooks/useMessaging.ts#L66) |
+| `handleNewConversation()` | () => `Promise`\<`void`\> | [hooks/useMessaging.ts:67](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/hooks/useMessaging.ts#L67) |
+| `handleAddConversation()` | (`data`) => `Promise`\<`void`\> | [hooks/useMessaging.ts:68](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/hooks/useMessaging.ts#L68) |
+| `handleSendMessage()` | (`msg`) => `Promise`\<`void`\> | [hooks/useMessaging.ts:69](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/hooks/useMessaging.ts#L69) |
+| `handleViewProfile()` | (`profilId`) => `void` | [hooks/useMessaging.ts:70](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/hooks/useMessaging.ts#L70) |
+| `handleRatingUser()` | (`data`) => `Promise`\<`void`\> | [hooks/useMessaging.ts:71](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/hooks/useMessaging.ts#L71) |
+| `handleEncloseConversation()` | () => `Promise`\<`void`\> | [hooks/useMessaging.ts:72](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/hooks/useMessaging.ts#L72) |
+| `handleDeleteConversation()` | () => `Promise`\<`void`\> | [hooks/useMessaging.ts:73](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/hooks/useMessaging.ts#L73) |
 | `messages` | `Message[]` | Messages de la conversation sélectionnée |
 | `loadMoreMessages()` | () => `Promise`\<`void`\> | Charge plus de messages (pagination) |
 
@@ -413,7 +413,7 @@ Provides all conversation functionality to the ConversationPage
 
 > **useAccount**(): `object`
 
-Defined in: [hooks/useAccount.ts:17](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/hooks/useAccount.ts#L17)
+Defined in: [hooks/useAccount.ts:17](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/hooks/useAccount.ts#L17)
 
 Hook pour la gestion du compte utilisateur (mot de passe, suppression).
 
@@ -447,7 +447,7 @@ function AccountSettings() {
 
 > **useSocket**(`conversationId`): `object`
 
-Defined in: [hooks/useSocket.ts:17](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/hooks/useSocket.ts#L17)
+Defined in: [hooks/useSocket.ts:17](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/hooks/useSocket.ts#L17)
 
 Hook pour la communication WebSocket temps réel dans une conversation.
 
@@ -493,7 +493,7 @@ function MessageThread({ conversationId }) {
 
 > **useTopCategories**(): `object`
 
-Defined in: [hooks/useTopCategories.ts:21](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/hooks/useTopCategories.ts#L21)
+Defined in: [hooks/useTopCategories.ts:21](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/hooks/useTopCategories.ts#L21)
 
 Hook pour récupérer les catégories les plus populaires.
 
@@ -528,7 +528,7 @@ function CategoriesSection() {
 
 > **useConversationMessages**(`conversationId`): `object`
 
-Defined in: [hooks/messaging/useConversationMessages.ts:13](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/hooks/messaging/useConversationMessages.ts#L13)
+Defined in: [hooks/messaging/useConversationMessages.ts:13](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/hooks/messaging/useConversationMessages.ts#L13)
 
 Hook pour gérer les messages d'une conversation avec pagination.
 
@@ -572,7 +572,7 @@ function MessageList({ conversationId }) {
 
 > **useGlobalSocket**(`callbacks`): `void`
 
-Defined in: [hooks/messaging/useGlobalSocket.ts:23](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/hooks/messaging/useGlobalSocket.ts#L23)
+Defined in: [hooks/messaging/useGlobalSocket.ts:23](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/hooks/messaging/useGlobalSocket.ts#L23)
 
 Hook pour écouter les événements WebSocket globaux (toutes les conversations).
 
@@ -616,7 +616,7 @@ function ConversationList() {
 
 > **useMessagingScroll**(`options`): `object`
 
-Defined in: [hooks/messaging/useMessagingScroll.ts:14](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/hooks/messaging/useMessagingScroll.ts#L14)
+Defined in: [hooks/messaging/useMessagingScroll.ts:14](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/hooks/messaging/useMessagingScroll.ts#L14)
 
 Hook pour gérer le scroll dans la liste de messages (auto-scroll, infinite scroll).
 
@@ -660,7 +660,7 @@ function MessageThread({ messages }) {
 
 > **useProfile**(`userId`): `object`
 
-Defined in: [hooks/profile/useProfile.ts:26](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/hooks/profile/useProfile.ts#L26)
+Defined in: [hooks/profile/useProfile.ts:26](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/hooks/profile/useProfile.ts#L26)
 
 Hook pour récupérer et gérer les données d'un profil utilisateur.
 
@@ -700,7 +700,7 @@ function ProfilePage({ userId }) {
 
 > **useProfileUpdate**(`profile`, `setProfile`): `object`
 
-Defined in: [hooks/profile/useProfileUpdate.ts:32](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/hooks/profile/useProfileUpdate.ts#L32)
+Defined in: [hooks/profile/useProfileUpdate.ts:32](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/hooks/profile/useProfileUpdate.ts#L32)
 
 Hook pour mettre à jour le profil et l'avatar.
 
@@ -741,7 +741,7 @@ function EditProfileForm({ profile, setProfile }) {
 
 > **useSkills**(`profile`, `setProfile`): `object`
 
-Defined in: [hooks/profile/useSkills.ts:33](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/hooks/profile/useSkills.ts#L33)
+Defined in: [hooks/profile/useSkills.ts:33](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/hooks/profile/useSkills.ts#L33)
 
 Hook pour gérer les compétences d'un utilisateur.
 
@@ -785,7 +785,7 @@ function SkillsManager({ profile, setProfile }) {
 
 > **useInterests**(`profile`, `setProfile`): `object`
 
-Defined in: [hooks/profile/useInterests.ts:37](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/hooks/profile/useInterests.ts#L37)
+Defined in: [hooks/profile/useInterests.ts:37](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/hooks/profile/useInterests.ts#L37)
 
 Hook pour gérer les intérêts (compétences recherchées) d'un utilisateur.
 
@@ -820,7 +820,7 @@ function InterestsManager({ profile, setProfile }) {
 
 > **useAvailabilities**(`profile`, `setProfile`): `object`
 
-Defined in: [hooks/profile/useAvailabilities.ts:36](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/hooks/profile/useAvailabilities.ts#L36)
+Defined in: [hooks/profile/useAvailabilities.ts:36](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/hooks/profile/useAvailabilities.ts#L36)
 
 Hook pour gérer les disponibilités d'un utilisateur.
 
@@ -856,7 +856,7 @@ function AvailabilityManager({ profile, setProfile }) {
 
 > **useDialogs**(): `object`
 
-Defined in: [hooks/profile/useDialogs.ts:27](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/hooks/profile/useDialogs.ts#L27)
+Defined in: [hooks/profile/useDialogs.ts:27](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/hooks/profile/useDialogs.ts#L27)
 
 Hook pour gérer l'état des dialogues de la page d'édition de profil.
 

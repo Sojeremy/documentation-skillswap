@@ -12,7 +12,7 @@
 
 > **UpdatePasswordData** = `z.infer`\<*typeof* [`UpdatePasswordSchema`](#updatepasswordschema)\>
 
-Defined in: [lib/validation/updatePassword.validation.ts:24](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/lib/validation/updatePassword.validation.ts#L24)
+Defined in: [lib/validation/updatePassword.validation.ts:24](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/lib/validation/updatePassword.validation.ts#L24)
 
 ## Variables
 
@@ -20,4 +20,4 @@ Defined in: [lib/validation/updatePassword.validation.ts:24](https://github.com/
 
 > `const` **UpdatePasswordSchema**: `ZodObject`\<\{ `currentPassword`: `ZodString`; `newPassword`: `ZodString`; `confirmation`: `ZodString`; \}, `$strip`\>
 
-Defined in: [lib/validation/updatePassword.validation.ts:3](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/lib/validation/updatePassword.validation.ts#L3)
+Defined in: [lib/validation/updatePassword.validation.ts:3](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/lib/validation/updatePassword.validation.ts#L3)

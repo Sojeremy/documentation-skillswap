@@ -12,7 +12,7 @@
 
 > **LoginData** = `z.infer`\<*typeof* [`LoginFormSchema`](#loginformschema)\>
 
-Defined in: [lib/validation/auth.validation.ts:46](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/lib/validation/auth.validation.ts#L46)
+Defined in: [lib/validation/auth.validation.ts:46](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/lib/validation/auth.validation.ts#L46)
 
 ***
 
@@ -20,7 +20,7 @@ Defined in: [lib/validation/auth.validation.ts:46](https://github.com/O-clock-Du
 
 > **RegisterData** = `z.infer`\<*typeof* [`RegisterFormSchema`](#registerformschema)\>
 
-Defined in: [lib/validation/auth.validation.ts:47](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/lib/validation/auth.validation.ts#L47)
+Defined in: [lib/validation/auth.validation.ts:47](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/lib/validation/auth.validation.ts#L47)
 
 ## Variables
 
@@ -28,7 +28,7 @@ Defined in: [lib/validation/auth.validation.ts:47](https://github.com/O-clock-Du
 
 > `const` **LoginFormSchema**: `ZodObject`\<\{ `email`: `ZodString`; `password`: `ZodString`; \}, `$strip`\>
 
-Defined in: [lib/validation/auth.validation.ts:3](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/lib/validation/auth.validation.ts#L3)
+Defined in: [lib/validation/auth.validation.ts:3](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/lib/validation/auth.validation.ts#L3)
 
 ***
 
@@ -36,4 +36,4 @@ Defined in: [lib/validation/auth.validation.ts:3](https://github.com/O-clock-Dub
 
 > `const` **RegisterFormSchema**: `ZodObject`\<\{ `email`: `ZodString`; `firstname`: `ZodString`; `lastname`: `ZodString`; `password`: `ZodString`; `confirmation`: `ZodString`; \}, `$strip`\>
 
-Defined in: [lib/validation/auth.validation.ts:15](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/lib/validation/auth.validation.ts#L15)
+Defined in: [lib/validation/auth.validation.ts:15](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/lib/validation/auth.validation.ts#L15)

@@ -43,7 +43,7 @@ Bienvenue dans la documentation technique de **SkillSwap**, une plateforme d'éc
 
 ## Liens utiles
 
-- [Repository GitHub](https://github.com/O-clock-Dublin/projet-skillswap)
+- [Repository GitHub](https://github.com/Sojeremy/documentation-skillswap)
 - [Guide Utilisateur](https://guide.skillswap.vercel.app) *(à venir)*
 - [Storybook](https://storybook.skillswap.vercel.app) *(à venir)*
 

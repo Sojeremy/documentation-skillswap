@@ -20,7 +20,7 @@ All functions use French locale (date-fns/locale/fr) for localization.
 
 > **formatMessageDate**(`timestamp?`): `string`
 
-Defined in: [lib/dateTime.utils.ts:41](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/lib/dateTime.utils.ts#L41)
+Defined in: [lib/dateTime.utils.ts:41](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/lib/dateTime.utils.ts#L41)
 
 Format a timestamp for message display with smart date labels.
 
@@ -58,7 +58,7 @@ formatMessageDate(); // ""
 
 > **formatConversationDate**(`timestamp?`): `string`
 
-Defined in: [lib/dateTime.utils.ts:78](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/lib/dateTime.utils.ts#L78)
+Defined in: [lib/dateTime.utils.ts:78](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/lib/dateTime.utils.ts#L78)
 
 Format a timestamp as relative time for conversation lists.
 

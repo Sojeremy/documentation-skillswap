@@ -12,7 +12,7 @@
 
 > **AddConversationData** = `z.infer`\<*typeof* [`AddConversationSchema`](#addconversationschema)\>
 
-Defined in: [lib/validation/conversation.validation.ts:24](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/lib/validation/conversation.validation.ts#L24)
+Defined in: [lib/validation/conversation.validation.ts:24](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/lib/validation/conversation.validation.ts#L24)
 
 ***
 
@@ -20,7 +20,7 @@ Defined in: [lib/validation/conversation.validation.ts:24](https://github.com/O-
 
 > **AddConversationWithMessageData** = `z.infer`\<*typeof* [`AddConversationWithMessageSchema`](#addconversationwithmessageschema)\>
 
-Defined in: [lib/validation/conversation.validation.ts:25](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/lib/validation/conversation.validation.ts#L25)
+Defined in: [lib/validation/conversation.validation.ts:25](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/lib/validation/conversation.validation.ts#L25)
 
 ## Variables
 
@@ -28,7 +28,7 @@ Defined in: [lib/validation/conversation.validation.ts:25](https://github.com/O-
 
 > `const` **AddConversationSchema**: `ZodObject`\<\{ `title`: `ZodString`; `receiverId`: `ZodCoercedNumber`\<`unknown`\>; \}, `$strip`\>
 
-Defined in: [lib/validation/conversation.validation.ts:3](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/lib/validation/conversation.validation.ts#L3)
+Defined in: [lib/validation/conversation.validation.ts:3](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/lib/validation/conversation.validation.ts#L3)
 
 ***
 
@@ -36,4 +36,4 @@ Defined in: [lib/validation/conversation.validation.ts:3](https://github.com/O-c
 
 > `const` **AddConversationWithMessageSchema**: `ZodObject`\<\{ `title`: `ZodString`; `message`: `ZodString`; \}, `$strip`\>
 
-Defined in: [lib/validation/conversation.validation.ts:15](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/lib/validation/conversation.validation.ts#L15)
+Defined in: [lib/validation/conversation.validation.ts:15](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/lib/validation/conversation.validation.ts#L15)

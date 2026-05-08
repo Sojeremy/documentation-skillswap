@@ -24,7 +24,7 @@ Includes:
 
 > **cn**(...`inputs`): `string`
 
-Defined in: [lib/utils.ts:38](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/lib/utils.ts#L38)
+Defined in: [lib/utils.ts:38](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/lib/utils.ts#L38)
 
 Merge Tailwind CSS classes with clsx and tailwind-merge.
 
@@ -57,7 +57,7 @@ Useful for component styling with conditional classes.
 
 > **getInitialsFromUser**(`user`): `string`
 
-Defined in: [lib/utils.ts:55](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/lib/utils.ts#L55)
+Defined in: [lib/utils.ts:55](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/lib/utils.ts#L55)
 
 Get user initials from UserInfo object.
 
@@ -85,7 +85,7 @@ const initials = getInitialsFromUser({ firstname: 'John', lastname: 'Doe' }); //
 
 > **getInitialsFromName**(`name`): `string`
 
-Defined in: [lib/utils.ts:75](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/lib/utils.ts#L75)
+Defined in: [lib/utils.ts:75](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/lib/utils.ts#L75)
 
 Get initials from a full name string.
 
@@ -114,7 +114,7 @@ getInitialsFromName('Alice'); // "A"
 
 > **calculateRating**(`evaluations`): `number`
 
-Defined in: [lib/utils.ts:98](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/lib/utils.ts#L98)
+Defined in: [lib/utils.ts:98](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/lib/utils.ts#L98)
 
 Calculate average rating from evaluations array.
 
@@ -144,7 +144,7 @@ calculateRating(null); // 0
 
 > **validate**\<`T`\>(`schema`, `formData`, `setErrors`): `boolean`
 
-Defined in: [lib/utils.ts:132](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/lib/utils.ts#L132)
+Defined in: [lib/utils.ts:132](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/lib/utils.ts#L132)
 
 Validate form data against a Zod schema and update error state.
 
@@ -191,7 +191,7 @@ const handleSubmit = () => {
 
 > **displayError**(`err`): `void`
 
-Defined in: [lib/utils.ts:176](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/lib/utils.ts#L176)
+Defined in: [lib/utils.ts:176](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/lib/utils.ts#L176)
 
 Display error message as toast notification.
 
@@ -226,7 +226,7 @@ try {
 
 > **getChangedFields**\<`T`\>(`originalData`, `newData`): `Partial`\<`T`\> \| `null`
 
-Defined in: [lib/utils.ts:159](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/lib/utils.ts#L159)
+Defined in: [lib/utils.ts:159](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/lib/utils.ts#L159)
 
 Compare original and new form data, return only changed fields.
 
@@ -274,7 +274,7 @@ if (changes) {
 
 > **logError**(`err`): `void`
 
-Defined in: [lib/utils.ts:223](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/lib/utils.ts#L223)
+Defined in: [lib/utils.ts:223](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/lib/utils.ts#L223)
 
 Log error message to console.
 
