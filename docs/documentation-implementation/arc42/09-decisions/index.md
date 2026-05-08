@@ -13,7 +13,7 @@ Ce chapitre documente les **Architecture Decision Records (ADRs)** du projet Ski
 | 001 | Next.js App Router | Accepté | 2024-12 | [→](./001-nextjs.md) |
 | 002 | Tailwind CSS + shadcn/ui | Accepté | 2024-12 | [→](./002-tailwind.md) |
 | 003 | Prisma ORM | Accepté | 2024-12 | [→](./003-prisma.md) |
-| 004 | TanStack Query | Accepté | 2024-12 | [→](./004-tanstack-query.md) |
+| 004 | TanStack Query | Rejeté | 2026-01 | [→](./004-tanstack-query.md) |
 | 005 | Zod Validation | Accepté | 2024-12 | [→](./005-zod.md) |
 | 006 | Atomic Design | Accepté | 2024-12 | [→](./006-atomic-design.md) |
 | 007 | JWT Authentication | Accepté | 2024-12 | [→](./007-jwt.md) |
@@ -34,7 +34,7 @@ Ce chapitre documente les **Architecture Decision Records (ADRs)** du projet Ski
 |-----|----------|--------|
 | [001](./001-nextjs.md) | Next.js App Router | Framework et routing |
 | [002](./002-tailwind.md) | Tailwind + shadcn/ui | Styling et composants UI |
-| [004](./004-tanstack-query.md) | TanStack Query | State management serveur |
+| [004](./004-tanstack-query.md) | TanStack Query — **Rejeté** | Évalué pour le state serveur, écarté au profit de hooks natifs |
 | [005](./005-zod.md) | Zod | Validation côté client |
 | [006](./006-atomic-design.md) | Atomic Design | Organisation des composants |
 
