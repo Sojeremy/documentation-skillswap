@@ -1,59 +1,41 @@
-@startuml Contact page
+@startuml conversation
+title Envoi d'un message — flow Socket.IO
 
-actor User
-participant FRONT
-participant API
-database DB
+actor "User A" as UA
+participant "Frontend A" as FA
+participant "Socket.IO Server" as SS
+database "PostgreSQL\n(Prisma)" as DB
+participant "Frontend B" as FB
+actor "User B" as UB
 
-== Display conversation page ==
-User -> FRONT : Selects messaging button
-FRONT -> API : GET /api/v1/conversation
-API -> DB : SELECT all conversations by userId order by created_at DESC
-DB --> API : OK
-API --> FRONT : Response 200 (array of conversation) 
-FRONT --> User : List of conversation
+note over FA, SS: Connexion préalable (cookie accessToken)
 
-== Display a conversation ==
-User -> FRONT : Selects a conversation
-FRONT --> User : Display message section with message sending form
-FRONT -> API : GET /api/v1/conversation/:id/message
-API -> DB : SELECT all messages by conversationId order by created_at 
-DB --> API : OK
-API --> FRONT : Response 200 (array of messages) 
-FRONT --> User : Display conversation with message
+FA -> SS : io.connect() with credentials
+SS -> SS : io.use() — jwt.verify(cookies.accessToken)
+SS --> FA : connection OK
+SS -> SS : socket.join("user:A")
 
-== Send message ==
-User -> FRONT : Submits message sending form
-FRONT -> API : POST /api/v1/conversation/:id/message {content}
-API -> API : validate data
-API -> DB : INSERT INTO "message" {content, sender, receiver, conversationId}
-activate DB
-DB --> API : Generated message ID
-deactivate DB
-API --> FRONT : Response 201 + Generated message ID
-FRONT --> User : Display new message following existing messages
+UA -> FA : Sélectionne conversation #42
+FA -> SS : emit conversation:join { conversationId: 42 }
+SS -> DB : SELECT userHasConversation (A, 42)
+DB --> SS : participant OK
+SS -> SS : socket.join("conversation:42")
+SS --> FA : emit conversation:joined { 42 }
 
-== Start a new conversation ==
-User -> FRONT : Selects conversation launch button
-FRONT -> API : GET /api/v1/user
-API -> DB : SELECT all users by followerId {userId, pseudo, avatarUrl} 
-DB --> API : OK
-API --> FRONT : Response 200 (array of users) 
-FRONT --> User : Display dialog window containing form {title, receiver, message}
-
-== Create a conversation ==
-User -> FRONT : Fills and submits creation form {title, receiverId, newMessage}
-FRONT -> API : POST /api/v1/conversation {title, receiverId, newMessage}
-API -> API : validate data
-API -> DB : INSERT INTO "conversation" {title}
-activate DB
-DB --> API : Generated conversation ID
-deactivate DB
-API -> DB : INSERT INTO "message" {content, sender, receiver, conversationId}
-activate DB
-DB --> API : Generated message ID
-deactivate DB
-API --> FRONT : Response 201 + Generated conversation ID + Generated message ID
-FRONT --> User : Display conversation
+UA -> FA : Saisit "Hello" + Envoyer
+FA -> FA : addOptimisticMessage(tempId, "Hello")
+FA -> SS : emit message:send { conversationId: 42, message: "Hello" }
+SS -> SS : trim + 1 <= length <= 2000
+SS -> DB : SELECT conversation #42 + participants
+DB --> SS : { status: 'Open', users: [A, B] }
+SS -> DB : INSERT message + UPDATE conversation
+DB --> SS : msg persisté
+SS -> FA : emit message:new (room conversation:42)
+SS -> FB : emit message:new (room conversation:42 si B joint)
+SS -> FA : emit conversation:updated (room user:A)
+SS -> FB : emit conversation:updated (room user:B)
+note right of SS : Si premier message:\nemit conversation:new à user:B
+FB --> UB : Toast + ajout à la liste
+FA --> UA : Remplace message optimiste par DTO serveur
 
 @enduml
