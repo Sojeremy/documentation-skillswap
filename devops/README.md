@@ -5,7 +5,7 @@
 ### 1. Cloner le repo et aller a la racine du projet
 
 ```bash
-git clone git@github.com:O-clock-Dublin/projet-skillswap.git
+git clone git@github.com:Sojeremy/documentation-skillswap.git
 cd projet-skillswap
 ```
 

@@ -96,7 +96,7 @@ Lues depuis les `package.json` du dépôt de production (ranges `^` conservés t
 
 | Technologie       | Version (déclarée) | Source                       |
 | ----------------- | ------------------ | ---------------------------- |
-| Node.js           | 20+                | Contrainte CI / Dockerfile   |
+| Node.js           | 24                | Contrainte CI / Dockerfile   |
 | Next.js           | 16.1.1             | `frontend/package.json`      |
 | React             | 19.2.3             | `frontend/package.json`      |
 | TypeScript        | ^5                 | `frontend` & `backend`       |

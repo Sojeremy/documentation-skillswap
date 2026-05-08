@@ -2,7 +2,7 @@
 
 ## Statut
 
-Proposé (2025-01)
+Accepté (2026-01-15 — date d'intégration en production, cf. carnet de bord)
 
 ## Contexte
 
