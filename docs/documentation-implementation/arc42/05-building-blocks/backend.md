@@ -170,58 +170,52 @@ export const authMiddleware = async (
 ### Validation Middleware
 
 ```typescript
-// middlewares/validation.middleware.ts
-export const validate = (schema: ZodSchema) => {
-  return (req: Request, res: Response, next: NextFunction) => {
-    const result = schema.safeParse(req.body);
-
+// backend/src/middlewares/auth.middleware.ts (extrait simplifié)
+export const validate =
+  (source: 'body' | 'query' | 'params', schema: ZodSchema) =>
+  (req: Request, res: Response, next: NextFunction) => {
+    const result = schema.safeParse(req[source]);
     if (!result.success) {
-      return res.status(400).json({
-        success: false,
-        error: {
-          code: 'VALIDATION_ERROR',
-          details: result.error.flatten().fieldErrors,
-        },
-      });
+      return next(result.error); // ZodError → middleware errorHandler → 422
     }
-
-    req.body = result.data;
+    req[source] = result.data;
     next();
   };
-};
 ```
+
+> En cas d'échec, on délègue au middleware `errorHandler` qui mappe le
+> `ZodError` en réponse `422 { error: prettifyZodError(...) }`. Détails :
+> [`06-runtime/error-handling.md`](../06-runtime/error-handling.md).
 
 ### Error Middleware
 
 ```typescript
-// middlewares/error.middleware.ts
-export const errorMiddleware = (
-  error: Error,
-  req: Request,
+// backend/src/middlewares/error.middleware.ts (extrait représentatif)
+export const errorHandler = (
+  err: Error,
+  _req: Request,
   res: Response,
-  next: NextFunction
+  _next: NextFunction,
 ) => {
-  if (error instanceof AppError) {
-    return res.status(error.statusCode).json({
-      success: false,
-      error: {
-        code: error.code,
-        message: error.message,
-      },
-    });
+  if (err instanceof HttpError) {
+    return res.status(err.statusCode).json({ error: err.message });
   }
-
-  // Erreur inattendue
-  console.error(error);
-  return res.status(500).json({
-    success: false,
-    error: {
-      code: 'INTERNAL_ERROR',
-      message: 'Erreur serveur',
-    },
-  });
+  if (err instanceof z.ZodError) {
+    return res.status(422).json({ error: prettifyZodError(err.issues) });
+  }
+  // … JWT, Prisma, Multer, FileValidationError (cf. error-handling.md)
+  console.error(err);
+  return res.status(500).json({ error: 'Unexpected server error' });
 };
 ```
+
+> Hiérarchie réelle : `HttpError` (classe parente) + 6 sous-classes
+> (`UnauthorizedError`, `ForbiddenError`, `NotFoundError`,
+> `BadRequestError`, `ConflictError`, `UnprocessableEntityError`) +
+> `FileValidationError` (classe indépendante pour les uploads). Cf.
+> [`backend/src/lib/error.ts`](https://github.com/Sojeremy/documentation-skillswap/blob/main/backend/src/lib/error.ts)
+> et tableau complet dans
+> [`06-runtime/error-handling.md`](../06-runtime/error-handling.md).
 
 ---
 
