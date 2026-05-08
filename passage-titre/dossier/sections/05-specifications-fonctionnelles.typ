@@ -80,33 +80,14 @@ concerns.
   caption: [Architecture logicielle macro de SkillSwap. Le proxy Nginx assure la terminaison TLS et le routage des requêtes vers le frontend Next.js et l'API Express. Le serveur Express héberge à la fois les routes REST (`/api/v1/*`) et le serveur Socket.IO (sur le même port). PostgreSQL persiste les données relationnelles ; Meilisearch sert l'index de recherche full-text, alimenté par un script de réindexation au démarrage.],
 )
 
-=== Composants principaux
-
-#table(
-  columns: (auto, 1fr),
-  stroke: 0.5pt + rgb("#d0d7de"),
-  inset: 6pt,
-  align: (left, left),
-  [*Composant*], [*Rôle*],
-  [Frontend Next.js 16.1.1], [Application React rendue côté serveur (App Router), responsable de l'UI utilisateur, du SSR pour le SEO des profils publics, et de la consommation de l'API REST + Socket.IO. Stack : TypeScript, Tailwind CSS, shadcn/ui, hooks React natifs.],
-  [Backend Express], [API REST type-safe (validation Zod) et serveur Socket.IO. Architecture en couches : routers → middlewares → controllers → services → Prisma.],
-  [PostgreSQL 16], [Base de données relationnelle, accédée exclusivement via Prisma ORM. 14 modèles, 6 migrations, contraintes d'unicité et cascades de suppression définies au schéma.],
-  [Meilisearch], [Moteur de recherche full-text dédié, indexant les utilisateurs et leurs compétences. Choix justifié par les performances et la simplicité d'API par rapport à `pg_trgm` natif (cf. ADR-008).],
-  [Nginx], [Reverse proxy en façade : terminaison TLS (certificats Let's Encrypt), routage `/api/*` vers Express, routage `/` vers Next.js, support WebSocket pour Socket.IO.],
-  [Docker Compose], [Orchestration multi-services en environnements `dev` et `prod` distincts, avec volumes persistants pour PostgreSQL et Meilisearch.],
-)
-
 === Communications inter-composants
 
 Le frontend communique avec le backend via deux canaux complémentaires :
-
-- *REST* (`/api/v1/*`) pour les requêtes synchrones : authentification, CRUD de profils, recherche, listing initial des conversations et messages.
-- *WebSocket* (Socket.IO sur le même serveur HTTP) pour les flux temps réel : envoi de messages, notifications de nouvelles conversations, mises à jour de statuts.
-
-Ce choix d'architecture hybride est documenté dans l'ADR-011 (Socket.IO) et
-détaillé techniquement en section 7.4. Il permet d'optimiser chaque canal
-selon sa nature : la latence interactive sur le WebSocket, la cacheabilité
-et le SEO sur le REST.
+*REST* (`/api/v1/*`) pour les requêtes synchrones (authentification, CRUD,
+listing initial des messages) et *WebSocket* via Socket.IO sur le même
+serveur HTTP pour les flux temps réel (envoi/réception de messages,
+notifications de nouvelles conversations). Ce choix d'architecture hybride
+est documenté dans l'ADR-011 et détaillé techniquement en section 7.4.
 
 == Maquettes et enchaînement des maquettes
 
@@ -122,26 +103,17 @@ hiérarchie des écrans et les principaux états interactifs.
   caption: [Arborescence des écrans publics et privés de SkillSwap. La racine `/` présente la page d'accueil (catégories, membres mieux notés). Les écrans en zone publique (consultation profil, page CGU, mentions légales) sont accessibles sans authentification ; les écrans en zone privée (édition profil, recherche, conversations) nécessitent une session valide.],
 )
 
-L'arborescence reflète le principe de progressive disclosure : un visiteur
-non authentifié peut explorer l'application (consultation des profils
-publics, parcours des catégories) sans friction, et n'est redirigé vers
-l'authentification qu'au moment d'une action nécessitant un compte
-(envoi d'un message, ajout d'une compétence à son profil, suivi d'un membre).
+L'arborescence reflète le principe de *progressive disclosure* : la zone
+publique reste librement accessible, et l'authentification n'est requise
+qu'au moment d'une action transactionnelle (envoi de message, ajout de
+compétence, suivi de membre).
 
 === Parcours utilisateur principal
 
 #figure(
   image("../../../docs/uml/user/user-flow.png", width: 95%),
-  caption: [Parcours utilisateur d'un nouveau membre — de l'inscription au premier échange. Les états indiqués en gras correspondent à des transitions où l'application sollicite une action de l'utilisateur ; les autres sont des écrans de transit.],
+  caption: [Parcours utilisateur d'un nouveau membre — inscription → création du profil → recherche → suivi → ouverture de la première conversation. Cette séquence est exactement celle simulée par le jeu d'essai en section 10.],
 )
-
-Le parcours type d'un nouveau membre couvre cinq étapes : inscription
-(formulaire validé Zod, hashage argon2, session JWT en cookie httpOnly),
-création du profil (compétences offertes, compétences recherchées,
-disponibilités), recherche d'un membre dont les compétences correspondent
-au besoin, suivi du membre (prérequis fonctionnel à toute messagerie),
-puis ouverture de la première conversation. Cette séquence est exactement
-celle simulée par le jeu d'essai détaillé en section 10.
 
 === Captures de maquettes Figma
 
@@ -185,21 +157,12 @@ Les quatorze modèles se regroupent en cinq domaines cohérents :
   [Social], [#raw("Follow", lang: "sql"), #raw("Rating", lang: "sql") — graphe de suivi entre membres et système de notation.],
 )
 
-=== Cardinalités structurantes
-
-Trois cardinalités N-N portent une part importante de la logique métier :
-
-- #raw("User", lang: "sql") ↔ #raw("Skill", lang: "sql") via #raw("UserHasSkill", lang: "sql") (offre) et #raw("UserHasInterest", lang: "sql") (demande) — un même utilisateur peut offrir et rechercher plusieurs compétences ; une même compétence peut être pourvue ou recherchée par plusieurs utilisateurs.
-- #raw("User", lang: "sql") ↔ #raw("Conversation", lang: "sql") via #raw("UserHasConversation", lang: "sql") — table de jonction qui autorise nativement les conversations à deux participants aujourd'hui, et l'évolution vers les conversations de groupe en V2 sans modification du schéma.
-- #raw("User", lang: "sql") ↔ #raw("Available", lang: "sql") via #raw("UserHasAvailable", lang: "sql") — une compétence n'est utile qu'avec un créneau pour la transmettre ; cette table porte la disponibilité contextualisée.
-
-La table #raw("Follow", lang: "sql") modélise un graphe orienté (suivi
-unidirectionnel) avec contrainte d'unicité sur le couple
-#raw("(followedId, followerId)", lang: "ts") et règle métier de non-auto-suivi
-appliquée au niveau du middleware backend. La table #raw("Rating", lang: "sql")
-(mappée #raw("evaluation", lang: "sql") en BDD) matérialise une évaluation N-N
-avec contrainte d'unicité forte #raw("(evaluatorId, evaluatedId)", lang: "ts")
-qui empêche tout doublon de notation.
+Les contraintes d'unicité critiques sont matérialisées au niveau base :
+#raw("@@unique([followedId, followerId])", lang: "ts") sur #raw("Follow", lang: "sql")
+(graphe orienté, non-auto-suivi appliqué côté middleware) et
+#raw("@@unique([evaluatorId, evaluatedId])", lang: "ts") sur #raw("Rating", lang: "sql")
+(mappée #raw("evaluation", lang: "sql") en BDD), qui empêche tout doublon de
+notation entre une même paire de membres.
 
 == Script de création et de modification de la base de données
 
@@ -221,68 +184,17 @@ SQL de cette évolution est intégrale et auditable.
   [2026-01-20], [#raw("make_the_comment_field_in_the_rating_table_optional", lang: "txt")], [Passage du champ #raw("comments", lang: "sql") de #raw("evaluation", lang: "sql") en facultatif (UX : l'évaluateur peut donner une note sans être obligé de commenter).],
 )
 
-=== Extrait — migration `init_db` (création de la table `User`)
-
-```sql
--- backend/prisma/migrations/20260112133206_init_db/migration.sql (extrait — table user)
-CREATE TABLE "user" (
-    "id"            SERIAL NOT NULL,
-    "firstname"     TEXT NOT NULL,
-    "lastname"      TEXT NOT NULL,
-    "email"         TEXT NOT NULL,
-    "password"      TEXT NOT NULL,
-    "address"       TEXT,
-    "postal_code"   INTEGER,
-    "city"          TEXT,
-    "age"           INTEGER,
-    "avatarUrl"     TEXT,
-    "description"   TEXT,
-    "role_id"       INTEGER NOT NULL,
-    "created_at"    TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at"    TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "user_pkey" PRIMARY KEY ("id")
-);
-
--- Unicité de l'email (UNIQUE INDEX séparé, généré par Prisma)
-CREATE UNIQUE INDEX "user_email_key" ON "user"("email");
-
--- Clé étrangère vers role (déclarée à la fin du fichier de migration)
-ALTER TABLE "user"
-    ADD CONSTRAINT "user_role_id_fkey"
-    FOREIGN KEY ("role_id") REFERENCES "role"("id")
-    ON DELETE CASCADE ON UPDATE CASCADE;
-```
-
-La table #raw("user", lang: "sql") concentre l'identité du membre. Prisma
-génère le SQL au format conventionnel : type #raw("TEXT", lang: "sql")
-sans contrainte de longueur côté base (les bornes sont appliquées en
-amont par les schémas Zod côté serveur), index unique sur
-#raw("email", lang: "sql") nommé selon la convention #raw("{table}_{col}_key", lang: "txt"),
-et FK déclarées en fin de migration via #raw("ALTER TABLE", lang: "sql"). La
-colonne #raw("avatarUrl", lang: "sql") sera renommée en #raw("avatar_url", lang: "sql")
-par une migration ultérieure (#raw("fix_snake_case", lang: "txt"), 2026-01-17).
-
-=== Extrait — migration `add_unique_constrain`
-
-```sql
--- backend/prisma/migrations/20260118042859_add_unique_constrain/migration.sql
-CREATE UNIQUE INDEX "evaluation_evaluator_id_evaluated_id_key"
-    ON "evaluation"("evaluator_id", "evaluated_id");
-
-CREATE UNIQUE INDEX "follow_followed_id_follower_id_key"
-    ON "follow"("followed_id", "follower_id");
-```
-
-Cette migration tardive matérialise une règle métier identifiée a posteriori :
-empêcher tout doublon de suivi ou d'évaluation entre une même paire de
-membres. Prisma matérialise ces contraintes via #raw("CREATE UNIQUE INDEX", lang: "sql")
-plutôt que #raw("ALTER TABLE ... ADD CONSTRAINT UNIQUE", lang: "sql") — les
-deux formes sont sémantiquement équivalentes côté PostgreSQL. La table
-ciblée pour l'évaluation est #raw("evaluation", lang: "sql") (mappée depuis
-le modèle Prisma #raw("Rating", lang: "sql") via #raw("@@map(\"evaluation\")", lang: "ts")).
-La contrainte est appliquée au niveau base, garantissant l'intégrité même
-en cas de bug applicatif (défense en profondeur).
+Les extraits SQL générés par Prisma — création de la table #raw("user", lang: "sql")
+dans #raw("init_db", lang: "txt") et matérialisation des contraintes d'unicité
+dans #raw("add_unique_constrain", lang: "txt") — sont reproduits intégralement
+en *annexe A*. Prisma génère le SQL au format conventionnel : type
+#raw("TEXT", lang: "sql") sans contrainte de longueur (les bornes sont
+appliquées en amont par les schémas Zod côté serveur), unicités via
+#raw("CREATE UNIQUE INDEX", lang: "sql") séparés, et FK déclarées en fin de
+migration via #raw("ALTER TABLE", lang: "sql"). Les contraintes d'unicité de
+#raw("Follow", lang: "sql") et #raw("evaluation", lang: "sql") sont appliquées
+au niveau base — défense en profondeur garantissant l'intégrité même en cas
+de bug applicatif.
 
 == Diagramme du comportement des fonctionnalités — cas d'utilisation
 

@@ -103,24 +103,6 @@ l'historique. La saisie utilisateur transite par #raw("MessageInput.tsx", lang: 
 qui émet l'event Socket.IO #raw("message:send", lang: "ts") plutôt qu'une
 requête REST — choix architectural justifié dans la sous-section 7.4.
 
-=== Création d'une nouvelle conversation
-
-#figure(
-  rect(width: 100%, height: 7cm, fill: rgb("#f6f8fa"), stroke: 0.5pt + rgb("#d0d7de"))[
-    #align(center + horizon)[#text(fill: rgb("#57606a"), size: 9pt)[
-      Capture à insérer : ../assets/captures-ui/07-new-conversation-dialog.png
-    ]]
-  ],
-  caption: [Dialogue de création d'une nouvelle conversation (#raw("NewConversationDialog.tsx", lang: "ts")). La liste déroulante n'expose que les utilisateurs que le membre courant suit déjà (gating métier #raw("requireSimpleFollow", lang: "ts")). Si la liste est vide, un état vide invite explicitement à parcourir les profils pour suivre un membre avant de pouvoir le contacter.],
-)
-
-Le dialogue n'autorise que les destinataires que l'utilisateur courant suit
-déjà : la règle métier de gating est doublement appliquée — côté frontend
-(filtrage par #raw("useFollowedUsers", lang: "ts")) et côté backend (middleware
-#raw("requireSimpleFollow", lang: "ts") sur la route #raw("POST /api/v1/conversations", lang: "txt")).
-Cette défense en profondeur garantit qu'aucune conversation ne peut être
-ouverte par contournement du frontend.
-
 === Dialogue d'évaluation après clôture
 
 #figure(
@@ -132,27 +114,14 @@ ouverte par contournement du frontend.
   caption: [Dialogue d'évaluation déclenché à la clôture d'une conversation par l'autre participant (#raw("RatingDialog.tsx", lang: "ts")). Note de 1 à 5 et commentaire facultatif. Bloqué côté serveur si l'utilisateur a déjà évalué le membre cible (contrainte d'unicité Prisma #raw("@@unique([evaluatorId, evaluatedId])", lang: "ts")).],
 )
 
-L'évaluation est fonctionnellement couplée à la clôture de conversation :
-l'event #raw("conversation:closed", lang: "ts") émis par le serveur déclenche
-l'apparition du dialogue côté frontend. Cette logique de couplage assure
-qu'un membre ne peut évaluer qu'après une interaction effective, ce qui
-augmente la qualité du signal donné par les notes affichées sur les profils.
-
-=== Vue mobile — adaptation responsive
-
-#figure(
-  rect(width: 60%, height: 9cm, fill: rgb("#f6f8fa"), stroke: 0.5pt + rgb("#d0d7de"))[
-    #align(center + horizon)[#text(fill: rgb("#57606a"), size: 9pt)[
-      Capture à insérer : ../assets/captures-ui/07-message-thread-mobile.png
-    ]]
-  ],
-  caption: [Vue mobile (390×844, équivalent iPhone 14) du thread de conversation. La navigation entre la liste et le thread devient stack-based (un seul écran à la fois), avec retour via le bouton du #raw("ThreadHeader", lang: "ts").],
-)
-
-L'adaptation mobile a été pensée dès la conception via Tailwind CSS et les
-breakpoints standards. Sur écran étroit, la liste des conversations et le
-thread s'excluent mutuellement plutôt que d'être affichés en split-view, ce
-qui privilégie la lisibilité sur la simultanéité.
+L'évaluation est fonctionnellement couplée à la clôture : l'event
+#raw("conversation:closed", lang: "ts") déclenche l'apparition du dialogue,
+ce qui garantit qu'un membre ne peut évaluer qu'après une interaction
+effective. L'adaptation mobile (responsive Tailwind, navigation stack-based
+au lieu de split-view sur écran étroit) et le dialogue de création
+(#raw("NewConversationDialog.tsx", lang: "ts"), avec gating front+back
+#raw("requireSimpleFollow", lang: "ts")) sont visibles directement sur
+#link("https://skill-swap.fr")[skill-swap.fr] et présentés en démo orale.
 
 == Composants métier — orchestrateur `useMessaging` et optimistic UI
 
@@ -470,57 +439,11 @@ pour empêcher tout abus côté client.
 
 === Schéma Prisma — extrait des modèles principaux
 
-```prisma
-// backend/prisma/schema.prisma (extrait)
-model Conversation {
-  id        Int                  @id @default(autoincrement())
-  status    StatusOfConversation @default(Open)
-  title     String
-  users     UserHasConversation[]
-  messages  Message[]
-
-  createdAt DateTime             @default(now()) @map("created_at")
-  updatedAt DateTime             @default(now()) @updatedAt @map("updated_at")
-
-  @@map("conversation")
-}
-
-enum StatusOfConversation {
-  Open
-  Close
-}
-
-model UserHasConversation {
-  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId         Int          @map("user_id")
-  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-  conversationId Int          @map("conversation_id")
-
-  createdAt      DateTime     @default(now()) @map("created_at")
-  updatedAt      DateTime     @default(now()) @updatedAt @map("updated_at")
-
-  @@id([userId, conversationId])
-  @@map("user_has_conversation")
-}
-
-model Message {
-  id             Int          @id @default(autoincrement())
-  sender         User         @relation("SenderUser", fields: [senderId], references: [id], onDelete: Cascade)
-  senderId       Int          @map("sender_id")
-  receiver       User         @relation("ReceiverUser", fields: [receiverId], references: [id], onDelete: Cascade)
-  receiverId     Int          @map("receiver_id")
-  content        String
-  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-  conversationId Int          @map("conversation_id")
-
-  createdAt      DateTime     @default(now()) @map("created_at")
-  updatedAt      DateTime     @default(now()) @updatedAt @map("updated_at")
-
-  @@map("message")
-}
-```
-
-Les choix de modélisation traduisent plusieurs décisions architecturales :
+Le schéma Prisma intégral des trois modèles directement liés à la messagerie
+(#raw("Conversation", lang: "sql"), #raw("UserHasConversation", lang: "sql"),
+#raw("Message", lang: "sql")) plus #raw("Follow", lang: "sql") (gating) est
+reproduit en *annexe A*. Les choix de modélisation traduisent plusieurs
+décisions architecturales :
 la table de jonction #raw("UserHasConversation", lang: "sql") permet une relation
 N-N entre utilisateurs et conversations (donc support natif de conversations
 de groupe en V2 sans changement de schéma), la cascade #raw("onDelete: Cascade", lang: "ts")
@@ -712,16 +635,12 @@ mobilisées dans la réalisation se cartographient ainsi :
 
 === Dette technique assumée
 
-Conformément au principe de transparence appliqué dans tout ce dossier,
-les zones de fragilité connues sont assumées et reportées en V2 plutôt
-que masquées. Pour la messagerie spécifiquement :
+Les zones de fragilité connues sont assumées et reportées en V2 :
 
-- *Logique métier dense dans le handler `message:send`* (#raw("socket.ts", lang: "ts"), lignes 167-347) : fetch conversation, vérification participant, comptage, création, mise à jour, calcul des statuts dérivés et émission de trois events distincts sont concentrés dans une seule fonction. Une refactorisation vers #raw("services/message.service.ts", lang: "ts") est envisagée en V2 pour aligner ce handler sur la séparation déjà en place côté REST.
-- *Validation des events Socket sans Zod* : à la différence des routes REST (où chaque payload est validé par un schéma Zod), les events Socket utilisent une validation manuelle légère (#raw("Number.isInteger", lang: "ts"), #raw("String.trim", lang: "ts"), bornes de longueur). Ce trade-off est volontaire — la latence du handler de message:send est un objectif fonctionnel — mais une harmonisation Zod est envisageable en V2 si la latence mesurée le permet.
-- *Tests E2E messagerie absents* : la couverture E2E (Playwright) couvre actuellement l'authentification et la recherche, mais pas la messagerie. Un scénario E2E #raw("alice→bob", lang: "ts") avec deux contextes navigateur en parallèle est planifié en V2.
-- *Tests unitaires des hooks `messaging/*` absents* : la couverture Vitest cible aujourd'hui les modules de validation et les utilitaires (#raw("lib/validation/*.test.ts", lang: "ts"), #raw("lib/utils.test.ts", lang: "ts"), #raw("lib/dateTime.utils.test.ts", lang: "ts")). L'extension aux hooks de messagerie est un chantier de V2.
+- *Handler `message:send` dense* (#raw("socket.ts:167-347", lang: "ts")) — fetch, vérifs, persistance et 3 émissions concentrés dans une seule fonction ; refactorisation vers #raw("services/message.service.ts", lang: "ts") prévue en V2.
+- *Validation Socket non-Zod* — bornes manuelles (#raw("Number.isInteger", lang: "ts"), longueur) au lieu de schémas Zod ; trade-off latence assumé, harmonisation possible en V2.
+- *Tests E2E messagerie absents* — Playwright couvre auth + recherche mais pas le scénario `alice→bob` à deux navigateurs.
+- *Tests unitaires hooks `messaging/*` absents* — Vitest cible aujourd'hui validation et utils ; extension aux hooks planifiée en V2.
 
-Ces dettes ne remettent pas en cause la stabilité fonctionnelle constatée
-en production — la messagerie fonctionne au quotidien sur #raw("https://skill-swap.fr", lang: "txt")
-sans incident majeur depuis la mise en service — mais elles sont identifiées
-comme leviers d'amélioration pour la maintenance long-terme.
+Ces dettes n'ont pas affecté la stabilité observée en production sur
+#link("https://skill-swap.fr")[skill-swap.fr] depuis la mise en service.
