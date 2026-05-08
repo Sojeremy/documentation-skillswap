@@ -154,15 +154,16 @@ L'indexation est alimentée :
 
 ---
 
-## Pourquoi pas TanStack Query ?
+## Pourquoi pas de librairie de cache externe ?
 
 Cette architecture s'appuie sur des hooks natifs et `AbortController` plutôt
-qu'une librairie de cache de requêtes. Les raisons (bundle, double emploi
-avec Socket.IO, courbe d'apprentissage) sont détaillées dans
+qu'une librairie tierce. Les raisons (bundle, double emploi avec Socket.IO,
+courbe d'apprentissage) sont détaillées dans
 [ADR-004](../09-decisions/004-tanstack-query.md).
 
 L'optimisation principale (annulation de requête sur frappe rapide) est
-**native** au pattern `AbortController` et n'a pas besoin d'une lib externe.
+**native** au pattern `AbortController` et n'a pas besoin d'une dépendance
+supplémentaire.
 
 ---
 

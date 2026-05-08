@@ -117,7 +117,7 @@ export function AuthForm({ variant }: { variant: 'login' | 'register' }) {
 
 > Le composant `AuthForm` (organism, `frontend/src/components/organisms/AuthForm.tsx`)
 > est utilisé sur les routes `/connexion` et `/inscription` avec une variante
-> en prop. Pas de composants `LoginForm`/`RegisterForm` séparés.
+> en prop. Pas de composants de connexion/inscription séparés.
 
 ---
 

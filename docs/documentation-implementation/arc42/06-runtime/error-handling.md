@@ -32,7 +32,7 @@ flowchart TD
 
 !!! info "Pourquoi ce format minimaliste ?"
     Le backend ne renvoie **qu'une seule clé `error`** (chaîne de caractères).
-    Pas de `success: false`, pas de `code` machine, pas de `details`. Cette
+    Pas de clé `success`, pas de `code` machine, pas de `details`. Cette
     minceur facilite l'intégration côté frontend
     (`displayError(err)` dans `frontend/src/lib/utils.ts`) qui n'a qu'à lire
     `error.message` du `Error` JavaScript reconstruit par `api-client.ts`.

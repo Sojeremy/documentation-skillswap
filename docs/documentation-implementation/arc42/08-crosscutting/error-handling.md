@@ -141,8 +141,8 @@ JavaScript standard. Les composants n'ont qu'à `catch` et passer à
 
 | Anti-pattern                                                                 | Pourquoi c'est faux                                                        |
 |------------------------------------------------------------------------------|----------------------------------------------------------------------------|
-| `throw new AppError(...)`                                                    | Cette classe n'existe pas — utiliser `HttpError` ou ses sous-classes       |
-| Format `{ success: false, error: { code, message, details } }`               | Le backend ne renvoie que `{ error: "string" }`                            |
+| Hériter d'une classe d'erreur applicative générique fictive                  | Seuls `HttpError` + ses 6 sous-classes existent dans `lib/error.ts`        |
+| Format imbriqué avec clés `success` / `code` / `details`                     | Le backend ne renvoie que `{ error: "string" }`                            |
 | `console.error(...)` éparpillé dans services/contrôleurs                     | Le log est centralisé dans `errorHandler` (5xx uniquement)                 |
 | `try/catch` dans les contrôleurs avec mapping erreur→statut                  | Casser le routage central ; dupliquer la logique de `errorHandler`         |
 | Renvoyer un statut HTTP générique (500) pour une erreur métier              | Utiliser la sous-classe adéquate (404/409/422) pour que le frontend distingue |
