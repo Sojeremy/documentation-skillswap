@@ -27,11 +27,39 @@
 
 ### Section 6 — Spécifications techniques
 
-*(aucun item pour l'instant)*
+#### B-006-1 ✅ Audit ancrage code + forme section 6
+
+- **Source** : audit S8 (Claude Code, `06-audit-report.md`)
+- **Résultat** : 5 écarts identifiés (dont 2 majeurs sur la dette technique
+  — Helmet et rate-limiting), 8 ajustements appliqués (3 contenu + 3
+  proportions de tableaux + 2 commentaires CC-VERIFY confirmés). Volume
+  final 3 pages (cible respectée).
+- **Décidé en** : S8 (2026-05-08)
 
 ---
 
 ### Section 8 — Sécurité
+
+#### B-008-2 🔴 Brancher Helmet côté Express (1 ligne)
+
+- **Source** : audit S8, recommandation 1 de Claude Code (`06-audit-report.md` D1)
+- **Fichier prod** : `backend/package.json` (dep installée), `backend/src/app.ts` (jamais utilisée)
+- **Action V2** : `import helmet from 'helmet'; app.use(helmet());` dans `app.ts`. Le coût est minime (1 ligne de code) et corrige immédiatement la dette en posant les en-têtes de sécurité côté Express (en plus de ceux déjà posés par Nginx en façade).
+- **Décidé en** : S8 (2026-05-08)
+
+#### B-008-3 🔴 Ajouter rate-limiting sur les routes auth
+
+- **Source** : audit S8, recommandation 2 de Claude Code (`06-audit-report.md` D2)
+- **Fichier prod** : aucun rate-limit nulle part actuellement (ni `express-rate-limit`, ni `limit_req` Nginx)
+- **Action V2** : ajouter `express-rate-limit` au moins sur `/api/v1/auth/login`, `/register`, `/refresh` (protection brute-force). Configuration suggérée : 5 tentatives / 15 minutes par IP sur ces 3 routes.
+- **Décidé en** : S8 (2026-05-08)
+
+#### B-008-4 🔴 Ajouter une Content-Security-Policy stricte
+
+- **Source** : audit S8, recommandation 3 de Claude Code (`06-audit-report.md` D3)
+- **Fichier prod** : `devops/nginx/prod.conf` — actuellement aucune directive CSP
+- **Action V2** : définir une CSP stricte côté Nginx (en complément des autres en-têtes déjà posés). Démarrer en mode `Content-Security-Policy-Report-Only` avant d'enforcer.
+- **Décidé en** : S8 (2026-05-08)
 
 #### B-008-1 🔴 Audit code-vs-doc spécifique aux numéros de ligne sécurité
 
