@@ -23,7 +23,8 @@ Bienvenue dans la documentation technique de **SkillSwap**, une plateforme d'éc
 - **TypeScript** - Typage statique
 - **Tailwind CSS** - Styling utilitaire
 - **shadcn/ui** - Composants UI (Radix + Tailwind)
-- **TanStack Query** - Gestion du cache et des requêtes
+- **socket.io-client** - Messagerie temps réel
+- **Hooks React natifs** - State serveur via composition (cf. [ADR-004](arc42/09-decisions/004-tanstack-query.md) — TanStack Query rejeté ; et [05-building-blocks/frontend.md](arc42/05-building-blocks/frontend.md))
 
 ### Backend
 

@@ -72,7 +72,7 @@ backend/src/
 | -------- | ----- | ------------------- |
 | Framework frontend | Next.js 16.1.1 (App Router) | Create React App |
 | Styling | Tailwind CSS + shadcn/ui | CSS Modules, Styled Components |
-| State management | TanStack Query | Redux, Zustand |
+| State management | Hooks React natifs (composition + AbortController) | Redux, Zustand, TanStack Query — envisagés puis rejetés (cf. [ADR-004](../09-decisions/004-tanstack-query.md)) |
 | ORM | Prisma | Sequelize, TypeORM |
 | Validation | Zod | Yup, Joi |
 

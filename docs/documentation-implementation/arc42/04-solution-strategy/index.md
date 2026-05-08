@@ -10,7 +10,8 @@
 | **TypeScript** | Type safety, meilleure DX, refactoring facilité |
 | **Tailwind CSS** | Productivité, cohérence, pas de CSS custom |
 | **shadcn/ui** | Composants accessibles, personnalisables, pas de dépendance |
-| **TanStack Query** | Cache intelligent, synchronisation serveur, devtools |
+| **socket.io-client** | Messagerie temps réel (cf. [ADR-011](../09-decisions/011-socket-io.md)) |
+| **Hooks React natifs** | State serveur géré par composition de hooks (`useState`/`useEffect`/`useCallback`/`useRef` + `AbortController`). TanStack Query a été évalué puis rejeté (cf. [ADR-004](../09-decisions/004-tanstack-query.md)) car il ferait double emploi avec Socket.IO pour la propagation push. |
 
 ### Backend
 
