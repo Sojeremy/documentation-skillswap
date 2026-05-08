@@ -1,4 +1,4 @@
-@startuml Search profile page
+@startuml search-profile
 
 actor User
 participant FRONT

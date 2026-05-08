@@ -5,7 +5,7 @@
 ' Les détails sont montrés via include/extend
 ' ============================================================================
 
-@startuml UC_SkillSwap_Complet
+@startuml use-cases
 !theme plain
 skinparam actorStyle awesome
 skinparam usecaseBackgroundColor #FEFEFE
