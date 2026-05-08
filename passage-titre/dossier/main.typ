@@ -27,5 +27,6 @@
 #include "sections/13-conclusion.typ"
 #include "sections/14-lexique.typ"
 
-// Annexes (placeholders)
+// Annexes — saut de page explicite pour démarrer en page propre
+#pagebreak()
 #include "annexes/index.typ"
