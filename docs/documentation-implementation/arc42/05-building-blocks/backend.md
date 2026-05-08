@@ -107,36 +107,38 @@ backend/
 
 ---
 
-## Endpoints API (31 routes)
+## Endpoints API — synthèse
 
-| Route | Méthode | Auth | Description |
-| ----- | ------- | ---- | ----------- |
-| **Authentification** | | | |
-| `/auth/register` | POST | Non | Inscription |
-| `/auth/login` | POST | Non | Connexion |
-| `/auth/logout` | POST | Oui | Déconnexion |
-| `/auth/refresh` | POST | Non | Renouveler token |
-| `/auth/me` | GET | Oui | Profil connecté |
-| **Profils** | | | |
-| `/profiles` | GET | Non | Liste des membres |
-| `/profiles/:id` | GET | Non | Détail d'un profil |
-| `/profiles/:id` | PATCH | Oui | Modifier son profil |
-| `/profiles/:id/skills` | GET | Non | Compétences d'un membre |
-| `/profiles/:id/interests` | GET | Non | Intérêts d'un membre |
-| **Recherche** | | | |
-| `/search/members` | GET | Non | Recherche de membres |
-| `/search/skills` | GET | Non | Recherche de compétences |
-| **Conversations** | | | |
-| `/conversations` | GET | Oui | Mes conversations |
-| `/conversations` | POST | Oui | Créer conversation |
-| `/conversations/:id` | GET | Oui | Détail conversation |
-| `/conversations/:id/messages` | GET | Oui | Messages |
-| `/conversations/:id/messages` | POST | Oui | Envoyer message |
-| **Abonnements** | | | |
-| `/follow/:userId` | POST | Oui | Suivre un membre |
-| `/follow/:userId` | DELETE | Oui | Ne plus suivre |
-| `/followers` | GET | Oui | Mes abonnés |
-| `/following` | GET | Oui | Mes abonnements |
+L'API REST expose **38 endpoints** (37 routes applicatives sous le préfixe
+`/api/v1` + 1 endpoint `/api/v1/health` défini dans `app.ts`). Le détail
+exhaustif (méthode, auth, payload, codes de retour) est documenté dans
+[`endpoints-api.md`](../../endpoints/endpoints-api.md) — source de vérité
+refondue lors de l'audit S2 axe 3.
+
+| Router (montage `index.router.ts`)         | Préfixe                  | Routes | Méthodes principales        |
+|--------------------------------------------|--------------------------|--------|-----------------------------|
+| `auth.router.ts`                           | `/api/v1/auth`           | 5      | POST, GET                   |
+| `profile.router.ts`                        | `/api/v1/profiles`       | 14     | GET, POST, PATCH, DELETE    |
+| `conv.router.ts`                           | `/api/v1/conversations`  | 9      | GET, POST, PATCH, DELETE    |
+| `follow.router.ts`                         | `/api/v1/follows`        | 4      | GET, POST, DELETE           |
+| `category.router.ts`                       | `/api/v1/categories`     | 1      | GET                         |
+| `skill.router.ts`                          | `/api/v1/skills`         | 1      | GET                         |
+| `availability.router.ts`                   | `/api/v1/availabilities` | 1      | GET                         |
+| `search.router.ts`                         | `/api/v1/search`         | 2      | GET                         |
+| `app.ts` (hors `index.router`)             | `/api/v1/health`         | 1      | GET (sonde de vie)          |
+| **Total**                                  |                          | **38** |                             |
+
+> Comptage vérifié par `grep -E "\.(get\|post\|patch\|delete\|put)\(" backend/src/routers/*.router.ts`
+> au 2026-05-08.
+
+!!! note "Doublons REST/Socket.IO sur conversations"
+    `conv.router.ts` expose 9 routes REST, dont
+    `POST /:id/messages` et `PATCH /:id/close` qui font **doublon** avec
+    les events Socket.IO `message:send` et `conversation:close`. Le frontend
+    de production utilise les events Socket.IO ; les routes REST restent
+    pour la parité d'API (clients tiers, scripts admin). Cf.
+    [ADR-011](../09-decisions/011-socket-io.md) et
+    [`06-runtime/messaging.md`](../06-runtime/messaging.md).
 
 ---
 
