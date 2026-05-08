@@ -4,7 +4,7 @@ site_url: https://docs.skillswap.vercel.app
 docs_dir: documentation-implementation
 
 repo_name: projet-skillswap
-repo_url: https://github.com/O-clock-Dublin/projet-skillswap
+repo_url: https://github.com/Sojeremy/documentation-skillswap
 
 theme:
   name: material
@@ -73,7 +73,7 @@ markdown_extensions:
 extra:
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/O-clock-Dublin/projet-skillswap
+      link: https://github.com/Sojeremy/documentation-skillswap
 
 nav:
   - Accueil: index.md

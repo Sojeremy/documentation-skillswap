@@ -8,7 +8,7 @@ Accepté (2026-01-22 — date d'intégration en production, cf. carnet de bord)
 
 - **Loïc** — Scrum Master, intégration backend WebSocket
 - **Yorgan** — Lead Back
-- **Jérémy** — Lead Front (branchement client)
+- **Sebastien et Jérémy** — Lead Front (branchement client)
 
 ## Contexte
 
