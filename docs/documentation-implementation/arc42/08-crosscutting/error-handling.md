@@ -26,10 +26,10 @@ SkillSwap applique une règle simple :
 
 ```mermaid
 flowchart LR
-    A[Service<br/>throw ConflictError] --> B[Controller<br/>next(err)]
-    B --> C[errorHandler<br/>res.status(409).json: error: ...]
-    C --> D[Frontend api-client<br/>throw new Error(body.error)]
-    D --> E[displayError(err)<br/>toast.error]
+    A["Service<br/>throw ConflictError"] --> B["Controller<br/>next(err)"]
+    B --> C["errorHandler<br/>res.status(409).json: error: ..."]
+    C --> D["Frontend api-client<br/>throw new Error(body.error)"]
+    D --> E["displayError(err)<br/>toast.error"]
 ```
 
 ---

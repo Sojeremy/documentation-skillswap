@@ -20,19 +20,19 @@ Ce chapitre décrit les principaux scénarios d'exécution du système, illustra
 ```mermaid
 graph TB
     subgraph "Flux principaux"
-        A[Utilisateur] --> B{Action}
-        B -->|Auth| C[Authentification]
-        B -->|Search| D[Recherche]
-        B -->|Message| E[Messagerie]
+        A["Utilisateur"] --> B{"Action"}
+        B -->|"Auth"| C["Authentification"]
+        B -->|"Search"| D["Recherche"]
+        B -->|"Message"| E["Messagerie"]
     end
 
-    C --> F[Frontend]
+    C --> F["Frontend"]
     D --> F
     E --> F
 
-    F --> G[Backend API]
-    G --> H[(PostgreSQL)]
-    G --> I[Meilisearch]
+    F --> G["Backend API"]
+    G --> H["(PostgreSQL)"]
+    G --> I["Meilisearch"]
 ```
 
 ---

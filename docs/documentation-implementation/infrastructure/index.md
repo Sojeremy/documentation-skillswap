@@ -16,18 +16,18 @@ SkillSwap utilise **Docker Compose** pour orchestrer tous les services en dével
 ```mermaid
 graph TB
     subgraph "Docker Network: skillswap"
-        NGINX[Nginx<br/>:80/:8888]
-        FRONTEND[Next.js<br/>:3000]
-        BACKEND[Express<br/>:3000]
-        POSTGRES[(PostgreSQL 16<br/>:5432)]
-        ADMINER[Adminer<br/>:8080]
+        NGINX["Nginx<br/>:80/:8888"]
+        FRONTEND["Next.js<br/>:3000"]
+        BACKEND["Express<br/>:3000"]
+        POSTGRES["(PostgreSQL 16<br/>:5432)"]
+        ADMINER["Adminer<br/>:8080"]
     end
 
-    CLIENT[Browser] -->|HTTP/HTTPS| NGINX
-    NGINX -->|/| FRONTEND
-    NGINX -->|/api/*| BACKEND
-    BACKEND -->|TCP| POSTGRES
-    ADMINER -->|TCP| POSTGRES
+    CLIENT["Browser"] -->|"HTTP/HTTPS"| NGINX
+    NGINX -->|"/"| FRONTEND
+    NGINX -->|"/api/*"| BACKEND
+    BACKEND -->|"TCP"| POSTGRES
+    ADMINER -->|"TCP"| POSTGRES
 
     style ADMINER fill:#f9f,stroke:#333,stroke-dasharray: 5 5
 ```

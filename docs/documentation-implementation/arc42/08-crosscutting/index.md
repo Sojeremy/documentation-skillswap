@@ -22,22 +22,22 @@ Ce chapitre documente les concepts qui s'appliquent à travers l'ensemble du sys
 ```mermaid
 graph TB
     subgraph "Frontend"
-        F1[Validation Zod]
-        F2[Error Handling]
-        F3[Auth State]
+        F1["Validation Zod"]
+        F2["Error Handling"]
+        F3["Auth State"]
     end
 
     subgraph "Backend"
-        B1[Validation Zod]
-        B2[Error Middleware]
-        B3[JWT Middleware]
-        B4[Logging]
-        B5[Security Headers]
+        B1["Validation Zod"]
+        B2["Error Middleware"]
+        B3["JWT Middleware"]
+        B4["Logging"]
+        B5["Security Headers"]
     end
 
     subgraph "Transversal"
-        T1[Format des erreurs]
-        T2[Types partagés]
+        T1["Format des erreurs"]
+        T2["Types partagés"]
     end
 
     F1 --> T2

@@ -43,28 +43,28 @@ C4Context
 ```mermaid
 flowchart TB
     subgraph Internet
-        Browser[Navigateur Web]
+        Browser["Navigateur Web"]
     end
 
     subgraph "SkillSwap Platform"
         subgraph "Frontend Container"
-            NextJS[Next.js App]
+            NextJS["Next.js App"]
         end
 
         subgraph "Backend Container"
-            Express[Express API]
+            Express["Express API"]
         end
 
         subgraph "Data Layer"
-            PG[(PostgreSQL)]
-            MS[(Meilisearch)]
+            PG["(PostgreSQL)"]
+            MS["(Meilisearch)"]
         end
     end
 
-    Browser -->|HTTPS| NextJS
-    NextJS -->|HTTP| Express
-    Express -->|TCP| PG
-    Express -->|HTTP| MS
+    Browser -->|"HTTPS"| NextJS
+    NextJS -->|"HTTP"| Express
+    Express -->|"TCP"| PG
+    Express -->|"HTTP"| MS
 ```
 
 ---

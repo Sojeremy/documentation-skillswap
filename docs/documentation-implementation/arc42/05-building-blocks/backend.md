@@ -5,37 +5,37 @@
 ```mermaid
 graph TB
     subgraph "Routers Layer"
-        R1[auth.router]
-        R2[profile.router]
-        R3[conv.router]
-        R4[follow.router]
-        R5[skill.router]
+        R1["auth.router"]
+        R2["profile.router"]
+        R3["conv.router"]
+        R4["follow.router"]
+        R5["skill.router"]
     end
 
     subgraph "Controllers Layer"
-        C1[auth.controller]
-        C2[profile.controller]
-        C3[conv.controller]
-        C4[follow.controller]
-        C5[skill.controller]
+        C1["auth.controller"]
+        C2["profile.controller"]
+        C3["conv.controller"]
+        C4["follow.controller"]
+        C5["skill.controller"]
     end
 
     subgraph "Services Layer"
-        S1[auth.service]
-        S2[profile.service]
-        S3[conv.service]
-        S4[follow.service]
-        S5[skill.service]
+        S1["auth.service"]
+        S2["profile.service"]
+        S3["conv.service"]
+        S4["follow.service"]
+        S5["skill.service"]
     end
 
     subgraph "Middlewares"
-        M1[auth.middleware]
-        M2[error.middleware]
-        M3[validation.middleware]
+        M1["auth.middleware"]
+        M2["error.middleware"]
+        M3["validation.middleware"]
     end
 
     subgraph "Data Access"
-        DB[(Prisma Client)]
+        DB["(Prisma Client)"]
     end
 
     R1 --> C1

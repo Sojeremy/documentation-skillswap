@@ -14,20 +14,20 @@ contrôleur ou un middleware en amont aboutit à ce handler, qui :
 
 ```mermaid
 flowchart TD
-    A[Controller / middleware] -->|throw or next(err)| B[errorHandler]
-    B --> C{err instanceof ?}
-    C -->|HttpError| D[res.status(err.statusCode).json: error: err.message]
-    C -->|TokenExpiredError| E[401 — Expired JWT token]
-    C -->|JsonWebTokenError| F[401 — JWT error: ...]
-    C -->|ZodError| G[422 — prettifyZodError]
-    C -->|Prisma P2025| H[404 — Resource not found]
-    C -->|Prisma P2002| I[409 — Conflict: resource already exists]
-    C -->|Prisma P2003| J[409 — Conflict: invalid relation]
-    C -->|Prisma init| K[503 — Database unavailable]
-    C -->|MulterError LIMIT_FILE_SIZE| L[413 — Fichier trop volumineux]
-    C -->|MulterError other| M[400 — Erreur lors de l'upload]
-    C -->|FileValidationError| N[400 — err.message]
-    C -->|sinon| O[500 — Unexpected server error]
+    A["Controller / middleware"] -->|"throw or next(err)"| B["errorHandler"]
+    B --> C{"err instanceof ?"}
+    C -->|"HttpError"| D["res.status(err.statusCode).json: error: err.message"]
+    C -->|"TokenExpiredError"| E["401 — Expired JWT token"]
+    C -->|"JsonWebTokenError"| F["401 — JWT error: ..."]
+    C -->|"ZodError"| G["422 — prettifyZodError"]
+    C -->|"Prisma P2025"| H["404 — Resource not found"]
+    C -->|"Prisma P2002"| I["409 — Conflict: resource already exists"]
+    C -->|"Prisma P2003"| J["409 — Conflict: invalid relation"]
+    C -->|"Prisma init"| K["503 — Database unavailable"]
+    C -->|"MulterError LIMIT_FILE_SIZE"| L["413 — Fichier trop volumineux"]
+    C -->|"MulterError other"| M["400 — Erreur lors de l'upload"]
+    C -->|"FileValidationError"| N["400 — err.message"]
+    C -->|"sinon"| O["500 — Unexpected server error"]
 ```
 
 !!! info "Pourquoi ce format minimaliste ?"

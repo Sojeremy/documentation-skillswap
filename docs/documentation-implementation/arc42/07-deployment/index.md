@@ -23,28 +23,28 @@ déploiement manuel. Les valeurs sont lues dans `devops/docker-compose.prod.yml`
 graph TB
     subgraph "VPS OVH (Ubuntu)"
         subgraph "Docker network: skillswap-prod"
-            NGINX[skillswap-nginx-prod<br/>nginx:alpine<br/>:80, :443]
-            FRONT[skillswap-frontend-1<br/>Next.js 16 standalone<br/>:3000 interne]
-            BACK[skillswap-backend-1<br/>Express 5 + Socket.io<br/>:3000 interne]
-            PG[(skillswap-postgres-prod<br/>postgres:16-alpine<br/>:5432 interne)]
-            MEILI[(skillswap-meilisearch-prod<br/>getmeili/meilisearch:v1.6<br/>:7700 interne)]
-            CERT[skillswap-certbot<br/>certbot/certbot<br/>renew loop 12h]
+            NGINX["skillswap-nginx-prod<br/>nginx:alpine<br/>:80, :443"]
+            FRONT["skillswap-frontend-1<br/>Next.js 16 standalone<br/>:3000 interne"]
+            BACK["skillswap-backend-1<br/>Express 5 + Socket.io<br/>:3000 interne"]
+            PG["(skillswap-postgres-prod<br/>postgres:16-alpine<br/>:5432 interne)"]
+            MEILI["(skillswap-meilisearch-prod<br/>getmeili/meilisearch:v1.6<br/>:7700 interne)"]
+            CERT["skillswap-certbot<br/>certbot/certbot<br/>renew loop 12h"]
         end
         subgraph "Volumes Docker"
-            V1[(postgres_data)]
-            V2[(meilisearch_data)]
-            V3[(avatars_data)]
-            V4[(certbot_www / certbot_conf)]
+            V1["(postgres_data)"]
+            V2["(meilisearch_data)"]
+            V3["(avatars_data)"]
+            V4["(certbot_www / certbot_conf)"]
         end
     end
 
-    USER[Navigateur]
-    USER -->|HTTPS 443| NGINX
-    NGINX -->|HTTP /| FRONT
-    NGINX -->|HTTP /api/| BACK
-    NGINX -->|WS /socket.io/| BACK
-    BACK -->|TCP 5432| PG
-    BACK -->|HTTP 7700| MEILI
+    USER["Navigateur"]
+    USER -->|"HTTPS 443"| NGINX
+    NGINX -->|"HTTP /"| FRONT
+    NGINX -->|"HTTP /api/"| BACK
+    NGINX -->|"WS /socket.io/"| BACK
+    BACK -->|"TCP 5432"| PG
+    BACK -->|"HTTP 7700"| MEILI
     PG --- V1
     MEILI --- V2
     BACK --- V3

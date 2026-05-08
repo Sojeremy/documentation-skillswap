@@ -5,15 +5,15 @@
 ```mermaid
 flowchart LR
     subgraph Client
-        F[Form] --> ZC[Zod Client]
-        ZC -->|Valid| API[API Call]
-        ZC -->|Invalid| E1[Erreurs inline]
+        F["Form"] --> ZC["Zod Client"]
+        ZC -->|"Valid"| API["API Call"]
+        ZC -->|"Invalid"| E1["Erreurs inline"]
     end
 
     subgraph Server
-        API --> ZS[Zod Server]
-        ZS -->|Valid| C[Controller]
-        ZS -->|Invalid| E2[400 Bad Request]
+        API --> ZS["Zod Server"]
+        ZS -->|"Valid"| C["Controller"]
+        ZS -->|"Invalid"| E2["400 Bad Request"]
     end
 ```
 

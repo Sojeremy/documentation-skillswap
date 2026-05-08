@@ -5,21 +5,21 @@
 ```mermaid
 graph LR
     subgraph "Application"
-        A[Response Time]
-        B[Error Rate]
-        C[Active Users]
+        A["Response Time"]
+        B["Error Rate"]
+        C["Active Users"]
     end
 
     subgraph "Infrastructure"
-        D[CPU Usage]
-        E[Memory]
-        F[Disk I/O]
+        D["CPU Usage"]
+        E["Memory"]
+        F["Disk I/O"]
     end
 
     subgraph "Business"
-        G[Inscriptions/jour]
-        H[Messages envoyés]
-        I[Recherches]
+        G["Inscriptions/jour"]
+        H["Messages envoyés"]
+        I["Recherches"]
     end
 ```
 

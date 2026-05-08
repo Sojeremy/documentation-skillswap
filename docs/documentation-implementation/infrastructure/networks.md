@@ -7,11 +7,11 @@ Docker Compose crée automatiquement un réseau pour chaque projet. Les services
 ```mermaid
 graph TB
     subgraph "skillswap-dev_default"
-        nginx[nginx]
-        frontend[frontend:3000]
-        backend[backend:3000]
-        postgres[postgres:5432]
-        adminer[adminer:8080]
+        nginx["nginx"]
+        frontend["frontend:3000"]
+        backend["backend:3000"]
+        postgres["postgres:5432"]
+        adminer["adminer:8080"]
     end
 
     nginx --> frontend

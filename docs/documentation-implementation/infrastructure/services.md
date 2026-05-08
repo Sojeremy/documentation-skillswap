@@ -6,11 +6,11 @@ SkillSwap utilise Docker Compose pour orchestrer **7 services en développement*
 
 ```mermaid
 graph LR
-    Client[Client Browser] --> Nginx
-    Nginx --> Frontend[Frontend Next.js]
-    Nginx --> Backend[Backend Express]
-    Backend --> Postgres[(PostgreSQL)]
-    Backend --> Meilisearch[(Meilisearch)]
+    Client["Client Browser"] --> Nginx
+    Nginx --> Frontend["Frontend Next.js"]
+    Nginx --> Backend["Backend Express"]
+    Backend --> Postgres["(PostgreSQL)"]
+    Backend --> Meilisearch["(Meilisearch)"]
     Adminer --> Postgres
     Certbot -.-> Nginx
 

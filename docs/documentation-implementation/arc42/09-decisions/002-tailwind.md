@@ -16,19 +16,19 @@ Choix de la solution de styling pour le frontend SkillSwap.
 
 ```mermaid
 graph LR
-    A[Options] --> B[CSS Modules]
-    A --> C[Styled Components]
-    A --> D[Tailwind + shadcn]
+    A["Options"] --> B["CSS Modules"]
+    A --> C["Styled Components"]
+    A --> D["Tailwind + shadcn"]
 
-    B --> B1[Verbose]
-    B --> B2[Pas de design system]
+    B --> B1["Verbose"]
+    B --> B2["Pas de design system"]
 
-    C --> C1[Runtime CSS]
-    C --> C2[Bundle size]
+    C --> C1["Runtime CSS"]
+    C --> C2["Bundle size"]
 
-    D --> D1[Utility-first]
-    D --> D2[Composants accessibles]
-    D --> D3[Pas de runtime]
+    D --> D1["Utility-first"]
+    D --> D2["Composants accessibles"]
+    D --> D3["Pas de runtime"]
 ```
 
 ## Conséquences

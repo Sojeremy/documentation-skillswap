@@ -75,12 +75,12 @@ molecule ne compose que des atoms, un organism compose atoms et molecules.
 
 ```mermaid
 graph TB
-    A[Atoms] --> M[Molecules]
-    M --> O[Organisms]
+    A["Atoms"] --> M["Molecules"]
+    M --> O["Organisms"]
     A --> O
-    O --> L[Layouts]
-    L --> P[Pages — app/]
-    PR[Providers] --> P
+    O --> L["Layouts"]
+    L --> P["Pages — app/"]
+    PR["Providers"] --> P
 ```
 
 ### Atoms (18 composants)

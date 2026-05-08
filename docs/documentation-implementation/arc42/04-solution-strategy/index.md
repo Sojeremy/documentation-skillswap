@@ -40,32 +40,32 @@
 ```mermaid
 graph TD
     subgraph Atoms
-        A1[Button]
-        A2[Input]
-        A3[Avatar]
-        A4[Badge]
+        A1["Button"]
+        A2["Input"]
+        A3["Avatar"]
+        A4["Badge"]
     end
 
     subgraph Molecules
-        M1[ProfileCard]
-        M2[MessageBubble]
-        M3[SearchInput]
+        M1["ProfileCard"]
+        M2["MessageBubble"]
+        M3["SearchInput"]
     end
 
     subgraph Organisms
-        O1[Header]
-        O2[SearchPage]
-        O3[ConversationSection]
+        O1["Header"]
+        O2["SearchPage"]
+        O3["ConversationSection"]
     end
 
     subgraph Templates
-        T1[MainLayout]
+        T1["MainLayout"]
     end
 
     subgraph Pages
-        P1[/recherche]
-        P2[/profil/:id]
-        P3[/conversation]
+        P1["/recherche"]
+        P2["/profil/:id"]
+        P3["/conversation"]
     end
 
     A1 --> M1
@@ -88,18 +88,18 @@ graph TD
 ```mermaid
 graph TB
     subgraph "Couche Présentation"
-        R[Routers]
-        C[Controllers]
+        R["Routers"]
+        C["Controllers"]
     end
 
     subgraph "Couche Métier"
-        S[Services]
-        V[Validation]
+        S["Services"]
+        V["Validation"]
     end
 
     subgraph "Couche Données"
-        M[Models/Prisma]
-        DB[(PostgreSQL)]
+        M["Models/Prisma"]
+        DB["(PostgreSQL)"]
     end
 
     R --> C
