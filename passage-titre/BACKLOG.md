@@ -101,6 +101,31 @@
 - **Sections concernées** : 5, 6, 8, 9, 10 (les sections 1, 2, 3, 4, 11, 12, 13, 14 sont moins exposées au risque code-vs-doc, l'audit y est moins critique)
 - **Format de rapport** : `passage-titre/dossier/sections/{NN}-audit-report.md` (cf. `07-audit-report.md` comme référence)
 
+### P-002 🔴 Audit forme/lisibilité du PDF compilé (en complément de P-001)
+
+- **Source** : recommandation Jérémy, S6 (2026-05-08)
+- **Pattern** : à chaque audit Claude Code, en plus de l'ancrage code, vérifier le rendu visuel
+- **Méthode** : après compilation, générer des PNG des pages auditées via `pdftoppm -r 150 -f X -l Y output/dossier_de_projet.pdf /tmp/page`, puis lire ces images pour identifier :
+  - Extraits de code qui débordent (overflow horizontal)
+  - Tableaux maladroitement cassés (cellules tronquées)
+  - Diagrammes mal dimensionnés (illisibles ou trop grands)
+  - Sauts de page malheureux (titre orphelin, image séparée de sa caption)
+  - Incohérences typographiques
+- **Action** : ajustement Typst si nécessaire (`width:` réduit, `pagebreak(weak: true)`, raccourci d'extraits) sans modifier le contenu narratif
+- **Inclusion** : à intégrer au prompt Claude Code dès le prochain audit (sections 6, 8, 9, 10, 11)
+
+### P-003 🔴 Compression finale du dossier (à faire à J-2)
+
+- **Source** : alerte volume claude.ai, S6 (2026-05-08)
+- **Constat** : sections 5 (19p) + 7 (18p) déjà à 37p ; toutes les autres sections rédigées vont pousser le total bien au-delà des 40p REAC
+- **Action initiale (S7, présente)** : compression de 5 et 7 vers 8-10p et 10-12p, déport contenu volumineux vers annexes
+- **Action finale (J-2)** : passe de polish global du dossier complet
+  - Vérification volume total ≤ 40 pages
+  - Déport additionnel vers annexes si dépassement
+  - Cohérence narrative globale, pas de redondance entre sections
+  - Vérification annexes ≤ 20 pages
+- **Décidé en** : S6 (2026-05-08, claude.ai + Jérémy)
+
 ---
 
 ## Items résolus
