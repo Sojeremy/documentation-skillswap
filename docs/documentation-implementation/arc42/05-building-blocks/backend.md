@@ -145,27 +145,28 @@ backend/
 ### Auth Middleware
 
 ```typescript
-// middlewares/auth.middleware.ts
-export const authMiddleware = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  const token = req.cookies.accessToken;
-
-  if (!token) {
-    return res.status(401).json({ error: 'Non authentifié' });
-  }
-
+// backend/src/middlewares/auth.middleware.ts
+export const checkAuth = (req: Request, res: Response, next: NextFunction) => {
   try {
-    const payload = verifyAccessToken(token);
-    req.user = payload;
+    const accessToken = extractAccessTokenFromReq(req);
+    const decoded = decodeAccesToken(accessToken);
+    req.userId = decoded.userId;     // augmenté via @types/express.d.ts
+    req.userRole = decoded.userRole; // idem
     next();
-  } catch (error) {
-    return res.status(401).json({ error: 'Token invalide' });
+  } catch {
+    next(new UnauthorizedError('Acces denied'));
   }
 };
 ```
+
+> Le middleware ne renvoie **pas** lui-même la réponse 401 : il délègue
+> via `next(new UnauthorizedError(...))` au middleware
+> [`errorHandler`](../06-runtime/error-handling.md) qui produit la réponse
+> finale `{ error: "Acces denied" }` avec le bon statut. Les champs
+> `req.userId` et `req.userRole` sont typés grâce aux augmentations
+> globales `Express.Request` (cf. section
+> _« Module : `middlewares/response.middleware.ts` + augmentations TypeScript »_
+> plus bas), ce qui permet aux contrôleurs de les consommer sans cast.
 
 ### Validation Middleware
 
