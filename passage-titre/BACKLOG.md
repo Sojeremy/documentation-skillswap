@@ -61,12 +61,6 @@
 - **Action V2** : définir une CSP stricte côté Nginx (en complément des autres en-têtes déjà posés). Démarrer en mode `Content-Security-Policy-Report-Only` avant d'enforcer.
 - **Décidé en** : S8 (2026-05-08)
 
-#### B-008-1 🔴 Audit code-vs-doc spécifique aux numéros de ligne sécurité
-
-- **Source** : audit S4, recommandation 5 de Claude Code
-- **Action** : avant rédaction définitive, recroiser les références `socket.ts:88-122` (auth), `socket.ts:222-230` (vérif participant `message:send`), `socket.ts:214-220` (refus si `Close`) avec le code prod réel — risque de divergence comme pour la section 7.
-- **Décidé en** : S4 (2026-05-08)
-
 ---
 
 ### Section 12 — Difficultés rencontrées
@@ -159,6 +153,13 @@
 ## Items résolus
 
 *(les items ✅ sont déplacés ici pour garder l'historique sans encombrer la todo)*
+
+#### B-008-1 ✅ Audit code-vs-doc spécifique aux numéros de ligne sécurité
+
+- **Source** : audit S4, recommandation 5 de Claude Code
+- **Résolu en** : S9 (2026-05-08), audit complet des 8 références ligne-par-ligne dans `08-audit-report.md`
+- **Résultat** : 7/8 références exactes ; 1 corrigée (`socket.ts:131-134` → `socket.ts:128, 155` pour le contrôle "Cloisonnement par rooms" — pointait vers le début du handler `conversation:join` au lieu des instructions `socket.join` effectives).
+- **Commit feat** : voir CONTEXT.md S9
 
 ---
 
