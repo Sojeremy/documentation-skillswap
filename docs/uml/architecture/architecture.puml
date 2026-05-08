@@ -43,19 +43,18 @@ package "API Gateway\n(Nginx / Reverse Proxy)" {
 package "Backend - Express API" {
 
   component "Auth Controller" as AuthAPI
-  component "Profile Controller" as ProfileAPI
+  component "Profile Controller\n(+ rating endpoint)" as ProfileAPI
   component "Search Controller" as SearchAPI
 
   together {
     component "Socket.IO Server\n(Realtime Events)" as SocketServer
-    component "Chat Controller" as ChatAPI
+    component "Conversation Controller\n+ Message Controller" as MessageAPI
   }
 
-  component "Conversation Controller" as MessageAPI
-  component "Follow / Block Controller" as SocialAPI
-  component "Review Controller" as ReviewAPI
+  component "Follow Controller" as SocialAPI
+  component "Category / Skill / Availability\nControllers" as RefAPI
 
-  SocketServer --> ChatAPI : persist message\nbroadcast event
+  SocketServer --> MessageAPI : routes REST coexistantes\n(message:send via WS)
 }
 
 package "Storage & Indexing" {
@@ -101,16 +100,16 @@ Gateway --> ProfileAPI
 Gateway --> SearchAPI
 Gateway --> MessageAPI
 Gateway --> SocialAPI
-Gateway --> ReviewAPI
+Gateway --> RefAPI
 
 ' ===== BACKEND -> DATA =====
 AuthAPI --> DB
 ProfileAPI --> DB
+ProfileAPI --> SearchEngine : indexation Meilisearch\n(via member.mapper)
 SearchAPI --> SearchEngine
-ChatAPI --> DB
 MessageAPI --> DB
 SocialAPI --> DB
-ReviewAPI --> DB
+RefAPI --> DB
 SocketServer --> DB
 
 ' ===== LIENS CACHÉS (ALIGNEMENT) =====

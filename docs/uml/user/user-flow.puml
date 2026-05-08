@@ -1,4 +1,4 @@
-@startuml sitemap
+@startuml userflow
 !theme plain
 title SkillSwap — UserFlow (Frontend)
 
@@ -40,30 +40,28 @@ skinparam rectangle<<flow>> {
 }
 
 legend right
-  |<#DBEAFE>| Public |
-  |<#FEE2E2>| Auth |
-  |<#D1FAE5>| Member (auth requis) |
+  |<#DBEAFE>| Public (sans auth) |
+  |<#FEE2E2>| Auth (groupe (auth)/) |
+  |<#D1FAE5>| Membre (groupe (app)/) |
+  |<#FEF3C7>| Action contextuelle |
 endlegend
 
-rectangle "SKILLSWAP (Frontend)" as app {
+rectangle "SKILLSWAP (Frontend Next.js App Router)" as app {
 
-  rectangle "/ (Landing)" as home <<public>>
+  rectangle "/ (Landing — Server Component, ISR 3600s)" as home <<public>>
+  rectangle "/profil/[id] (teaser SEO public, ISR 3600s)" as profile_public <<public>>
 
-  rectangle "/auth" as auth <<auth>> {
-    rectangle "/auth/login" as login
-    rectangle "/auth/register" as register
+  rectangle "Groupe (auth)/" as auth_group <<auth>> {
+    rectangle "/connexion" as login
+    rectangle "/inscription" as register
   }
 
-  rectangle "Espace membre" as member_area <<member>> {
-    rectangle "/search" as search
-    rectangle "/profile/[id]" as profile
-    rectangle "/profile/edit" as profile_edit
-
-    rectangle "/conversations" as conversations
-    rectangle "/conversations/[id]" as conversation
-
-    rectangle "/conversations/[id]/messages" as messages
-    rectangle "/conversations/[id]/rating" as rating <<flow>>
+  rectangle "Groupe (app)/ — protégé par middleware.ts" as member_area <<member>> {
+    rectangle "/recherche" as search
+    rectangle "/profil/[id] (vue Full)" as profile_full
+    rectangle "/mon-profil (édition)" as profile_edit
+    rectangle "/conversation\n(liste + thread + Socket.IO)" as conversation
+    rectangle "Dialog Rating\n(post-clôture)" as rating <<flow>>
   }
 }
 
@@ -72,18 +70,19 @@ rectangle "SKILLSWAP (Frontend)" as app {
 ' ----------------------
 home --> login : "se connecter"
 home --> register : "s'inscrire"
-home --> search : "continuer\n(si déjà connecté)"
+home --> profile_public : "voir un profil mis en avant"
+home --> search : "(redirige vers /connexion si non auth\nvia middleware.ts)"
 
-login --> search : "succès"
-register --> profile_edit : "onboarding"
+login --> search : "succès → redirect=/recherche\n(ou ?redirect=...)"
+register --> search : "succès → redirect=/recherche"
 
-search --> profile : "voir un profil"
-profile --> conversations : "démarrer discussion"
+search --> profile_full : "ouvrir un profil (auth)"
+profile_public --> login : "CTA inscription / connexion"
 
-conversations --> conversation : "ouvrir"
-conversation --> messages : "lire / envoyer"
-conversation --> rating : "clôturer + noter"
+profile_full --> conversation : "démarrer un échange\n(POST /conversations + middleware requireSimpleFollow)"
 
-profile_edit --> search : "retour"
+conversation --> rating : "clôturer → noter (Dialog)"
+
+profile_full --> profile_edit : "(si propriétaire)"
 
 @enduml

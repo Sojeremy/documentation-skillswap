@@ -38,6 +38,7 @@ entity "category" as category_tbl {
   *id : Int <<PK>>
   --
   name : String
+  slug : String <<UNIQUE>>
   created_at : DateTime
   updated_at : DateTime
 }
@@ -119,9 +120,15 @@ entity "available" as available_tbl {
   *id : Int <<PK>>
   --
   day : dayInAWeek
-  start : String
-  end : String
-  user_id : Int <<FK>> (user.id)
+  time_slot : Time
+  created_at : DateTime
+  updated_at : DateTime
+}
+
+entity "user_has_available" as user_has_available_tbl {
+  *user_id : Int <<PK, FK>> (user.id)
+  *available_id : Int <<PK, FK>> (available.id)
+  --
   created_at : DateTime
   updated_at : DateTime
 }
@@ -164,6 +171,7 @@ user_tbl ||--o{ evaluation_tbl : "evaluated_id"
 user_tbl ||--o{ follow_tbl : "follower_id"
 user_tbl ||--o{ follow_tbl : "followed_id"
 
-user_tbl ||--o{ available_tbl : "user_id"
+user_tbl       ||--o{ user_has_available_tbl
+available_tbl  ||--o{ user_has_available_tbl
 user_tbl ||--o{ refresh_token_tbl : "user_id"
 @enduml

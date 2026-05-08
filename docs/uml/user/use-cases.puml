@@ -34,39 +34,33 @@ rectangle "SkillSwap" {
         rectangle "Découverte" {
             usecase "Consulter la landing page" as UC_V_LANDING
             usecase "Voir le concept" as UC_V_CONCEPT
-            usecase "Voir les témoignages" as UC_V_TESTIMONIALS
             usecase "Voir les catégories" as UC_V_CATEGORIES
-            usecase "Voir les profils existants" as UC_V_PROFILE
+            usecase "Voir les profils existants (teaser SEO)" as UC_V_PROFILE
         }
 
         rectangle "Inscription" {
             usecase "Créer un compte" as UC_V_REGISTER
             usecase "Renseigner ses informations" as UC_V_INFO
             usecase "Accepter les CGU" as UC_V_CGU
-            usecase "Confirmer son email" as UC_V_CONFIRM
         }
 
         rectangle "Connexion" {
             usecase "Se connecter" as UC_V_LOGIN
             usecase "Saisir ses identifiants" as UC_V_CREDENTIALS
-            usecase "Mot de passe oublié" as UC_V_FORGOT
         }
 
         ' Visiteur → UC principaux seulement
         V --> UC_V_LANDING
         V --> UC_V_REGISTER
         V --> UC_V_LOGIN
-        V --> UC_V_FORGOT
 
         ' Include dans Découverte
         UC_V_LANDING ..> UC_V_CONCEPT : <<include>>
-        UC_V_LANDING ..> UC_V_TESTIMONIALS : <<include>>
         UC_V_LANDING ..> UC_V_CATEGORIES : <<include>>
 
         ' Include dans Inscription
         UC_V_REGISTER ..> UC_V_INFO : <<include>>
         UC_V_REGISTER ..> UC_V_CGU : <<include>>
-        UC_V_REGISTER ..> UC_V_CONFIRM : <<include>>
 
         ' Include dans Connexion
         UC_V_LOGIN ..> UC_V_CREDENTIALS : <<include>>
@@ -122,17 +116,16 @@ rectangle "SkillSwap" {
         rectangle "Messagerie" {
             usecase "Accéder à la messagerie" as UC_M_INBOX
             usecase "Voir les conversations" as UC_M_CONV_LIST
-            usecase "Voir les non-lus" as UC_M_UNREAD
 
             usecase "Contacter un membre" as UC_M_CONTACT
             usecase "Créer une conversation" as UC_M_NEW_CONV
 
-            usecase "Échanger des messages" as UC_M_CHAT
+            usecase "Échanger des messages\n(Socket.IO)" as UC_M_CHAT
             usecase "Envoyer un message" as UC_M_SEND
             usecase "Supprimer un message" as UC_M_DEL_MSG
 
             usecase "Clore une conversation" as UC_M_CLOSE
-            usecase "Archiver" as UC_M_ARCHIVE
+            usecase "Supprimer une conversation" as UC_M_DELETE_CONV
         }
 
         ' --------------------------------------------------------------------
@@ -143,11 +136,7 @@ rectangle "SkillSwap" {
             usecase "Suivre un membre" as UC_M_FOLLOW
             usecase "Ne plus suivre" as UC_M_UNFOLLOW
 
-            usecase "Gérer les blocages" as UC_M_BLOCKS
-            usecase "Bloquer un membre" as UC_M_BLOCK
-            usecase "Débloquer" as UC_M_UNBLOCK
-
-            usecase "Évaluer un membre" as UC_M_RATE
+            usecase "Évaluer un membre\n(suivi mutuel requis)" as UC_M_RATE
             usecase "Donner une note" as UC_M_SCORE
             usecase "Écrire un commentaire" as UC_M_COMMENT
         }
@@ -170,7 +159,6 @@ rectangle "SkillSwap" {
         M --> UC_M_INBOX
         M --> UC_M_CONTACT
         M --> UC_M_FOLLOWS
-        M --> UC_M_BLOCKS
         M --> UC_M_RATE
         M --> UC_M_ACCOUNT
 
@@ -209,7 +197,6 @@ rectangle "SkillSwap" {
         ' INCLUDE/EXTEND - MODULE MESSAGERIE
         ' ====================================================================
         UC_M_INBOX ..> UC_M_CONV_LIST : <<include>>
-        UC_M_INBOX ..> UC_M_UNREAD : <<include>>
         UC_M_INBOX ..> UC_M_CHAT : <<include>>
 
         UC_M_CONTACT ..> UC_M_NEW_CONV : <<include>>
@@ -217,16 +204,13 @@ rectangle "SkillSwap" {
         UC_M_CHAT ..> UC_M_SEND : <<include>>
         UC_M_DEL_MSG ..> UC_M_CHAT : <<extend>>
         UC_M_CLOSE ..> UC_M_CHAT : <<extend>>
-        UC_M_CLOSE ..> UC_M_ARCHIVE : <<include>>
+        UC_M_DELETE_CONV ..> UC_M_INBOX : <<extend>>
 
         ' ====================================================================
         ' INCLUDE/EXTEND - MODULE SOCIAL
         ' ====================================================================
         UC_M_FOLLOWS ..> UC_M_FOLLOW : <<include>>
         UC_M_FOLLOWS ..> UC_M_UNFOLLOW : <<include>>
-
-        UC_M_BLOCKS ..> UC_M_BLOCK : <<include>>
-        UC_M_BLOCKS ..> UC_M_UNBLOCK : <<include>>
 
         UC_M_RATE ..> UC_M_SCORE : <<include>>
         UC_M_COMMENT ..> UC_M_RATE : <<extend>>
@@ -244,8 +228,7 @@ rectangle "SkillSwap" {
     ' ========================================================================
     UC_M_VIEW ..> UC_M_CONTACT : <<extend>>
     UC_M_VIEW ..> UC_M_FOLLOW : <<extend>>
-    UC_M_VIEW ..> UC_M_BLOCK : <<extend>>
-    UC_M_CLOSE ..> UC_M_RATE : <<include>>
+    UC_M_CLOSE ..> UC_M_RATE : <<extend>>
 }
 
 ' ============================================================================

@@ -3,30 +3,31 @@
 actor User
 participant FRONT
 participant API
-database DB
+database "Meilisearch\n(membersIndex)" as Meili
 
-== Display search page ==
-User -> FRONT : Search page
-FRONT -> API : GET /api/v1/search?page=1&limit=20
-API -> DB : SELECT all profiles order by evaluationRate DESC
-DB --> API : OK
-API --> FRONT : Response 200 (array of profiles) 
-FRONT --> User : List of profiles
+== Affichage initial — top membres ==
+User -> FRONT : Ouvre /recherche
+FRONT -> API : GET /api/v1/search/?q=&page=1&limit=12&sort=rating:desc
+API -> API : checkAuth + Zod (SearchParamsSchema)
+API -> Meili : membersIndex.search("", { sort: ["rating:desc"], limit: 12 })
+Meili --> API : { hits, totalHits, processingTimeMs }
+API --> FRONT : 200 { success: true, data: { hits, page, totalPages, ... } }
+FRONT --> User : Grille de profils (ProfileCard)
 
-== Filter by category ==
-User -> FRONT : Select a category
-FRONT -> API : GET /api/v1/search?page=1&limit=20&categorie=bricolage
-API -> DB : SELECT all profiles by category order by evaluationRate DESC
-DB --> API : OK
-API --> FRONT : Response 200 (array of profiles) 
-FRONT --> User : Update display with list of filtered profiles
+== Filtre par catégorie ==
+User -> FRONT : Sélectionne une catégorie (slug)
+FRONT -> API : GET /api/v1/search/?q=&category=bricolage&page=1&limit=12
+API -> Meili : search("", { filter: 'categorySlugs = "bricolage"', limit: 12 })
+Meili --> API : { hits filtrés }
+API --> FRONT : 200 { success: true, data: ... }
+FRONT --> User : Mise à jour de la grille
 
-== Search by skill ==
-User -> FRONT : Submit search skill form
-FRONT -> API : GET /api/v1/search?page=1&limit=20&categorie=bricolage&competence=montage-meuble
-API -> DB : SELECT all profiles by skill and category order by evaluationRate DESC
-DB --> API : OK
-API --> FRONT : Response 200 (array of profiles) 
-FRONT --> User : Update display with list of filtered profiles
+== Recherche full-text ==
+User -> FRONT : Saisit un mot-clé (debounce 300 ms côté useSearch)
+FRONT -> API : GET /api/v1/search/?q=React&category=informatique&page=1&limit=12
+API -> Meili : search("React", { filter: 'categorySlugs = "informatique"' })
+Meili --> API : hits typo-tolérants ("Raect" → "React")
+API --> FRONT : 200 { success: true, data: ... }
+FRONT --> User : Résultats actualisés
 
 @enduml
