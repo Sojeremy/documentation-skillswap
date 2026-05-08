@@ -15,9 +15,9 @@ messagerie :
 
 Côté serveur, l'instance Socket.IO est initialisée par `initSocket()` et
 montée sur le même serveur HTTP qu'Express
-(cf. [`backend/src/realtime/socket.ts`](https://github.com/Squellie/projet-skillswap/blob/main/backend/src/realtime/socket.ts)).
+(cf. [`backend/src/realtime/socket.ts`](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/backend/src/realtime/socket.ts)).
 Côté client, un singleton `io()` est exposé par
-[`frontend/src/lib/socket-client.ts`](https://github.com/Squellie/projet-skillswap/blob/main/frontend/src/lib/socket-client.ts)
+[`frontend/src/lib/socket-client.ts`](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/lib/socket-client.ts)
 (`autoConnect: false`, `withCredentials: true`).
 
 !!! info "Pourquoi ce choix ?"
@@ -168,7 +168,7 @@ sequenceDiagram
 Les endpoints REST du module conversation (préfixe
 `/api/v1/conversations`) restent indispensables aux opérations qui ne
 relèvent pas du temps réel. Routage défini dans
-[`backend/src/routers/conv.router.ts`](https://github.com/Squellie/projet-skillswap/blob/main/backend/src/routers/conv.router.ts).
+[`backend/src/routers/conv.router.ts`](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/backend/src/routers/conv.router.ts).
 
 | Méthode | Chemin                                  | Rôle                                                          | Notes                                                              |
 |---------|-----------------------------------------|---------------------------------------------------------------|--------------------------------------------------------------------|
@@ -199,7 +199,7 @@ React natifs** (`useState`, `useEffect`, `useCallback`, `useRef`,
 `AbortController` pour les fetchs cancellables).
 
 Le point d'entrée est la façade
-[`useMessaging`](https://github.com/Squellie/projet-skillswap/blob/main/frontend/src/hooks/useMessaging.ts)
+[`useMessaging`](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/hooks/useMessaging.ts)
 qui compose six hooks spécialisés :
 
 ```ts
@@ -231,7 +231,7 @@ export function useMessaging() {
 | `useConversationActions`          | `hooks/messaging/useConversationActions.ts` (185 LOC) | Handlers UI ; instancie `useSocket(selectedConvId)` pour `message:send` et `conversation:close` |
 
 `useSocket(conversationId)`
-([`hooks/useSocket.ts`](https://github.com/Squellie/projet-skillswap/blob/main/frontend/src/hooks/useSocket.ts), 136 LOC) gère :
+([`hooks/useSocket.ts`](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/hooks/useSocket.ts), 136 LOC) gère :
 
 - la connexion paresseuse au socket singleton (`socket.connect()` si non connecté) ;
 - l'émission `conversation:join` à l'entrée et `conversation:leave` au cleanup
@@ -242,7 +242,7 @@ export function useMessaging() {
 ### Optimistic UI
 
 `handleSendMessage` (cf.
-[`useConversationActions.ts:100-118`](https://github.com/Squellie/projet-skillswap/blob/main/frontend/src/hooks/messaging/useConversationActions.ts))
+[`useConversationActions.ts:100-118`](https://github.com/O-clock-Dublin/projet-skillswap/blob/main/frontend/src/hooks/messaging/useConversationActions.ts))
 ajoute le message à l'état local avec un `tempId` négatif (`-Date.now()`) avant
 l'aller-retour serveur. Quand le serveur émet `message:new`, le hook ignore
 l'event si `sender.id === user.id` (évite la duplication avec l'optimistic
