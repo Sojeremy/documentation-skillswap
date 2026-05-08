@@ -1644,18 +1644,19 @@ components:
           example: "Bonjour, je suis intéressé par un échange !"
 
     # ---- Error Schema ----
+    # Format unique renvoyé par tous les endpoints d'erreur du backend.
+    # Source de vérité : backend/src/middlewares/error.middleware.ts
+    # Cf. docs/documentation-implementation/arc42/06-runtime/error-handling.md
     Error:
       type: object
+      required:
+        - error
       properties:
-        success:
-          type: boolean
-          example: false
         error:
           type: string
-          example: "Email déjà utilisé"
-        code:
-          type: string
-          example: "CONFLICT"
+          description: Message d'erreur lisible (technique pour 5xx, métier en français pour les flows utilisateur).
+      example:
+        error: "Email or password is incorrect"
 
     # ---- Search Schemas ----
     SearchResponse:
