@@ -67,43 +67,42 @@ graph TB
 
 ## Structure des dossiers
 
+Arborescence réelle de `backend/` (vérifiée via `find` au 2026-05-08, hors
+`node_modules`/`generated`). Les compteurs de fichiers comptent les `.ts`
+non-test à la racine de chaque dossier.
+
 ```plaintext
 backend/
-├── src/
-│   ├── routers/              # Routes Express
-│   │   ├── auth.router.ts
-│   │   ├── profile.router.ts
-│   │   ├── conversation.router.ts
-│   │   ├── follow.router.ts
-│   │   └── skill.router.ts
-│   │
-│   ├── controllers/          # Logique HTTP
-│   │   ├── auth.controller.ts
-│   │   ├── profile.controller.ts
-│   │   └── ...
-│   │
-│   ├── services/             # Logique métier
-│   │   ├── auth.service.ts
-│   │   ├── profile.service.ts
-│   │   └── ...
-│   │
-│   ├── middlewares/          # Intercepteurs
-│   │   ├── auth.middleware.ts
-│   │   ├── error.middleware.ts
-│   │   └── validation.middleware.ts
-│   │
-│   ├── validators/           # Schémas Zod
-│   │   ├── auth.validator.ts
-│   │   └── profile.validator.ts
-│   │
-│   └── utils/                # Utilitaires
-│       ├── jwt.ts
-│       └── password.ts
-│
-└── prisma/
-    ├── schema.prisma         # Schéma BDD
-    └── seed.ts               # Données initiales
+├── config.ts                  # Validateur ENV (39 LOC)
+├── index.ts                   # Bootstrap http+socket (14 LOC)
+├── prisma.config.ts
+├── public/avatars/            # 6 avatars statiques (jpg/jpeg)
+├── prisma/
+│   ├── schema.prisma          # 14 modèles + 4 enums (246 LOC)
+│   └── migrations/            # 6 migrations SQL (20260112 → 20260120)
+└── src/
+    ├── app.ts                 # Bootstrap Express, CORS, /health, /avatars
+    ├── controllers/           # 7 contrôleurs HTTP
+    ├── services/              # 7 services (logique métier)
+    ├── routers/               # 8 routers + index.router.ts (9 fichiers)
+    ├── middlewares/           # 5 middlewares (auth, conv, error, response, upload)
+    ├── lib/                   # 4 utilitaires (auth.ts, error.ts, formatZodError.ts, mailisearch.ts)
+    ├── mappers/               # 1 fichier — member.mapper.ts (pivot Meilisearch)
+    ├── realtime/              # 1 fichier — socket.ts (446 LOC, cf. ADR-011)
+    ├── scripts/               # 1 fichier — reindex-search.ts (CLI bootstrap Meilisearch)
+    ├── models/                # 3 fichiers — Prisma client + seeding (prod + dev)
+    ├── @types/                # 2 fichiers — augmentations Express + types Meilisearch
+    ├── validation/            # 5 schémas Zod (auth, category, conversation, profile, search)
+    └── test/                  # Setup tests (Vitest + supertest)
 ```
+
+!!! note "Différences avec la doc précédente"
+    L'arborescence d'avant la S3 mentionnait un dossier `validators/` et
+    un dossier `utils/` qui **n'existent pas** dans le code (le vrai
+    dossier est `validation/` et il n'y a pas de `utils/` séparé — les
+    utilitaires sont dans `lib/`). Les modules `realtime/`, `mappers/`,
+    `scripts/`, `models/` et `@types/` étaient simplement omis. Cette
+    version reflète la réalité du repo au 2026-05-08.
 
 ---
 
