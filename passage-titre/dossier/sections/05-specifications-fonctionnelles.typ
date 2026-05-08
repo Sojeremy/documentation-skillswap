@@ -33,7 +33,7 @@ professionnel et impose un ensemble de contraintes proches de celles d'une
 mission en entreprise.
 
 #table(
-  columns: (auto, 1fr),
+  columns: (10em, 1fr),
   stroke: 0.5pt + rgb("#d0d7de"),
   inset: 6pt,
   align: (left, left),
@@ -52,7 +52,7 @@ L'apothéose impose une chaîne complète de livrables, depuis la conception
 jusqu'à la mise en production effective :
 
 #table(
-  columns: (auto, 1fr, auto),
+  columns: (8em, 1fr, 5em),
   stroke: 0.5pt + rgb("#d0d7de"),
   inset: 6pt,
   align: (left, left, center),
@@ -60,7 +60,7 @@ jusqu'à la mise en production effective :
   [Application en production], [Plateforme accessible publiquement à #link("https://skill-swap.fr")[skill-swap.fr], intégrant l'ensemble des fonctionnalités MVP.], [✓ Livré],
   [Base de données], [Schéma PostgreSQL en six migrations Prisma successives, avec seed de données de démonstration (41 utilisateurs).], [✓ Livré],
   [Documentation technique], [Documentation Arc42 publiée, référence API OpenAPI, Storybook des composants atomiques, guide utilisateur Diátaxis. Quatre sites Vercel actifs.], [✓ Livré],
-  [Tests automatisés], [Tests d'intégration backend (Node Test Runner natif), tests E2E front (Playwright sur authentification et recherche), tests unitaires sur la validation Zod.], [✓ Livré (couverture partielle — cf. section 9)],
+  [Tests automatisés], [Tests d'intégration backend (Node Test Runner natif), tests E2E front (Playwright sur authentification et recherche), tests unitaires sur la validation Zod.], [✓ Partiel #footnote[Couverture E2E messagerie absente, hooks frontend non testés — cf. section 9.]],
   [Conteneurisation], [Stack Docker Compose multi-services (frontend, backend, postgres, meilisearch, nginx) avec configurations dev et prod distinctes.], [✓ Livré],
   [Pipeline CI/CD], [Intégration et déploiement automatisés vers le VPS de production sur push `main`.], [✓ Livré],
 )

@@ -621,7 +621,7 @@ métier, accès aux données, autres composants. Les compétences professionnell
 mobilisées dans la réalisation se cartographient ainsi :
 
 #table(
-  columns: (auto, 1fr),
+  columns: (12em, 1fr),
   stroke: 0.5pt + rgb("#d0d7de"),
   inset: 6pt,
   align: (left, left),
@@ -629,7 +629,7 @@ mobilisées dans la réalisation se cartographient ainsi :
   [CP2 — Développer des interfaces utilisateur], [9 composants React (#raw("ConversationPage/", lang: "ts")) avec composition Atomic Design (atoms via shadcn/ui, molécules #raw("ConversationItem", lang: "ts") et #raw("MessageBubble", lang: "ts"), organisme #raw("MessageThread", lang: "ts") sous-composé en 5 fragments), responsive Tailwind, accessibilité ARIA.],
   [CP3 — Développer des composants métier], [Composition de 8 hooks React (orchestrateur + 7 spécialisés), pattern optimistic UI avec #raw("tempId", lang: "ts") négatif, gestion fine du cycle de vie des sockets via #raw("useSocket(conversationId)", lang: "ts").],
   [CP6 — Définir l'architecture logicielle], [Architecture hybride REST + WebSocket assumée et documentée (ADR-011), séparation claire des responsabilités entre handlers Socket et services métier, modèle de rooms à deux niveaux (room utilisateur + room conversation).],
-  [CP7 — Concevoir et mettre en place une BDD relationnelle], [3 modèles dédiés (#raw("Conversation", lang: "sql"), #raw("UserHasConversation", lang: "sql"), #raw("Message", lang: "sql")), cascade de suppression sécurisée, index composite pour la pagination, contrainte #raw("@db.VarChar(2000)", lang: "sql") cohérente avec la validation serveur.],
+  [CP7 — Concevoir et mettre en place une BDD relationnelle], [3 modèles dédiés (#raw("Conversation", lang: "sql"), #raw("UserHasConversation", lang: "sql"), #raw("Message", lang: "sql")), cascade de suppression sécurisée, pagination cursor-based exploitant la PK #raw("id", lang: "sql"), longueur de message bornée côté serveur (2000 caractères) et côté Zod.],
   [CP8 — Développer des composants d'accès aux données], [Services Prisma type-safe avec #raw("select", lang: "ts") explicite anti-overfetch, pagination cursor-based, parallélisation #raw("Promise.all", lang: "ts") sur écritures indépendantes.],
 )
 
