@@ -102,6 +102,7 @@ nav:
           - Logging: arc42/08-crosscutting/logging.md
           - Sécurité: arc42/08-crosscutting/security.md
           - Internationalisation: arc42/08-crosscutting/i18n.md
+          - SEO et rendu: arc42/08-crosscutting/seo.md
       - "9. Décisions (ADRs)":
           - Index: arc42/09-decisions/index.md
           - "001 - Next.js": arc42/09-decisions/001-nextjs.md
@@ -114,6 +115,7 @@ nav:
           - "008 - Meilisearch": arc42/09-decisions/008-meilisearch.md
           - "009 - Mock-to-API": arc42/09-decisions/009-mock-to-api.md
           - "010 - Testing Strategy": arc42/09-decisions/010-testing-strategy.md
+          - "011 - Socket.IO": arc42/09-decisions/011-socket-io.md
       - "10. Qualité":
           - Vue d'ensemble: arc42/10-quality/index.md
           - Scénarios: arc42/10-quality/scenarios.md
