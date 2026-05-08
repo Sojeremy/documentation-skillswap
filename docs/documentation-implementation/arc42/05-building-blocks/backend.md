@@ -225,6 +225,129 @@ export const errorMiddleware = (
 
 ---
 
+## Module : `realtime/`
+
+| Path                                  | LOC | Exports principaux | Liens                                                                                                                |
+|---------------------------------------|-----|--------------------|----------------------------------------------------------------------------------------------------------------------|
+| `backend/src/realtime/socket.ts`      | 446 | `initSocket(httpServer)` | [GitHub](https://github.com/Sojeremy/documentation-skillswap/blob/main/backend/src/realtime/socket.ts)            |
+
+Initialise le serveur Socket.IO sur le **même `httpServer` qu'Express**
+(monté depuis `backend/src/index.ts`). Authentifie chaque socket au handshake
+via le cookie HTTP-only `accessToken` (middleware `io.use()` qui appelle
+`jwt.verify`). Implémente le pattern « rooms » : chaque socket rejoint
+automatiquement `user:${userId}` à la connexion, et peut rejoindre
+`conversation:${id}` à la demande via `conversation:join`.
+
+Les handlers `message:send` et `conversation:close` exécutent leur logique
+métier en direct (lecture + persistance Prisma + diffusion d'events) sans
+passer par les services REST. La justification du choix de Socket.IO est
+documentée dans [ADR-011](../09-decisions/011-socket-io.md), et le
+catalogue exhaustif des events (4 client→serveur, 6 serveur→client) avec
+diagramme de séquence se trouve dans
+[`06-runtime/messaging.md`](../06-runtime/messaging.md).
+
+---
+
+## Module : `mappers/`
+
+| Path                                          | LOC | Exports principaux                             | Liens                                                                                                                       |
+|-----------------------------------------------|-----|------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|
+| `backend/src/mappers/member.mapper.ts`        | 55  | `userToDocument(userId)`, `calculateAverageRating` (interne) | [GitHub](https://github.com/Sojeremy/documentation-skillswap/blob/main/backend/src/mappers/member.mapper.ts) |
+
+Pivot d'**indexation Meilisearch** : transforme un `User` Prisma (avec ses
+relations `skills.skill.category` et `evaluationsReceived`) en un
+`MemberDocument` plat consommable par Meilisearch. Le mapper :
+
+- aplatit les compétences en `skills` (noms), `skillIds`, `categoryIds`,
+  `categorySlugs` — listes dédupliquées via `new Set()` ;
+- calcule la moyenne `rating` (arrondie à une décimale) et le compteur
+  `evaluationCount` à partir de `evaluationsReceived` ;
+- expose `createdAt` en timestamp numérique (compatible filtres et tri
+  Meilisearch) ;
+- lance `NotFoundError('User not found')` si l'utilisateur cible est absent.
+
+Appelé par `services/profile.service.ts` (réindexation à l'ajout/suppression
+d'un profil, d'une compétence ou d'une notation) et indirectement par
+`services/search.service.ts` (`indexAllMembers` itère sur tous les users via
+ce mapper).
+
+---
+
+## Module : `scripts/`
+
+| Path                                      | LOC | Trigger npm                                                              | Liens                                                                                                                  |
+|-------------------------------------------|-----|--------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------|
+| `backend/src/scripts/reindex-search.ts`   | 25  | `npm run search:reindex` / `setup:meilisearch` (cf. `backend/package.json`) | [GitHub](https://github.com/Sojeremy/documentation-skillswap/blob/main/backend/src/scripts/reindex-search.ts) |
+
+Script CLI bootstrap **Meilisearch**. Séquence (cf. `reindex-search.ts:4-20`) :
+
+1. `testMeiliConnexion()` — exit 1 si le serveur n'est pas joignable.
+2. `setupMembersIndex()` — crée/configure l'index `members` (champs
+   recherchables, filtrables, triables).
+3. `indexAllMembers()` — itère sur tous les users et pousse leur
+   `MemberDocument` (via `mappers/member.mapper.ts`).
+4. `process.exit(0)` en succès, `exit 1` en cas d'erreur attrapée.
+
+Invoqué automatiquement par `npm run docker:init` (lancement initial du
+Docker dev) et `npm run docker:prod:init` (cf. `package.json` racine
+l.18 et l.30) ; relançable manuellement à tout moment pour reconstruire
+l'index from scratch après une migration.
+
+---
+
+## Module : `middlewares/response.middleware.ts` + augmentations TypeScript
+
+| Path                                                  | LOC | Exports principaux                                                                                | Liens                                                                                                                            |
+|-------------------------------------------------------|-----|---------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------|
+| `backend/src/middlewares/response.middleware.ts`      | 21  | `addResponseMethodsMiddleware`                                                                    | [GitHub](https://github.com/Sojeremy/documentation-skillswap/blob/main/backend/src/middlewares/response.middleware.ts)         |
+| `backend/src/@types/express.d.ts`                     | 21  | Augmentations globales `Express.Request` (`userId`, `userRole`, `paramsId`, `cookies`) et `Express.Response` (`success`, `created`, `deleted`) | [GitHub](https://github.com/Sojeremy/documentation-skillswap/blob/main/backend/src/@types/express.d.ts) |
+
+Le middleware `addResponseMethodsMiddleware` (monté tôt dans `app.ts:23`)
+**injecte trois helpers** sur l'objet `Response`, utilisés par tous les
+contrôleurs pour produire un format de succès canonique :
+
+| Helper                          | Status | Body                                                                |
+|---------------------------------|--------|---------------------------------------------------------------------|
+| `res.success<T>(data)`          | 200    | `{ success: true, data, count }` — `count = data.length` si tableau, sinon `1` |
+| `res.created<T>(data)`          | 201    | `{ success: true, data, count }`                                    |
+| `res.deleted()`                 | 204    | (aucun body)                                                        |
+
+!!! warning "Format de succès `{success, data, count}` ≠ format d'erreur"
+    Le format de **succès** ci-dessus (`{success: true, data, count}`) ne
+    doit pas être confondu avec le format d'**erreur** réel
+    `{ error: "string" }` documenté dans
+    [`06-runtime/error-handling.md`](../06-runtime/error-handling.md). Les
+    deux formats coexistent : le premier est produit par ces helpers, le
+    second par le middleware `errorHandler`.
+
+Les **augmentations TypeScript globales** dans `backend/src/@types/express.d.ts`
+typent à la fois ces helpers (côté `Response`) et les champs ajoutés à la
+`Request` par les middlewares d'authentification :
+
+```ts
+// backend/src/@types/express.d.ts
+declare global {
+  namespace Express {
+    interface Request {
+      userId: number;       // posé par checkAuth
+      userRole: number;     // posé par checkAuth
+      paramsId: number;     // posé par certains validateurs
+      cookies: Record<string, string>; // typé via cookie-parser
+    }
+    interface Response {
+      success<T>(data: T): this;
+      created<T>(data: T): this;
+      deleted(): void;
+    }
+  }
+}
+```
+
+Ces augmentations expliquent pourquoi `req.userId` (entier) est utilisable
+sans cast partout dans les contrôleurs.
+
+---
+
 ## Format de réponse API
 
 ### Succès
@@ -235,24 +358,27 @@ export const errorMiddleware = (
   "data": {
     "id": 1,
     "email": "user@example.com"
-  }
+  },
+  "count": 1
 }
 ```
+
+> Produit par `res.success(data)` / `res.created(data)` (cf.
+> `middlewares/response.middleware.ts`). `count` vaut `data.length` lorsque
+> `data` est un tableau, sinon `1`.
 
 ### Erreur
 
 ```json
 {
-  "success": false,
-  "error": {
-    "code": "VALIDATION_ERROR",
-    "message": "Validation failed",
-    "details": {
-      "email": ["Email invalide"]
-    }
-  }
+  "error": "string"
 }
 ```
+
+> Produit par `errorHandler` (cf.
+> [`06-runtime/error-handling.md`](../06-runtime/error-handling.md) et
+> [`api-reference/errors.md`](../../api-reference/errors.md)). Une seule clé
+> `error` (chaîne) — pas de `success`, pas de `code`, pas de `details`.
 
 ---
 
