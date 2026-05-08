@@ -244,5 +244,6 @@ Plan en **11 sections** (page 6 du REAC v5) — projet en entreprise :
 | 2026-05-08 | S5 | Création BACKLOG.md (3 items + 1 process) | <hash> |
 | 2026-05-08 | S6 | Audit ancrage code section 5 + ajustements | `eceb405` (audit), `81c85cd` (ajustements) |
 | 2026-05-08 | S7 | Optimisation volume (compression 5/7 + annexes A-F + polices) | `217ccf2` (BACKLOG P-002/P-003), `4df17ec` (polices), `eb3a0aa` (annexes), `1eec398` (compression), `9e67774` (fix forme) |
+| 2026-05-08 | S8 | Audit ancrage code + forme section 6 | `3bd0ecb` (audit), `<feat>` (ajustements) |
 
 *Chaque session significative ajoute une ligne ici en fin de travail.*
