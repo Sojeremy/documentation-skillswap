@@ -23,25 +23,30 @@ Voir le [guide d'authentification](authentication.md) pour plus de détails.
 
 ### Format des réponses
 
-Toutes les réponses suivent ce format :
+Les réponses **de succès** suivent ce format (produit par les helpers
+`res.success()` / `res.created()` du `response.middleware.ts`) :
 
 ```json
 {
   "success": true,
-  "data": { ... }
+  "data": { ... },
+  "count": 1
 }
 ```
 
-En cas d'erreur :
+> `count` vaut `data.length` quand `data` est un tableau, sinon `1`.
+
+Les réponses **d'erreur** ont un format différent — une seule clé `error`
+(chaîne) :
 
 ```json
 {
-  "success": false,
   "error": "Description de l'erreur"
 }
 ```
 
-Voir les [codes d'erreur](errors.md) pour la liste complète.
+Pas de clé `success`, pas d'objet `error.code/message/details`. Voir
+[codes d'erreur](errors.md) pour la liste complète et les statuts HTTP.
 
 ---
 
