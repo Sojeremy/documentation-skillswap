@@ -190,7 +190,7 @@ Plan en **11 sections** (page 6 du REAC v5) — projet en entreprise :
 - Prisma, Next.js, Socket.IO, Zod, etc.
 
 > **À chaque nouvelle session Claude Code, lui rappeler en intro** :
-> *"Lis d'abord `passage-titre/CONTEXT.md` pour le contexte courant. Tu as accès à context7 MCP, utilise-le si tu doutes de la syntaxe d'une lib (typst, marp, playwright, etc.)."*
+> *"Lis d'abord passage-titre/CONTEXT.md pour le contexte courant et passage-titre/BACKLOG.md pour les items en attente d'intégration. Quand tu rédiges ou modifies une section, vérifie si des items du BACKLOG y sont rattachés et intègre-les en marquant ✅. Tu as accès à context7 MCP pour la doc des libs (typst, marp, playwright, etc.)."*
 
 ---
 
@@ -241,5 +241,6 @@ Plan en **11 sections** (page 6 du REAC v5) — projet en entreprise :
 | 2026-05-08 | S2 (après-midi) | Scaffold `passage-titre/` Typst + Marp | `806bc12` |
 | 2026-05-08 | S3 (soir) | Rédaction section 7 (Réalisations) | *à compléter* |
 | 2026-05-08 | S4 | Audit ancrage code section 7 + ajustements | `44a97ed` (audit), `8ee168e` (ajustements) |
+| 2026-05-08 | S5 | Création BACKLOG.md (3 items + 1 process) | <hash> |
 
 *Chaque session significative ajoute une ligne ici en fin de travail.*
