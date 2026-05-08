@@ -15,7 +15,13 @@
 
 ### Section 5 — Spécifications fonctionnelles
 
-*(aucun item pour l'instant)*
+#### B-005-1 ✅ Audit ancrage code section 5
+
+- **Source** : audit S5 (Claude Code, `05-audit-report.md`)
+- **Résultat** : 8 écarts identifiés (dont 3 majeurs sur les extraits SQL),
+  8 ajustements appliqués. Volume final 19 pages (cible 5-7 dépassée
+  mais non réduite par décision Jérémy + claude.ai).
+- **Décidé en** : S5 (2026-05-08)
 
 ---
 
@@ -36,6 +42,24 @@
 ---
 
 ### Section 12 — Difficultés rencontrées
+
+#### B-012-3 🔴 Migration `fix_snake_case` non-rename (DROP + ADD = perte de données)
+
+- **Source** : audit S5, recommandation 2 de Claude Code
+- **Fichier prod** : `backend/prisma/migrations/20260117012249_fix_snake_case/migration.sql`
+- **Action** : mentionner comme dette d'irréversibilité dans la sous-section
+  "Difficultés techniques" si Jérémy le juge pertinent. En l'état, la migration
+  fait `DROP COLUMN avatarUrl` puis `ADD COLUMN avatar_url`, ce qui perd les
+  données existantes — acceptable en dev (seed) mais risqué en prod avec
+  utilisateurs réels.
+- **Cadrage proposé** :
+  > Une migration de renommage (`fix_snake_case`) a été générée par Prisma
+  > sous forme `DROP COLUMN avatarUrl` + `ADD COLUMN avatar_url` plutôt qu'un
+  > `RENAME COLUMN`. Cette opération perd les avatars existants. En contexte
+  > de l'apothéose (BDD seedée régulièrement), l'effet a été nul ; en prod
+  > réelle avec utilisateurs, un script de réimport ou une migration manuelle
+  > serait à prévoir. À traiter en V2 par une migration de rattrapage.
+- **Décidé en** : S5 (2026-05-08, recommandation Claude Code)
 
 #### B-012-1 🔴 Faute UX *"à clôturer un échange"*
 

@@ -242,5 +242,6 @@ Plan en **11 sections** (page 6 du REAC v5) — projet en entreprise :
 | 2026-05-08 | S3 (soir) | Rédaction section 7 (Réalisations) | *à compléter* |
 | 2026-05-08 | S4 | Audit ancrage code section 7 + ajustements | `44a97ed` (audit), `8ee168e` (ajustements) |
 | 2026-05-08 | S5 | Création BACKLOG.md (3 items + 1 process) | <hash> |
+| 2026-05-08 | S6 | Audit ancrage code section 5 + ajustements | `eceb405` (audit), `<feat>` (ajustements) |
 
 *Chaque session significative ajoute une ligne ici en fin de travail.*
