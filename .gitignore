@@ -59,3 +59,15 @@ user-docs/build/
 user-docs/.docusaurus/
 user-docs/node_modules/
 storybook/storybook-static/
+
+# =========================
+# Passage du titre — Typst & Marp artifacts
+# =========================
+passage-titre/dossier/output/*
+!passage-titre/dossier/output/.gitkeep
+!passage-titre/dossier/output/dossier_de_projet.pdf
+passage-titre/slides/output/*
+!passage-titre/slides/output/.gitkeep
+!passage-titre/slides/output/presentation.pdf
+.typst-cache/
+**/*.typ.bak

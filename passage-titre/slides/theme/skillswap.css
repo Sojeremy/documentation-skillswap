@@ -1,0 +1,108 @@
+/* =============================================================================
+   Theme Marp — SkillSwap
+   Cohérent visuellement avec le dossier Typst (accent #FF6B35)
+   ============================================================================= */
+
+/* @theme skillswap */
+
+@import 'default';
+
+:root {
+  --accent: #FF6B35;
+  --accent-soft: #FFF1EB;
+  --code-bg: #f6f8fa;
+  --code-border: #d0d7de;
+  --muted: #57606a;
+  --text: #1f2328;
+}
+
+section {
+  font-family: 'Inter', 'DejaVu Sans', sans-serif;
+  font-size: 26px;
+  color: var(--text);
+  background: white;
+  padding: 60px 80px;
+}
+
+section.lead {
+  background: linear-gradient(135deg, white 0%, var(--accent-soft) 100%);
+  text-align: center;
+}
+
+h1, h2, h3 {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+h1 {
+  font-size: 1.8em;
+  border-bottom: 3px solid var(--accent);
+  padding-bottom: 0.2em;
+  margin-bottom: 0.6em;
+}
+
+h2 {
+  font-size: 1.4em;
+}
+
+h3 {
+  font-size: 1.15em;
+  color: var(--muted);
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+code {
+  font-family: 'JetBrains Mono', 'DejaVu Sans Mono', monospace;
+  background: var(--code-bg);
+  border: 1px solid var(--code-border);
+  border-radius: 3px;
+  padding: 1px 5px;
+  font-size: 0.85em;
+}
+
+pre {
+  background: var(--code-bg);
+  border: 1px solid var(--code-border);
+  border-radius: 4px;
+  padding: 12px;
+  font-size: 0.75em;
+  line-height: 1.4;
+  overflow-x: auto;
+}
+
+pre code {
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+
+blockquote {
+  border-left: 4px solid var(--accent);
+  background: var(--accent-soft);
+  padding: 8px 16px;
+  font-style: italic;
+}
+
+table {
+  border-collapse: collapse;
+  font-size: 0.85em;
+}
+
+th, td {
+  border: 1px solid var(--code-border);
+  padding: 6px 12px;
+}
+
+th {
+  background: var(--code-bg);
+  color: var(--accent);
+}
+
+section::after {
+  color: var(--muted);
+  font-size: 0.7em;
+}
