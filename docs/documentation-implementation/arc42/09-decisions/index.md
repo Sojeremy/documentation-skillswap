@@ -20,6 +20,7 @@ Ce chapitre documente les **Architecture Decision Records (ADRs)** du projet Ski
 | 008 | Meilisearch | Proposé | 2025-01 | [→](./008-meilisearch.md) |
 | 009 | Mock-to-API Pattern | Accepté | 2024-12 | [→](./009-mock-to-api.md) |
 | 010 | Stratégie de Tests Diversifiée | Accepté | 2025-01 | [→](./010-testing-strategy.md) |
+| 011 | Socket.IO pour la messagerie temps réel | Accepté | 2026-01 | [→](./011-socket-io.md) |
 
 **Statuts possibles** : Proposé | Accepté | Déprécié | Rejeté
 
@@ -45,6 +46,7 @@ Ce chapitre documente les **Architecture Decision Records (ADRs)** du projet Ski
 | [005](./005-zod.md) | Zod | Validation côté serveur |
 | [007](./007-jwt.md) | JWT Authentication | Sécurité et sessions |
 | [008](./008-meilisearch.md) | Meilisearch | Recherche full-text |
+| [011](./011-socket-io.md) | Socket.IO | Messagerie temps réel (events + rooms) |
 
 ### Méthodologie
 
