@@ -21,7 +21,7 @@
     radius: 4pt,
     inset: 8pt,
     width: 100%,
-    text(font: ("JetBrains Mono", "DejaVu Sans Mono", "Courier New"), size: 9pt, body),
+    text(font: ("JetBrains Mono", "DejaVu Sans Mono"), size: 9pt, body),
   )
 }
 
