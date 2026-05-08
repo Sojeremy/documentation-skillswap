@@ -1,429 +1,101 @@
-# Exemple : Messagerie complète
+# Exemple : Messagerie
 
-Ce guide montre le flux complet pour échanger des messages entre deux membres sur SkillSwap.
+> **Source de vérité narrative** : voir
+> [`arc42/06-runtime/messaging.md`](../../arc42/06-runtime/messaging.md)
+> (architecture hybride REST + Socket.IO, 6 events serveur→client, 4 events
+> client→serveur, modèle de rooms `user:${id}` / `conversation:${id}`).
+> **ADR associée** : [`011-socket-io.md`](../../arc42/09-decisions/011-socket-io.md).
+> **Sources techniques** :
+> [`backend/src/realtime/socket.ts`](https://github.com/Sojeremy/documentation-skillswap/blob/main/backend/src/realtime/socket.ts) (446 LOC),
+> [`frontend/src/lib/socket-client.ts`](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/lib/socket-client.ts),
+> [`frontend/src/hooks/useMessaging.ts`](https://github.com/Sojeremy/documentation-skillswap/blob/main/frontend/src/hooks/useMessaging.ts).
 
-## Vue d'ensemble
+## Architecture en bref
+
+| Opération                                      | Canal                                              |
+|------------------------------------------------|----------------------------------------------------|
+| Liste des conversations                        | REST `GET /api/v1/conversations`                   |
+| Création de conversation                       | REST `POST /api/v1/conversations` (+ `requireSimpleFollow`) |
+| Historique paginé d'une conversation           | REST `GET /api/v1/conversations/:id/messages` (cursor) |
+| **Envoi d'un message**                         | **Socket.IO event `message:send`**                 |
+| **Fermeture d'une conversation**               | **Socket.IO event `conversation:close`**           |
+| Notification message reçu                      | Socket.IO event `message:new`                      |
+| Notification conversation mise à jour          | Socket.IO event `conversation:updated`             |
+| Notification nouvelle conversation             | Socket.IO event `conversation:new`                 |
+| Notification fermeture                         | Socket.IO event `conversation:closed`              |
+
+!!! warning "Doublons REST/Socket.IO"
+    Les routes REST `POST /:id/messages` et `PATCH /:id/close` existent
+    pour la parité d'API mais le frontend prod **n'utilise pas** ces routes
+    pour l'envoi/fermeture — il passe par les events Socket.IO. Détails dans
+    [`06-runtime/messaging.md`](../../arc42/06-runtime/messaging.md) et
+    [ADR-011](../../arc42/09-decisions/011-socket-io.md).
+
+## Diagramme de séquence — envoi d'un message
 
 ```mermaid
 sequenceDiagram
-    participant A as Alice
-    participant B as Backend
-    participant Bob as Bob
+    autonumber
+    actor UA as User A
+    participant FA as Frontend A
+    participant SS as Socket.IO Server
+    participant DB as PostgreSQL
+    participant FB as Frontend B
+    actor UB as User B
 
-    Note over A,Bob: Prérequis : Alice et Bob se suivent mutuellement
+    Note over FA,SS: Connexion : cookie HTTP-only accessToken
+    FA->>SS: io.connect()
+    SS->>SS: jwt.verify(cookies.accessToken)
+    SS->>SS: socket.join("user:A")
 
-    A->>B: 1. POST /conversations
-    B-->>A: 201 Conversation créée (id: 1)
+    UA->>FA: Sélectionne conversation #42
+    FA->>SS: emit conversation:join { conversationId: 42 }
+    SS->>SS: socket.join("conversation:42")
+    SS-->>FA: emit conversation:joined
 
-    A->>B: 2. POST /conversations/1/messages
-    Note right of A: "Bonjour Bob !"
-    B-->>A: 201 Message envoyé
-
-    Bob->>B: 3. GET /conversations
-    B-->>Bob: Liste avec conversation id:1
-
-    Bob->>B: 4. GET /conversations/1/messages
-    B-->>Bob: Messages de la conversation
-
-    Bob->>B: 5. POST /conversations/1/messages
-    Note right of Bob: "Salut Alice !"
-    B-->>Bob: 201 Message envoyé
+    UA->>FA: Saisit "Hello" → bouton Envoyer
+    FA->>FA: addOptimisticMessage(tempId, "Hello")
+    FA->>SS: emit message:send { conversationId: 42, message: "Hello" }
+    SS->>DB: INSERT message + UPDATE conversation.updatedAt
+    SS-->>FA: emit message:new (room conversation:42)
+    SS-->>FB: emit message:new (room conversation:42 si B est joint)
+    SS-->>FA: emit conversation:updated (room user:A)
+    SS-->>FB: emit conversation:updated (room user:B)
+    Note right of SS: Si premier message : emit conversation:new à user:B
+    FB-->>UB: Toast + ajout à la liste
 ```
 
----
+## Côté frontend — façade `useMessaging`
 
-## Prérequis : Suivre un membre
+```ts
+// frontend/src/hooks/useMessaging.ts (extrait simplifié)
+export function useMessaging() {
+  const { conversations, addConversation, ... } = useConversationList();
+  const { selectedConvId, selectedConv, ... } = useSelectedConversation(conversations);
+  const { messages, hasMore, loadMore, addMessage, addOptimisticMessage } =
+    useConversationMessages({ conversationId: selectedConvId, limit: 30 });
+  const { onConversationUpdate, onConversationClosed, onConversationNew } = useGlobalSocket();
 
-Avant de pouvoir créer une conversation, les deux utilisateurs doivent se suivre mutuellement.
-
-### Suivre un utilisateur
-
-```bash
-curl -X POST http://localhost:3000/api/v1/follows/42/follow \
-  -H "Cookie: accessToken=eyJhbGciOiJIUzI1NiIs..."
-```
-
-### Réponse (201 Created)
-
-```json
-{
-  "success": true,
-  "data": {
-    "id": 15,
-    "followerId": 1,
-    "followedId": 42,
-    "createdAt": "2025-01-22T10:00:00.000Z"
-  }
+  const actions = useConversationActions({ /* selectedConvId, addMessage, ... */ });
+  return { conversations, selectedConv, messages, ...actions };
 }
 ```
 
-### Vérifier ses abonnements
-
-```bash
-curl -X GET http://localhost:3000/api/v1/follows/following \
-  -H "Cookie: accessToken=eyJhbGciOiJIUzI1NiIs..."
-```
-
-### Réponse
-
-```json
-{
-  "success": true,
-  "data": [
-    {
-      "id": 42,
-      "firstname": "Marie",
-      "lastname": "Dupont",
-      "avatarUrl": "/uploads/avatar-42.jpg"
-    }
-  ]
-}
-```
-
----
-
-## Étape 1 : Créer une conversation
-
-### Requête
-
-```bash
-curl -X POST http://localhost:3000/api/v1/conversations \
-  -H "Content-Type: application/json" \
-  -H "Cookie: accessToken=eyJhbGciOiJIUzI1NiIs..." \
-  -d '{
-    "participantId": 42
-  }'
-```
-
-### Schéma de validation
-
-```typescript
-const CreateConversationSchema = z.object({
-  participantId: z.number().int().positive()
-});
-```
-
-### Réponse succès (201 Created)
-
-```json
-{
-  "success": true,
-  "data": {
-    "id": 1,
-    "status": "ACTIVE",
-    "createdAt": "2025-01-22T10:30:00.000Z",
-    "participants": [
-      { "id": 1, "firstname": "Alice", "lastname": "Martin" },
-      { "id": 42, "firstname": "Marie", "lastname": "Dupont" }
-    ]
-  }
-}
-```
-
-### Erreurs possibles
-
-| Code | Cause |
-|------|-------|
-| 400 | Conversation déjà existante |
-| 403 | Les utilisateurs ne se suivent pas mutuellement |
-| 404 | Participant non trouvé |
-
----
-
-## Étape 2 : Envoyer un message
-
-### Requête
-
-```bash
-curl -X POST http://localhost:3000/api/v1/conversations/1/messages \
-  -H "Content-Type: application/json" \
-  -H "Cookie: accessToken=eyJhbGciOiJIUzI1NiIs..." \
-  -d '{
-    "content": "Bonjour Marie ! J'\''aimerais apprendre React, tu aurais du temps cette semaine ?"
-  }'
-```
-
-### Schéma de validation
-
-```typescript
-const CreateMessageSchema = z.object({
-  content: z.string().min(1).max(2000)
-});
-```
-
-### Réponse succès (201 Created)
-
-```json
-{
-  "success": true,
-  "data": {
-    "id": 101,
-    "content": "Bonjour Marie ! J'aimerais apprendre React, tu aurais du temps cette semaine ?",
-    "conversationId": 1,
-    "senderId": 1,
-    "createdAt": "2025-01-22T10:31:00.000Z",
-    "updatedAt": null
-  }
-}
-```
-
----
-
-## Étape 3 : Lister ses conversations
-
-### Requête
-
-```bash
-curl -X GET http://localhost:3000/api/v1/conversations \
-  -H "Cookie: accessToken=eyJhbGciOiJIUzI1NiIs..."
-```
-
-### Réponse (200 OK)
-
-```json
-{
-  "success": true,
-  "data": [
-    {
-      "id": 1,
-      "status": "ACTIVE",
-      "createdAt": "2025-01-22T10:30:00.000Z",
-      "participants": [
-        { "id": 1, "firstname": "Alice", "lastname": "Martin" },
-        { "id": 42, "firstname": "Marie", "lastname": "Dupont" }
-      ],
-      "lastMessage": {
-        "id": 101,
-        "content": "Bonjour Marie ! J'aimerais apprendre React...",
-        "senderId": 1,
-        "createdAt": "2025-01-22T10:31:00.000Z"
-      }
-    }
-  ]
-}
-```
-
----
-
-## Étape 4 : Récupérer les messages d'une conversation
-
-### Requête avec pagination
-
-```bash
-curl -X GET "http://localhost:3000/api/v1/conversations/1/messages?limit=20&offset=0" \
-  -H "Cookie: accessToken=eyJhbGciOiJIUzI1NiIs..."
-```
-
-### Paramètres de query
-
-| Paramètre | Type | Défaut | Description |
-|-----------|------|--------|-------------|
-| `limit` | number | 20 | Nombre de messages à retourner |
-| `offset` | number | 0 | Décalage pour la pagination |
-
-### Réponse (200 OK)
-
-```json
-{
-  "success": true,
-  "data": {
-    "messages": [
-      {
-        "id": 101,
-        "content": "Bonjour Marie ! J'aimerais apprendre React, tu aurais du temps cette semaine ?",
-        "senderId": 1,
-        "sender": { "id": 1, "firstname": "Alice", "lastname": "Martin" },
-        "createdAt": "2025-01-22T10:31:00.000Z",
-        "updatedAt": null
-      },
-      {
-        "id": 102,
-        "content": "Salut Alice ! Oui bien sûr, je suis disponible mercredi soir. Ça te va ?",
-        "senderId": 42,
-        "sender": { "id": 42, "firstname": "Marie", "lastname": "Dupont" },
-        "createdAt": "2025-01-22T11:15:00.000Z",
-        "updatedAt": null
-      }
-    ],
-    "pagination": {
-      "total": 2,
-      "limit": 20,
-      "offset": 0,
-      "hasMore": false
-    }
-  }
-}
-```
-
----
-
-## Étape 5 : Modifier un message
-
-### Requête
-
-```bash
-curl -X PATCH http://localhost:3000/api/v1/conversations/1/message/101 \
-  -H "Content-Type: application/json" \
-  -H "Cookie: accessToken=eyJhbGciOiJIUzI1NiIs..." \
-  -d '{
-    "content": "Bonjour Marie ! J'\''aimerais apprendre React. Tu aurais du temps mercredi ?"
-  }'
-```
-
-### Réponse (200 OK)
-
-```json
-{
-  "success": true,
-  "data": {
-    "id": 101,
-    "content": "Bonjour Marie ! J'aimerais apprendre React. Tu aurais du temps mercredi ?",
-    "conversationId": 1,
-    "senderId": 1,
-    "createdAt": "2025-01-22T10:31:00.000Z",
-    "updatedAt": "2025-01-22T10:35:00.000Z"
-  }
-}
-```
-
-!!! warning "Seul l'auteur"
-    Un utilisateur ne peut modifier que ses propres messages.
-
----
-
-## Étape 6 : Supprimer un message
-
-### Requête
-
-```bash
-curl -X DELETE http://localhost:3000/api/v1/conversations/1/message/101 \
-  -H "Cookie: accessToken=eyJhbGciOiJIUzI1NiIs..."
-```
-
-### Réponse (204 No Content)
-
-Aucun body retourné.
-
----
-
-## Implémentation Frontend
-
-### Hook useConversation
-
-```typescript
-// hooks/useConversation.ts
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-
-export function useConversation(conversationId: number) {
-  const queryClient = useQueryClient();
-
-  const { data: messages, isLoading } = useQuery({
-    queryKey: ['conversations', conversationId, 'messages'],
-    queryFn: () => api.get(`/conversations/${conversationId}/messages`),
-    refetchInterval: 5000, // Polling toutes les 5s
-  });
-
-  const sendMessage = useMutation({
-    mutationFn: (content: string) =>
-      api.post(`/conversations/${conversationId}/messages`, { content }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['conversations', conversationId, 'messages']
-      });
-    },
-  });
-
-  return {
-    messages: messages?.data.messages ?? [],
-    isLoading,
-    sendMessage: sendMessage.mutate,
-    isSending: sendMessage.isPending,
-  };
-}
-```
-
-### Hook useConversations (liste)
-
-```typescript
-// hooks/useConversations.ts
-export function useConversations() {
-  return useQuery({
-    queryKey: ['conversations'],
-    queryFn: () => api.get('/conversations'),
-  });
-}
-```
-
-### Composant MessageList
-
-```tsx
-// components/MessageList.tsx
-import { useConversation } from '@/hooks/useConversation';
-import { useAuth } from '@/hooks/useAuth';
-import { formatRelativeTime } from '@/utils/date';
-
-interface Props {
-  conversationId: number;
-}
-
-export function MessageList({ conversationId }: Props) {
-  const { user } = useAuth();
-  const { messages, isLoading } = useConversation(conversationId);
-
-  if (isLoading) return <MessagesSkeleton />;
-
-  return (
-    <div className="flex flex-col gap-2 p-4">
-      {messages.map((message) => (
-        <div
-          key={message.id}
-          className={cn(
-            'max-w-[70%] p-3 rounded-lg',
-            message.senderId === user?.id
-              ? 'self-end bg-primary text-white'
-              : 'self-start bg-gray-100'
-          )}
-        >
-          <p>{message.content}</p>
-          <span className="text-xs opacity-70">
-            {formatRelativeTime(message.createdAt)}
-          </span>
-        </div>
-      ))}
-    </div>
-  );
-}
-```
-
----
-
-## Statuts de conversation
-
-| Statut | Description |
-|--------|-------------|
-| `ACTIVE` | Conversation normale |
-| `ARCHIVED` | Archivée par l'utilisateur |
-| `BLOCKED` | Un participant a bloqué l'autre |
-
----
-
-## Récapitulatif des endpoints
-
-| Méthode | Endpoint | Description |
-|---------|----------|-------------|
-| GET | `/conversations` | Lister ses conversations |
-| POST | `/conversations` | Créer une conversation |
-| GET | `/conversations/:id` | Détails d'une conversation |
-| DELETE | `/conversations/:id` | Supprimer une conversation |
-| GET | `/conversations/:id/messages` | Lister les messages |
-| POST | `/conversations/:id/messages` | Envoyer un message |
-| PATCH | `/conversations/:id/message/:messageId` | Modifier un message |
-| DELETE | `/conversations/:id/message/:messageId` | Supprimer un message |
-
----
-
-## Voir aussi
-
-- [API Reference - Conversations](../index.md)
-- [Database - Conversation Model](../../database/index.md)
-- [Frontend Design Patterns](../../arc42/05-building-blocks/frontend.md)
+`useMessaging` compose 6 hooks spécialisés (`useConversationList`,
+`useSelectedConversation`, `useConversationMessages`, `useFollowedUsers`,
+`useGlobalSocket`, `useConversationActions`) — tous reposent sur des hooks
+React natifs, pas sur une librairie de cache (cf.
+[ADR-004](../../arc42/09-decisions/004-tanstack-query.md)). L'optimistic UI
+est implémenté manuellement avec un `tempId` négatif (`-Date.now()`) avant
+l'aller-retour serveur.
+
+## Sécurité Socket.IO
+
+- Authentification au handshake via cookie `accessToken` (`io.use()` dans `socket.ts:88-122`)
+- Vérification participant à `conversation:join`, `message:send`, `conversation:close`
+- Validation message : trim + longueur ∈ [1..2000]
+- Refus d'envoi sur conversation `Close` (status persisté en BDD)
+- Codes d'erreur : `FORBIDDEN`, `VALIDATION` (cf. union `ServerToClientEvents.error` à `socket.ts:56-59`)
+
+Format d'erreur HTTP côté API REST associée :
+[`api-reference/errors.md`](../errors.md).
