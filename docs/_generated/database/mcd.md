@@ -42,26 +42,38 @@ Deux natures de contrainte, à ne pas confondre à l'oral :
 | `se_rattache_à` | message **(1,1)** — conversation (0,N) | **Intégrité** | `message.conversation_id` FK NOT NULL + `message.service.ts:112-117` |
 | `émet` | message **(1,1)** — user (0,N) | **Intégrité** | `message.sender_id` FK NOT NULL |
 | `destiné_à` | message **(1,1)** — user (0,N) | **Intégrité** | `message.receiver_id` FK NOT NULL ; destinataire déduit `message.service.ts:131-141` |
-| `participe_à` | conversation **(2,2)** — user (0,N) | ⚠️ **Applicative** | `conv.service.ts:266-267` crée toujours exactement 2 participants ; auto-conversation refusée `conv.service.ts:184` ; aucune route d'ajout/retrait de participant |
+| `participe_à` | conversation **(0,2)** — user (0,N) | ⚠️ **Applicative** | Max 2 : `conv.service.ts:266-267` crée exactement 2 participants et aucune route n'en ajoute ; auto-conversation refusée `conv.service.ts:184`. Min 0 : `leaveConversationService` retire un participant `conv.service.ts:432-439` |
 | `possède` | user (0,N) — skill (0,N) | — | Aucun minimum imposé |
 | `s_intéresse_à` | user (0,N) — skill (0,N) | — | Aucun minimum imposé |
 | `est_disponible` | user (0,N) — available (0,N) | — | Aucun minimum imposé |
 | `suit` | user (0,N) — user (0,N), réflexive | — | Rôles : suiveur (`follower_id`) / suivi (`followed_id`) |
 | `évalue` **porteuse** (score, comments) | user (0,N) — user (0,N), réflexive | — | Rôles : évaluateur (`evaluator_id`) / évalué (`evaluated_id`) |
 
-### ⚠️ Le point à savoir défendre : les (2,2)
+### ⚠️ Le point à savoir défendre : les (0,2)
 
-Une conversation compte **toujours exactement deux participants**, mais **aucune
-contrainte SQL ne l'impose**. C'est le code qui le garantit : la création insère
-la paire en une fois (`conv.service.ts:266-267`), la conversation avec soi-même
-est refusée (`conv.service.ts:184`), et aucun endpoint ne permet d'ajouter ou de
-retirer un participant. L'envoi d'un message vérifie d'ailleurs qu'un second
-participant existe, sinon il échoue (`message.service.ts:131-141`, et côté
-temps réel `socket.ts:233-238` → erreur `No receiver`).
+Une conversation naît **toujours avec exactement deux participants**, mais
+**aucune contrainte SQL ne l'impose** — et le nombre peut ensuite diminuer.
 
-Si le jury demande « qu'est-ce qui empêche une conversation à trois ? », la
-réponse honnête est : « le code, pas le schéma — c'est une dette assumée, une
-contrainte `CHECK` ou un trigger la rendrait structurelle ».
+**Le maximum est 2.** La création insère la paire en une fois
+(`conv.service.ts:266-267`), la conversation avec soi-même est refusée
+(`conv.service.ts:184`), et **aucune route n'ajoute de participant**.
+
+**Le minimum est 0.** `DELETE /api/v1/conversations/:id` ne supprime pas la
+conversation : il appelle `leaveConversationService` (`conv.service.ts:410-439`),
+qui exécute `prisma.userHasConversation.delete()` (`:432-439`). Un participant
+peut donc partir, et si les deux partent, la conversation subsiste **orpheline**,
+sans aucun participant. Quitter exige au préalable `status = Close`
+(`conv.service.ts:428-430`), ce qui limite la casse sans l'empêcher.
+
+Le système reste cohérent : dès qu'il ne reste plus de second participant,
+l'envoi d'un message échoue — `message.service.ts:131-141` côté REST, et
+`socket.ts:233-238` (`No receiver`) côté temps réel.
+
+Deux questions de jury à préparer. « Qu'est-ce qui empêche une conversation à
+trois ? » → le code, pas le schéma ; une contrainte `CHECK` ou un trigger la
+rendrait structurelle. « Que devient une conversation que tout le monde quitte ? »
+→ elle reste en base avec ses messages, sans participant : personne ne peut plus
+la lire ni y écrire, et aucun nettoyage n'est prévu.
 
 ### Règles de gestion portées par `évalue`
 

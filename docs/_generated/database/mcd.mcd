@@ -12,8 +12,14 @@
 %%   suit    -> user (suiveur)    / user (suivi)     [follow.follower_id / followed_id]
 %%   évalue  -> user (évaluateur) / user (évalué)    [evaluation.evaluator_id / evaluated_id]
 %%
-%% Cardinalité 22 sur participe_à : contrainte APPLICATIVE (conv.service.ts:266),
-%% pas une contrainte d'intégrité — aucune règle SQL ne l'impose.
+%% Cardinalité 02 sur participe_à : contrainte APPLICATIVE, pas d'intégrité.
+%%   - exactement 2 à la création (conv.service.ts:266-267) et aucune route
+%%     n'ajoute de participant : le maximum est donc 2 ;
+%%   - mais DELETE /conversations/:id appelle leaveConversationService
+%%     (conv.service.ts:410-439) qui supprime la ligne user_has_conversation :
+%%     le minimum retombe à 0 (conversation orpheline possible si les deux
+%%     participants partent).
+%%   - quitter exige status = Close au préalable (conv.service.ts:428-430).
 
 role: id, name
 a_pour_rôle, 11 user, 0N role
@@ -31,7 +37,7 @@ est_disponible, 0N user, 0N available
 available: id, day, time_slot
 évalue, 0N user, 0N user: score, comments
 
-participe_à, 22 conversation, 0N user
+participe_à, 02 conversation, 0N user
 conversation: id, status, title
 émet, 11 message, 0N user
 
