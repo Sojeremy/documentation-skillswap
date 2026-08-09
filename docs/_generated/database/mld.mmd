@@ -1,0 +1,143 @@
+%% MLD — Modèle Logique de Données — généré le 2026-08-09 depuis la base réelle
+erDiagram
+  available {
+    integer id PK
+    dayInAWeek day
+    timestamp_without_time_zone created_at
+    timestamp_without_time_zone updated_at
+    Time time_slot
+  }
+  category {
+    integer id PK
+    text name
+    timestamp_without_time_zone created_at
+    timestamp_without_time_zone updated_at
+    text slug UK
+  }
+  conversation {
+    integer id PK
+    StatusOfConversation status
+    text title
+    timestamp_without_time_zone created_at
+    timestamp_without_time_zone updated_at
+  }
+  evaluation {
+    integer id PK
+    text comments "nullable"
+    integer score
+    integer evaluator_id FK
+    integer evaluated_id FK
+    timestamp_without_time_zone created_at
+    timestamp_without_time_zone updated_at
+  }
+  follow {
+    integer id PK
+    integer followed_id FK
+    integer follower_id FK
+    timestamp_without_time_zone created_at
+    timestamp_without_time_zone updated_at
+  }
+  message {
+    integer id PK
+    integer sender_id FK
+    integer receiver_id FK
+    text content
+    integer conversation_id FK
+    timestamp_without_time_zone created_at
+    timestamp_without_time_zone updated_at
+  }
+  refresh_token {
+    integer id PK
+    text token UK
+    integer user_id FK
+    timestamp_without_time_zone expire_at
+    timestamp_without_time_zone issued_at
+  }
+  role {
+    integer id PK
+    RoleOfUser name
+    timestamp_without_time_zone created_at
+    timestamp_without_time_zone updated_at
+  }
+  skill {
+    integer id PK
+    text name
+    integer category_id FK
+    timestamp_without_time_zone created_at
+    timestamp_without_time_zone updated_at
+  }
+  user {
+    integer id PK
+    text firstname
+    text lastname
+    text email UK
+    text password
+    text address "nullable"
+    integer postal_code "nullable"
+    text city "nullable"
+    integer age "nullable"
+    text description "nullable"
+    integer role_id FK
+    timestamp_without_time_zone created_at
+    timestamp_without_time_zone updated_at
+    text avatar_url "nullable"
+  }
+  user_has_available {
+    integer user_id PK
+    integer available_id PK
+    timestamp_without_time_zone created_at
+    timestamp_without_time_zone updated_at
+  }
+  user_has_conversation {
+    integer user_id PK
+    integer conversation_id PK
+    timestamp_without_time_zone created_at
+    timestamp_without_time_zone updated_at
+  }
+  user_has_interest {
+    integer user_id PK
+    integer skill_id PK
+    timestamp_without_time_zone created_at
+    timestamp_without_time_zone updated_at
+  }
+  user_has_skill {
+    integer user_id PK
+    integer skill_id PK
+    timestamp_without_time_zone created_at
+    timestamp_without_time_zone updated_at
+  }
+  role ||--o{ user : "role_id"
+  user ||--o{ evaluation : "evaluated_id"
+  user ||--o{ evaluation : "evaluator_id"
+  user ||--o{ follow : "followed_id"
+  user ||--o{ follow : "follower_id"
+  conversation ||--o{ message : "conversation_id"
+  user ||--o{ message : "receiver_id"
+  user ||--o{ message : "sender_id"
+  user ||--o{ refresh_token : "user_id"
+  category ||--o{ skill : "category_id"
+  available ||--o{ user_has_available : "available_id"
+  user ||--o{ user_has_available : "user_id"
+  conversation ||--o{ user_has_conversation : "conversation_id"
+  user ||--o{ user_has_conversation : "user_id"
+  skill ||--o{ user_has_interest : "skill_id"
+  user ||--o{ user_has_interest : "user_id"
+  skill ||--o{ user_has_skill : "skill_id"
+  user ||--o{ user_has_skill : "user_id"
+
+%% ---------------------------------------------------------------
+%% Contraintes non exprimables dans la syntaxe Mermaid erDiagram
+%% (reportées ici pour que le MLD reste complet)
+%%
+%% Clés primaires composites :
+%%   - user_has_available (user_id,available_id)
+%%   - user_has_conversation (user_id,conversation_id)
+%%   - user_has_interest (user_id,skill_id)
+%%   - user_has_skill (user_id,skill_id)
+%%
+%% Contraintes UNIQUE composites :
+%%   - evaluation (evaluator_id, evaluated_id) — index evaluation_evaluator_id_evaluated_id_key
+%%   - follow (followed_id, follower_id) — index follow_followed_id_follower_id_key
+%%
+%% Intégrité référentielle : les 18 clés étrangères sont en ON DELETE CASCADE.
+%% ---------------------------------------------------------------

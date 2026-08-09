@@ -71,3 +71,11 @@ passage-titre/slides/output/*
 !passage-titre/slides/output/presentation.pdf
 .typst-cache/
 **/*.typ.bak
+
+# =========================
+# Artefacts de build des modèles de données
+# =========================
+# Régénéré à chaque `mocodo --input mcd.mcd` ; ne sert qu'à figer une mise en
+# page ajustée à la main. Le rendu est déterministe sans lui (SVG au hash
+# identique sur deux exécutions), donc inutile de le versionner.
+docs/_generated/database/mcd_geo.json

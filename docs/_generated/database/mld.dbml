@@ -1,0 +1,195 @@
+// MLD — SkillSwap — format DBML
+// Généré le 2026-08-09 depuis la base PostgreSQL 16 montée à partir des
+// 6 migrations réelles (catalogue information_schema / pg_catalog).
+// Aucune inférence depuis le code applicatif.
+// Visualisation : https://dbdiagram.io  (Import > DBML)
+
+Project skillswap {
+  database_type: 'PostgreSQL'
+  Note: '14 tables, 18 clés étrangères (toutes ON DELETE CASCADE), 4 types énumérés.'
+}
+
+Enum "dayInAWeek" {
+  "Lundi"
+  "Mardi"
+  "Mercredi"
+  "Jeudi"
+  "Vendredi"
+  "Samedi"
+  "Dimanche"
+}
+
+Enum "RoleOfUser" {
+  "Membre"
+}
+
+Enum "StatusOfConversation" {
+  "Open"
+  "Close"
+}
+
+Enum "Time" {
+  "Morning"
+  "Afternoon"
+}
+
+Table "available" {
+  "id" integer [pk, not null, increment]
+  "day" dayInAWeek [not null]
+  "created_at" timestamp [not null, default: `CURRENT_TIMESTAMP`]
+  "updated_at" timestamp [not null, default: `CURRENT_TIMESTAMP`]
+  "time_slot" Time [not null]
+}
+
+Table "category" {
+  "id" integer [pk, not null, increment]
+  "name" text [not null]
+  "created_at" timestamp [not null, default: `CURRENT_TIMESTAMP`]
+  "updated_at" timestamp [not null, default: `CURRENT_TIMESTAMP`]
+  "slug" text [not null, unique]
+}
+
+Table "conversation" {
+  "id" integer [pk, not null, increment]
+  "status" StatusOfConversation [not null, default: `Open::"StatusOfConversation"`]
+  "title" text [not null]
+  "created_at" timestamp [not null, default: `CURRENT_TIMESTAMP`]
+  "updated_at" timestamp [not null, default: `CURRENT_TIMESTAMP`]
+}
+
+Table "evaluation" {
+  "id" integer [pk, not null, increment]
+  "comments" text
+  "score" integer [not null]
+  "evaluator_id" integer [not null]
+  "evaluated_id" integer [not null]
+  "created_at" timestamp [not null, default: `CURRENT_TIMESTAMP`]
+  "updated_at" timestamp [not null, default: `CURRENT_TIMESTAMP`]
+  indexes {
+    (evaluator_id, evaluated_id) [unique, name: "evaluation_evaluator_id_evaluated_id_key"]
+  }
+}
+
+Table "follow" {
+  "id" integer [pk, not null, increment]
+  "followed_id" integer [not null]
+  "follower_id" integer [not null]
+  "created_at" timestamp [not null, default: `CURRENT_TIMESTAMP`]
+  "updated_at" timestamp [not null, default: `CURRENT_TIMESTAMP`]
+  indexes {
+    (followed_id, follower_id) [unique, name: "follow_followed_id_follower_id_key"]
+  }
+}
+
+Table "message" {
+  "id" integer [pk, not null, increment]
+  "sender_id" integer [not null]
+  "receiver_id" integer [not null]
+  "content" text [not null]
+  "conversation_id" integer [not null]
+  "created_at" timestamp [not null, default: `CURRENT_TIMESTAMP`]
+  "updated_at" timestamp [not null, default: `CURRENT_TIMESTAMP`]
+}
+
+Table "refresh_token" {
+  "id" integer [pk, not null, increment]
+  "token" text [not null, unique]
+  "user_id" integer [not null]
+  "expire_at" timestamp [not null]
+  "issued_at" timestamp [not null, default: `CURRENT_TIMESTAMP`]
+  indexes {
+    (user_id) [name: "refresh_token_user_id_idx"]
+  }
+}
+
+Table "role" {
+  "id" integer [pk, not null, increment]
+  "name" RoleOfUser [not null, default: `Membre::"RoleOfUser"`]
+  "created_at" timestamp [not null, default: `CURRENT_TIMESTAMP`]
+  "updated_at" timestamp [not null, default: `CURRENT_TIMESTAMP`]
+}
+
+Table "skill" {
+  "id" integer [pk, not null, increment]
+  "name" text [not null]
+  "category_id" integer [not null]
+  "created_at" timestamp [not null, default: `CURRENT_TIMESTAMP`]
+  "updated_at" timestamp [not null, default: `CURRENT_TIMESTAMP`]
+}
+
+Table "user" {
+  "id" integer [pk, not null, increment]
+  "firstname" text [not null]
+  "lastname" text [not null]
+  "email" text [not null, unique]
+  "password" text [not null]
+  "address" text
+  "postal_code" integer
+  "city" text
+  "age" integer
+  "description" text
+  "role_id" integer [not null]
+  "created_at" timestamp [not null, default: `CURRENT_TIMESTAMP`]
+  "updated_at" timestamp [not null, default: `CURRENT_TIMESTAMP`]
+  "avatar_url" text
+}
+
+Table "user_has_available" {
+  "user_id" integer [not null]
+  "available_id" integer [not null]
+  "created_at" timestamp [not null, default: `CURRENT_TIMESTAMP`]
+  "updated_at" timestamp [not null, default: `CURRENT_TIMESTAMP`]
+  indexes {
+    (user_id, available_id) [pk]
+  }
+}
+
+Table "user_has_conversation" {
+  "user_id" integer [not null]
+  "conversation_id" integer [not null]
+  "created_at" timestamp [not null, default: `CURRENT_TIMESTAMP`]
+  "updated_at" timestamp [not null, default: `CURRENT_TIMESTAMP`]
+  indexes {
+    (user_id, conversation_id) [pk]
+  }
+}
+
+Table "user_has_interest" {
+  "user_id" integer [not null]
+  "skill_id" integer [not null]
+  "created_at" timestamp [not null, default: `CURRENT_TIMESTAMP`]
+  "updated_at" timestamp [not null, default: `CURRENT_TIMESTAMP`]
+  indexes {
+    (user_id, skill_id) [pk]
+  }
+}
+
+Table "user_has_skill" {
+  "user_id" integer [not null]
+  "skill_id" integer [not null]
+  "created_at" timestamp [not null, default: `CURRENT_TIMESTAMP`]
+  "updated_at" timestamp [not null, default: `CURRENT_TIMESTAMP`]
+  indexes {
+    (user_id, skill_id) [pk]
+  }
+}
+
+// Clés étrangères — les 18 sont en ON DELETE CASCADE
+Ref "user_role_id_fkey": "user"."role_id" > "role"."id" [delete: cascade]
+Ref "evaluation_evaluated_id_fkey": "evaluation"."evaluated_id" > "user"."id" [delete: cascade]
+Ref "evaluation_evaluator_id_fkey": "evaluation"."evaluator_id" > "user"."id" [delete: cascade]
+Ref "follow_followed_id_fkey": "follow"."followed_id" > "user"."id" [delete: cascade]
+Ref "follow_follower_id_fkey": "follow"."follower_id" > "user"."id" [delete: cascade]
+Ref "message_conversation_id_fkey": "message"."conversation_id" > "conversation"."id" [delete: cascade]
+Ref "message_receiver_id_fkey": "message"."receiver_id" > "user"."id" [delete: cascade]
+Ref "message_sender_id_fkey": "message"."sender_id" > "user"."id" [delete: cascade]
+Ref "refresh_token_user_id_fkey": "refresh_token"."user_id" > "user"."id" [delete: cascade]
+Ref "skill_category_id_fkey": "skill"."category_id" > "category"."id" [delete: cascade]
+Ref "user_has_available_available_id_fkey": "user_has_available"."available_id" > "available"."id" [delete: cascade]
+Ref "user_has_available_user_id_fkey": "user_has_available"."user_id" > "user"."id" [delete: cascade]
+Ref "user_has_conversation_conversation_id_fkey": "user_has_conversation"."conversation_id" > "conversation"."id" [delete: cascade]
+Ref "user_has_conversation_user_id_fkey": "user_has_conversation"."user_id" > "user"."id" [delete: cascade]
+Ref "user_has_interest_skill_id_fkey": "user_has_interest"."skill_id" > "skill"."id" [delete: cascade]
+Ref "user_has_interest_user_id_fkey": "user_has_interest"."user_id" > "user"."id" [delete: cascade]
+Ref "user_has_skill_skill_id_fkey": "user_has_skill"."skill_id" > "skill"."id" [delete: cascade]
+Ref "user_has_skill_user_id_fkey": "user_has_skill"."user_id" > "user"."id" [delete: cascade]

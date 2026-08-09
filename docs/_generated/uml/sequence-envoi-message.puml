@@ -1,0 +1,152 @@
+@startuml sequence-envoi-message
+title Envoi d'un message — flux temps réel Socket.IO (chemin nominal)
+
+' Dérivé du code réel du dépôt d'équipe (O-clock-Dublin/projet-skillswap @ de73323).
+' Chaque flèche est adossée à un fichier:ligne. Aucune étape inventée.
+' Libellés d'entités cohérents avec le MPD/MLD (conversation, message, user...).
+
+skinparam sequenceMessageAlign left
+skinparam maxMessageSize 180
+skinparam ParticipantPadding 8
+
+actor "Émetteur" as U
+participant "Client\nsocket-client.ts" as FE
+participant "Socket.IO\nsocket.ts" as WS
+database "PostgreSQL\n(via Prisma)" as DB
+participant "Room\nconversation:{id}" as ROOM
+participant "Room\nuser:{receiverId}" as UROOM
+
+== 1. Handshake authentifié ==
+U -> FE : ouvre la messagerie
+FE -> WS : connexion WebSocket\n(cookie accessToken envoyé)
+activate WS
+WS -> WS : io.use() — lit le cookie **socket.ts:88-93**
+WS -> WS : jwt.verify(token, secret) **socket.ts:103**
+alt token invalide ou absent
+  WS --> FE : Error('Unauthorized') **socket.ts:114, :119**
+else token valide
+  WS -> WS : socket.data.userId = userId **socket.ts:117**
+  WS -> ROOM : socket.join("user:{userId}") **socket.ts:128**
+  note right : room personnelle — reçoit les\nnotifications hors conversation
+end
+deactivate WS
+
+== 2. Ouverture d'une conversation ==
+U -> FE : sélectionne une conversation
+FE -> WS : emit **conversation:join** { conversationId } **socket.ts:131**
+activate WS
+WS -> DB : userHasConversation.findUnique(userId, conversationId) **socket.ts:136**
+DB --> WS : participant ou null
+alt non participant
+  WS --> FE : emit **error** FORBIDDEN "Not a participant" **socket.ts:147-150**
+else participant
+  WS -> ROOM : socket.join("conversation:{id}") **socket.ts:155**
+  WS --> FE : emit **conversation:joined** **socket.ts:156**
+end
+deactivate WS
+
+== 3. Envoi du message ==
+U -> FE : saisit et valide le message
+FE -> WS : emit **message:send** { conversationId, message } **socket.ts:167**
+activate WS
+
+group Validations d'entrée (manuelles, pas de Zod)
+  WS -> WS : conversationId entier > 0 ? **socket.ts:171-177**
+  WS -> WS : contenu non vide et <= 2000 caractères ? **socket.ts:179-185**
+end
+
+WS -> DB : conversation.findUnique + participants + _count.messages **socket.ts:189-209**
+DB --> WS : conversation
+
+alt conversation absente ou status = Close
+  WS --> FE : emit **error** FORBIDDEN "Conversation closed" **socket.ts:214-220**
+else conversation ouverte
+  WS -> WS : l'émetteur est-il participant ? **socket.ts:222-229**
+  WS -> WS : receiverId = autre participant **socket.ts:233**
+  alt aucun second participant
+    WS --> FE : emit **error** FORBIDDEN "No receiver" **socket.ts:236**
+  else destinataire trouvé
+    WS -> WS : isFirstMessage = _count.messages === 0 **socket.ts:241**
+
+    group Persistance — Promise.all, PAS une transaction **socket.ts:244-271**
+      WS -> DB : message.create({conversationId, senderId, receiverId, content}) **socket.ts:245**
+      WS -> DB : conversation.update({updatedAt}) **socket.ts:266**
+      DB --> WS : message créé
+    end
+
+    WS -> WS : construction du DTO **socket.ts:273-287**
+
+    WS -> ROOM : emit **message:new** { conversationId, message } **socket.ts:289**
+    ROOM --> FE : message affiché en direct\n(participants présents dans la room)
+
+    opt premier message de la conversation
+      WS -> DB : follow.findUnique + rating.findUnique **socket.ts:297-314**
+      DB --> WS : statuts isFollowing / isRated
+      WS -> UROOM : emit **conversation:new** { conversation } **socket.ts:321**
+      note right : le destinataire voit apparaître\nla conversation sans être dans la room
+    end
+
+    loop pour chaque participant
+      WS -> UROOM : emit **conversation:updated** { conversationId, lastMessage } **socket.ts:342**
+      note right : met à jour la liste des\nconversations (aperçu + tri)
+    end
+  end
+end
+deactivate WS
+
+@enduml
+
+' =====================================================================
+
+@startuml sequence-envoi-message-rest
+title Envoi d'un message — chemin REST (secondaire, sans temps réel)
+
+skinparam sequenceMessageAlign left
+skinparam maxMessageSize 180
+
+actor "Émetteur" as U
+participant "Client" as FE
+participant "Express\nconv.router.ts" as API
+participant "message.service.ts" as SVC
+database "PostgreSQL\n(via Prisma)" as DB
+
+U -> FE : envoie un message
+FE -> API : POST /api/v1/conversations/:id/messages **conv.router.ts:64**
+activate API
+API -> API : validate('params', ConversationIdParamSchema) **conv.router.ts:66**
+API -> API : validate('body', CreateMessageSchema) **conv.router.ts:67**
+API -> API : checkAuth **conv.router.ts:68**
+API -> SVC : createMessageService({conversationId, senderId, content}) **message.controller.ts:25**
+activate SVC
+SVC -> DB : conversation.findFirst(id, participant) **message.service.ts:112**
+DB --> SVC : conversation
+alt introuvable
+  SVC --> API : NotFoundError **message.service.ts:116**
+else status = Close
+  SVC --> API : ForbiddenError **message.service.ts:117**
+else ouverte
+  SVC -> DB : userHasConversation.findUnique(sender) **message.service.ts:119**
+  SVC -> DB : userHasConversation.findFirst(userId != senderId) **message.service.ts:131**
+  DB --> SVC : second participant
+  alt aucun second participant
+    SVC --> API : NotFoundError **message.service.ts:140**
+  else
+    SVC -> DB : message.create({conversationId, senderId, receiverId, content}) **message.service.ts:144**
+    DB --> SVC : message
+  end
+end
+SVC --> API : message créé
+deactivate SVC
+API --> FE : 201 Created **message.controller.ts:31**
+deactivate API
+
+note over API
+  **Aucune émission Socket.IO sur ce chemin.**
+  createMessageController n'importe ni n'appelle
+  le serveur Socket.IO : un message posté en REST
+  n'est PAS diffusé en direct aux autres
+  participants. Ils ne le verront qu'au prochain
+  rechargement de la conversation.
+end note
+
+@enduml

@@ -1,0 +1,40 @@
+%% MCD SkillSwap — source Mocodo 4.3.3
+%% Rendu : mocodo --input mcd.mcd --output_dir .
+%%
+%% Dérivé du schéma réel (base montée depuis les 6 migrations) et du code de
+%% production. Entités nommées d'après les tables physiques, pour rester
+%% traçables avec mpd.md, mld.dbml et erd.mmd.
+%%
+%% refresh_token volontairement exclu : concept technique d'authentification,
+%% pas un concept métier.
+%%
+%% Associations réflexives : Mocodo 4.3.3 n'annote pas les rôles de pattes.
+%%   suit    -> user (suiveur)    / user (suivi)     [follow.follower_id / followed_id]
+%%   évalue  -> user (évaluateur) / user (évalué)    [evaluation.evaluator_id / evaluated_id]
+%%
+%% Cardinalité 22 sur participe_à : contrainte APPLICATIVE (conv.service.ts:266),
+%% pas une contrainte d'intégrité — aucune règle SQL ne l'impose.
+
+role: id, name
+a_pour_rôle, 11 user, 0N role
+category: id, name, slug
+
+appartient_à, 11 skill, 0N category
+skill: id, name
+possède, 0N user, 0N skill
+
+s_intéresse_à, 0N user, 0N skill
+user: id, firstname, lastname, email, password, address, postal_code, city, age, description, avatar_url
+suit, 0N user, 0N user
+
+est_disponible, 0N user, 0N available
+available: id, day, time_slot
+évalue, 0N user, 0N user: score, comments
+
+participe_à, 22 conversation, 0N user
+conversation: id, status, title
+émet, 11 message, 0N user
+
+se_rattache_à, 11 message, 0N conversation
+message: id, content
+destiné_à, 11 message, 0N user

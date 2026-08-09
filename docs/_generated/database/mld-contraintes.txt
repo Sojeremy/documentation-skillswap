@@ -1,0 +1,129 @@
+# Contraintes et index RÉELS — lus depuis la base montée depuis les migrations
+
+## Clés primaires
+  pg_default_acl|PRIMARY KEY (oid)
+  pg_tablespace|PRIMARY KEY (oid)
+  pg_type|PRIMARY KEY (oid)
+  pg_attribute|PRIMARY KEY (attrelid, attnum)
+  pg_proc|PRIMARY KEY (oid)
+  pg_class|PRIMARY KEY (oid)
+  pg_authid|PRIMARY KEY (oid)
+  pg_auth_members|PRIMARY KEY (oid)
+  pg_database|PRIMARY KEY (oid)
+  pg_foreign_server|PRIMARY KEY (oid)
+  pg_user_mapping|PRIMARY KEY (oid)
+  pg_sequence|PRIMARY KEY (seqrelid)
+  pg_foreign_data_wrapper|PRIMARY KEY (oid)
+  pg_shdescription|PRIMARY KEY (objoid, classoid)
+  pg_aggregate|PRIMARY KEY (aggfnoid)
+  pg_am|PRIMARY KEY (oid)
+  pg_amop|PRIMARY KEY (oid)
+  pg_amproc|PRIMARY KEY (oid)
+  pg_attrdef|PRIMARY KEY (oid)
+  pg_cast|PRIMARY KEY (oid)
+  pg_constraint|PRIMARY KEY (oid)
+  pg_conversion|PRIMARY KEY (oid)
+  pg_description|PRIMARY KEY (objoid, classoid, objsubid)
+  pg_index|PRIMARY KEY (indexrelid)
+  pg_inherits|PRIMARY KEY (inhrelid, inhseqno)
+  pg_language|PRIMARY KEY (oid)
+  pg_largeobject|PRIMARY KEY (loid, pageno)
+  pg_namespace|PRIMARY KEY (oid)
+  pg_opclass|PRIMARY KEY (oid)
+  pg_operator|PRIMARY KEY (oid)
+  pg_rewrite|PRIMARY KEY (oid)
+  pg_statistic|PRIMARY KEY (starelid, staattnum, stainherit)
+  pg_trigger|PRIMARY KEY (oid)
+  pg_opfamily|PRIMARY KEY (oid)
+  pg_db_role_setting|PRIMARY KEY (setdatabase, setrole)
+  pg_largeobject_metadata|PRIMARY KEY (oid)
+  pg_extension|PRIMARY KEY (oid)
+  pg_foreign_table|PRIMARY KEY (ftrelid)
+  pg_policy|PRIMARY KEY (oid)
+  pg_partitioned_table|PRIMARY KEY (partrelid)
+  pg_statistic_ext|PRIMARY KEY (oid)
+  pg_init_privs|PRIMARY KEY (objoid, classoid, objsubid)
+  pg_statistic_ext_data|PRIMARY KEY (stxoid, stxdinherit)
+  pg_collation|PRIMARY KEY (oid)
+  pg_event_trigger|PRIMARY KEY (oid)
+  pg_enum|PRIMARY KEY (oid)
+  pg_range|PRIMARY KEY (rngtypid)
+  pg_transform|PRIMARY KEY (oid)
+  pg_shseclabel|PRIMARY KEY (objoid, classoid, provider)
+  pg_seclabel|PRIMARY KEY (objoid, classoid, objsubid, provider)
+  pg_ts_dict|PRIMARY KEY (oid)
+  pg_ts_parser|PRIMARY KEY (oid)
+  pg_ts_config|PRIMARY KEY (oid)
+  pg_ts_config_map|PRIMARY KEY (mapcfg, maptokentype, mapseqno)
+  pg_ts_template|PRIMARY KEY (oid)
+  pg_replication_origin|PRIMARY KEY (roident)
+  pg_subscription|PRIMARY KEY (oid)
+  pg_subscription_rel|PRIMARY KEY (srrelid, srsubid)
+  pg_publication|PRIMARY KEY (oid)
+  pg_publication_rel|PRIMARY KEY (oid)
+  pg_publication_namespace|PRIMARY KEY (oid)
+  pg_parameter_acl|PRIMARY KEY (oid)
+  "user"|PRIMARY KEY (id)
+  role|PRIMARY KEY (id)
+  skill|PRIMARY KEY (id)
+  user_has_skill|PRIMARY KEY (user_id, skill_id)
+  user_has_interest|PRIMARY KEY (user_id, skill_id)
+  category|PRIMARY KEY (id)
+  evaluation|PRIMARY KEY (id)
+  follow|PRIMARY KEY (id)
+  conversation|PRIMARY KEY (id)
+  user_has_conversation|PRIMARY KEY (user_id, conversation_id)
+  message|PRIMARY KEY (id)
+  available|PRIMARY KEY (id)
+  refresh_token|PRIMARY KEY (id)
+  user_has_available|PRIMARY KEY (user_id, available_id)
+
+## Clés étrangères (18)
+  "user"|user_role_id_fkey|FOREIGN KEY (role_id) REFERENCES role(id) ON UPDATE CASCADE ON DELETE CASCADE
+  skill|skill_category_id_fkey|FOREIGN KEY (category_id) REFERENCES category(id) ON UPDATE CASCADE ON DELETE CASCADE
+  user_has_skill|user_has_skill_skill_id_fkey|FOREIGN KEY (skill_id) REFERENCES skill(id) ON UPDATE CASCADE ON DELETE CASCADE
+  user_has_skill|user_has_skill_user_id_fkey|FOREIGN KEY (user_id) REFERENCES "user"(id) ON UPDATE CASCADE ON DELETE CASCADE
+  user_has_interest|user_has_interest_skill_id_fkey|FOREIGN KEY (skill_id) REFERENCES skill(id) ON UPDATE CASCADE ON DELETE CASCADE
+  user_has_interest|user_has_interest_user_id_fkey|FOREIGN KEY (user_id) REFERENCES "user"(id) ON UPDATE CASCADE ON DELETE CASCADE
+  evaluation|evaluation_evaluated_id_fkey|FOREIGN KEY (evaluated_id) REFERENCES "user"(id) ON UPDATE CASCADE ON DELETE CASCADE
+  evaluation|evaluation_evaluator_id_fkey|FOREIGN KEY (evaluator_id) REFERENCES "user"(id) ON UPDATE CASCADE ON DELETE CASCADE
+  follow|follow_followed_id_fkey|FOREIGN KEY (followed_id) REFERENCES "user"(id) ON UPDATE CASCADE ON DELETE CASCADE
+  follow|follow_follower_id_fkey|FOREIGN KEY (follower_id) REFERENCES "user"(id) ON UPDATE CASCADE ON DELETE CASCADE
+  user_has_conversation|user_has_conversation_conversation_id_fkey|FOREIGN KEY (conversation_id) REFERENCES conversation(id) ON UPDATE CASCADE ON DELETE CASCADE
+  user_has_conversation|user_has_conversation_user_id_fkey|FOREIGN KEY (user_id) REFERENCES "user"(id) ON UPDATE CASCADE ON DELETE CASCADE
+  message|message_conversation_id_fkey|FOREIGN KEY (conversation_id) REFERENCES conversation(id) ON UPDATE CASCADE ON DELETE CASCADE
+  message|message_receiver_id_fkey|FOREIGN KEY (receiver_id) REFERENCES "user"(id) ON UPDATE CASCADE ON DELETE CASCADE
+  message|message_sender_id_fkey|FOREIGN KEY (sender_id) REFERENCES "user"(id) ON UPDATE CASCADE ON DELETE CASCADE
+  refresh_token|refresh_token_user_id_fkey|FOREIGN KEY (user_id) REFERENCES "user"(id) ON UPDATE CASCADE ON DELETE CASCADE
+  user_has_available|user_has_available_available_id_fkey|FOREIGN KEY (available_id) REFERENCES available(id) ON UPDATE CASCADE ON DELETE CASCADE
+  user_has_available|user_has_available_user_id_fkey|FOREIGN KEY (user_id) REFERENCES "user"(id) ON UPDATE CASCADE ON DELETE CASCADE
+
+## Index uniques (dont contraintes Prisma)
+  available|available_pkey|CREATE UNIQUE INDEX available_pkey ON public.available USING btree (id)
+  category|category_pkey|CREATE UNIQUE INDEX category_pkey ON public.category USING btree (id)
+  category|category_slug_key|CREATE UNIQUE INDEX category_slug_key ON public.category USING btree (slug)
+  conversation|conversation_pkey|CREATE UNIQUE INDEX conversation_pkey ON public.conversation USING btree (id)
+  evaluation|evaluation_evaluator_id_evaluated_id_key|CREATE UNIQUE INDEX evaluation_evaluator_id_evaluated_id_key ON public.evaluation USING btree (evaluator_id, evaluated_id)
+  evaluation|evaluation_pkey|CREATE UNIQUE INDEX evaluation_pkey ON public.evaluation USING btree (id)
+  follow|follow_followed_id_follower_id_key|CREATE UNIQUE INDEX follow_followed_id_follower_id_key ON public.follow USING btree (followed_id, follower_id)
+  follow|follow_pkey|CREATE UNIQUE INDEX follow_pkey ON public.follow USING btree (id)
+  message|message_pkey|CREATE UNIQUE INDEX message_pkey ON public.message USING btree (id)
+  refresh_token|refresh_token_pkey|CREATE UNIQUE INDEX refresh_token_pkey ON public.refresh_token USING btree (id)
+  refresh_token|refresh_token_token_key|CREATE UNIQUE INDEX refresh_token_token_key ON public.refresh_token USING btree (token)
+  role|role_pkey|CREATE UNIQUE INDEX role_pkey ON public.role USING btree (id)
+  skill|skill_pkey|CREATE UNIQUE INDEX skill_pkey ON public.skill USING btree (id)
+  user|user_pkey|CREATE UNIQUE INDEX user_pkey ON public."user" USING btree (id)
+  user|user_email_key|CREATE UNIQUE INDEX user_email_key ON public."user" USING btree (email)
+  user_has_available|user_has_available_pkey|CREATE UNIQUE INDEX user_has_available_pkey ON public.user_has_available USING btree (user_id, available_id)
+  user_has_conversation|user_has_conversation_pkey|CREATE UNIQUE INDEX user_has_conversation_pkey ON public.user_has_conversation USING btree (user_id, conversation_id)
+  user_has_interest|user_has_interest_pkey|CREATE UNIQUE INDEX user_has_interest_pkey ON public.user_has_interest USING btree (user_id, skill_id)
+  user_has_skill|user_has_skill_pkey|CREATE UNIQUE INDEX user_has_skill_pkey ON public.user_has_skill USING btree (user_id, skill_id)
+
+## Index non uniques
+  refresh_token|refresh_token_user_id_idx
+
+## Enums
+  RoleOfUser|Membre
+  StatusOfConversation|Open, Close
+  Time|Morning, Afternoon
+  dayInAWeek|Lundi, Mardi, Mercredi, Jeudi, Vendredi, Samedi, Dimanche
