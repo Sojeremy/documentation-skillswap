@@ -1,0 +1,139 @@
+@startuml cas-usage
+title Cas d'usage SkillSwap — dérivés des 37 routes réelles + des events Socket.IO
+
+' Dérivé du code réel (O-clock-Dublin/projet-skillswap @ de73323).
+' Chaque cas d'usage est traçable à une route ou à un event.
+' Aucun acteur ni cas inventé : l'enum RoleOfUser ne contient que « Membre ».
+
+left to right direction
+skinparam packageStyle rectangle
+skinparam actorStyle awesome
+
+actor "Visiteur\n(non authentifié)" as V
+actor "Membre\n(authentifié)" as M
+actor "Exploitant\n(CLI serveur)" as OPS
+
+M -|> V : hérite de tous\nles accès publics
+
+rectangle "Accès public — 8 endpoints sans checkAuth" {
+  usecase "Consulter un profil public (teaser)\n--\nGET /profiles/public/:id\nprofile.router.ts:75" as UC_PUB
+  usecase "Voir les catégories les mieux notées\n--\nGET /categories/top-rated\ncategory.router.ts:9" as UC_CAT
+  usecase "Voir les membres les mieux notés\n--\nGET /search/top-rated\nsearch.router.ts:21" as UC_TOP
+  usecase "S'inscrire\n--\nPOST /auth/register\nauth.router.ts:14" as UC_REG
+  usecase "Se connecter\n--\nPOST /auth/login\nauth.router.ts:15" as UC_LOGIN
+  usecase "Se déconnecter\n--\nPOST /auth/logout\nauth.router.ts:16" as UC_LOGOUT
+  usecase "Renouveler la session\n--\nPOST /auth/refresh\nauth.router.ts:17" as UC_REFRESH
+  usecase "Sonder la disponibilité\n--\nGET /health\napp.ts:28" as UC_HEALTH
+}
+
+V --> UC_PUB
+V --> UC_CAT
+V --> UC_TOP
+V --> UC_REG
+V --> UC_LOGIN
+V --> UC_LOGOUT
+V --> UC_REFRESH
+V --> UC_HEALTH
+
+rectangle "Mon compte — checkAuth + propriété implicite (req.userId)" {
+  usecase "Consulter ma session\n--\nGET /auth/me" as UC_ME
+  usecase "Modifier mon profil\n--\nPATCH /profiles/:id\n**isOwner** — profile.router.ts:83" as UC_EDIT
+  usecase "Changer mon mot de passe\n--\nPATCH /profiles/password" as UC_PWD
+  usecase "Gérer mon avatar\n--\nPATCH / DELETE /profiles/avatar\nuploadAvatar (multer)" as UC_AVATAR
+  usecase "Gérer mes compétences\n--\nPOST /profiles/skills\nDELETE /profiles/skills/:id" as UC_SKILLS
+  usecase "Gérer mes centres d'intérêt\n--\nPOST /profiles/interests\nDELETE /profiles/interests/:id" as UC_INT
+  usecase "Gérer mes disponibilités\n--\nPOST /profiles/availabilities\nDELETE /profiles/availabilities/:id" as UC_AVAIL
+  usecase "Supprimer mon compte\n--\nDELETE /profiles" as UC_DEL
+}
+
+M --> UC_ME
+M --> UC_EDIT
+M --> UC_PWD
+M --> UC_AVATAR
+M --> UC_SKILLS
+M --> UC_INT
+M --> UC_AVAIL
+M --> UC_DEL
+
+rectangle "Découverte et relations sociales" {
+  usecase "Rechercher des membres\n--\nGET /search\nMeilisearch" as UC_SEARCH
+  usecase "Consulter un profil complet\n--\nGET /profiles/:id\n(tout membre, pas d'isOwner)" as UC_PROFILE
+  usecase "Lister le référentiel compétences\n--\nGET /skills" as UC_REFSKILL
+  usecase "Lister le référentiel créneaux\n--\nGET /availabilities" as UC_REFAVAIL
+  usecase "Suivre / ne plus suivre\n--\nPOST / DELETE /follows/:id/follow" as UC_FOLLOW
+  usecase "Voir mes abonnés / abonnements\n--\nGET /follows/followers\nGET /follows/following" as UC_FOLLOWLIST
+  usecase "Évaluer un membre\n--\nPOST /profiles/:id/rating\n**requireFollow** — profile.router.ts:92" as UC_RATE
+}
+
+M --> UC_SEARCH
+M --> UC_PROFILE
+M --> UC_REFSKILL
+M --> UC_REFAVAIL
+M --> UC_FOLLOW
+M --> UC_FOLLOWLIST
+M --> UC_RATE
+
+rectangle "Messagerie" {
+  usecase "Ouvrir une conversation\n--\nPOST /conversations\n**requireSimpleFollow** — conv.router.ts:36" as UC_CONVNEW
+  usecase "Lister mes conversations\n--\nGET /conversations" as UC_CONVLIST
+  usecase "Ouvrir une conversation\n--\nGET /conversations/:id\n(participant vérifié en service)" as UC_CONVGET
+  usecase "Lire les messages\n--\nGET /conversations/:id/messages" as UC_MSGLIST
+  usecase "Envoyer un message (REST)\n--\nPOST /conversations/:id/messages" as UC_MSGPOST
+  usecase "Modifier / supprimer mon message\n--\nPATCH / DELETE .../message/:messageId\n(auteur vérifié en service)" as UC_MSGEDIT
+  usecase "Clore une conversation\n--\nPATCH /conversations/:id/close" as UC_CONVCLOSE
+  usecase "Quitter une conversation\n--\nDELETE /conversations/:id\n(exige status = Close)" as UC_CONVLEAVE
+}
+
+M --> UC_CONVNEW
+M --> UC_CONVLIST
+M --> UC_CONVGET
+M --> UC_MSGLIST
+M --> UC_MSGPOST
+M --> UC_MSGEDIT
+M --> UC_CONVCLOSE
+M --> UC_CONVLEAVE
+
+UC_CONVNEW ..> UC_FOLLOW : <<precondition>>\nsuivre la cible
+UC_RATE ..> UC_FOLLOW : <<precondition>>\nsuivre la cible
+UC_CONVLEAVE ..> UC_CONVCLOSE : <<precondition>>\nconversation close
+
+rectangle "Messagerie temps réel — Socket.IO (hors REST)" {
+  usecase "Rejoindre / quitter une conversation\n--\nconversation:join / :leave\nsocket.ts:131, :160" as UC_WSJOIN
+  usecase "Envoyer un message en direct\n--\nmessage:send → message:new\nsocket.ts:167, :289" as UC_WSSEND
+  usecase "Être notifié d'une conversation\n--\nconversation:new / :updated\nsocket.ts:321, :342" as UC_WSNOTIF
+  usecase "Clore en direct\n--\nconversation:close / :closed\nsocket.ts:349, :414" as UC_WSCLOSE
+}
+
+M --> UC_WSJOIN
+M --> UC_WSSEND
+M --> UC_WSNOTIF
+M --> UC_WSCLOSE
+
+rectangle "Exploitation (hors API HTTP)" {
+  usecase "Réindexer Meilisearch\n--\nnpm run search:reindex\nreindex-search.ts" as UC_REINDEX
+  usecase "Peupler la base\n--\nnpm run db:seed\nseeding.ts" as UC_SEED
+}
+
+OPS --> UC_REINDEX
+OPS --> UC_SEED
+
+note as N1
+  **Aucun acteur « Administrateur » ni « Modérateur ».**
+  L'enum RoleOfUser ne compte qu'une valeur, « Membre »
+  (vérifié en base : SELECT enumlabel FROM pg_enum).
+  `req.userRole` est posé par checkAuth (auth.middleware.ts:20)
+  et embarqué dans le JWT (lib/auth.ts:13), mais **jamais lu**
+  pour autoriser quoi que ce soit.
+end note
+
+note as N2
+  **Trois niveaux d'autorisation, aucun fondé sur un rôle :**
+  • checkAuth — auth.middleware.ts:15-26 (30 routes sur 37)
+  • isOwner — auth.middleware.ts:28-36 (**1 seule route** : PATCH /profiles/:id)
+  • requireFollow / requireSimpleFollow — conv.middleware.ts
+  Les appartenances (participant d'une conversation, auteur d'un
+  message) sont vérifiées **impérativement dans les services**,
+  pas par un middleware déclaratif.
+end note
+
+@enduml

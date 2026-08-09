@@ -1,0 +1,176 @@
+@startuml sequence-recherche-profils
+title Recherche de profils — lecture via Meilisearch (aucune requête SQL)
+
+' Dérivé du code réel (O-clock-Dublin/projet-skillswap @ de73323).
+' Chaque flèche est adossée à un fichier:ligne. Libellés cohérents avec le MPD.
+
+skinparam sequenceMessageAlign left
+skinparam maxMessageSize 190
+skinparam ParticipantPadding 10
+
+actor "Membre\n(authentifié)" as U
+participant "Client\nuseSearch.ts" as FE
+participant "Express\nsearch.router.ts" as API
+participant "search.service.ts" as SVC
+participant "Meilisearch\nindex « members »" as MEILI
+database "PostgreSQL" as DB
+
+U -> FE : saisit une recherche / choisit une catégorie
+FE -> FE : debounce + AbortController\n**useSearch.ts:36, :82-83**
+FE -> API : GET /api/v1/search?q&category&page&limit&sort **search.router.ts:14**
+activate API
+
+group Barrières d'entrée
+  API -> API : checkAuth — cookie accessToken **search.router.ts:16**
+  note right : endpoint **authentifié**\n(contrairement à /search/top-rated)
+  API -> API : validate('query', SearchParamsSchema) **search.router.ts:17**
+  note right : q, category, page, limit, sort\ntous **optionnels**, tous des strings
+end
+
+API -> SVC : getUserSearchService(req.query) **search.controller.ts:10**
+activate SVC
+
+SVC -> SVC : valeurs par défaut\nq='', page=1, limit=12, sort='rating:desc' **search.service.ts:33-39**
+SVC -> SVC : pageNum = max(1, page)\nlimitNum = min(50, max(1, limit))\noffset = (pageNum-1) * limitNum **search.service.ts:40-42**
+
+SVC -> SVC : construction du filtre\nfilters.push(`categorySlugs = "${category}"`) **search.service.ts:44-47**
+note right #FFE9E9
+  **Interpolation de chaîne** dans le filtre.
+  `category` n'est qu'un `z.string().optional()`
+  sans format imposé — surface d'injection
+  de filtre Meilisearch. Cf. encart en fin.
+end note
+
+SVC -> MEILI : membersIndex.search(q, { filter, sort,\nlimit, offset, attributesToRetrieve }) **search.service.ts:49-67**
+activate MEILI
+note right of MEILI
+  Index configuré dans **mailisearch.ts:11-23**
+  searchable : firstname, lastname, skills
+  filterable : categorySlugs, city
+  sortable   : rating, createdAt
+  tolérance aux fautes activée (1 faute dès 3 car.)
+end note
+MEILI --> SVC : hits + estimatedTotalHits + processingTimeMs
+deactivate MEILI
+
+SVC -> SVC : total = estimatedTotalHits\ntotalPages = ceil(total / limitNum) **search.service.ts:69-77**
+SVC --> API : { members, total, page, totalPages, processingTimeMs }
+deactivate SVC
+
+API --> FE : 200 OK **search.controller.ts:11**
+deactivate API
+FE --> U : liste paginée des membres
+
+note over DB
+  **PostgreSQL n'est pas sollicité sur ce chemin.**
+  La lecture se fait entièrement dans l'index
+  Meilisearch. La base n'intervient qu'à
+  l'indexation (diagramme suivant).
+end note
+
+@enduml
+
+' =====================================================================
+
+@startuml sequence-indexation-meilisearch
+title Indexation Postgres → Meilisearch (chemin d'écriture)
+
+skinparam sequenceMessageAlign left
+skinparam maxMessageSize 190
+
+participant "profile.service.ts" as PS
+participant "search.service.ts" as SS
+participant "member.mapper.ts" as MAP
+database "PostgreSQL" as DB
+participant "Meilisearch\nindex « members »" as MEILI
+
+== Synchronisation unitaire, déclenchée par une écriture profil ==
+
+PS -> SS : indexMember(userId) / removeMember(userId)
+note left of PS
+  6 points d'appel dans profile.service.ts :
+  l.219 mise à jour du profil     (try/catch)
+  l.274 ajout de compétences      (try/catch)
+  l.304 plus aucune compétence    (**NON protégé**)
+  l.434 réception d'une note      (try/catch)
+  l.480 suppression du compte     (try/catch)
+  l.551 ajout de disponibilités   (try/catch)
+end note
+activate SS
+
+alt indexMember
+  SS -> MAP : userToDocument(userId) **search.service.ts:13**
+  activate MAP
+  MAP -> DB : user.findUnique + skills.skill.category\n+ evaluationsReceived **member.mapper.ts:14-28**
+  DB --> MAP : utilisateur et relations
+  MAP -> MAP : calculateAverageRating(evaluations) **member.mapper.ts:5-9**
+  MAP -> MAP : projection MemberDocument\n(fullname, skillIds, categorySlugs...) **member.mapper.ts:39-54**
+  MAP --> SS : MemberDocument
+  deactivate MAP
+  SS -> MEILI : membersIndex.addDocuments([document]) **search.service.ts:14**
+else removeMember
+  SS -> MEILI : membersIndex.deleteDocument(userId) **search.service.ts:27**
+end
+deactivate SS
+
+== Réindexation complète (script CLI, hors requête HTTP) ==
+
+participant "reindex-search.ts" as CLI
+CLI -> MEILI : testMeiliConnexion() **reindex-search.ts:7**
+CLI -> MEILI : setupMembersIndex() — réglages de l'index **reindex-search.ts:13**
+CLI -> SS : indexAllMembers() **reindex-search.ts:16**
+activate SS
+SS -> DB : user.findMany() — **tous** les utilisateurs **search.service.ts:19**
+DB --> SS : liste complète
+SS -> MAP : userToDocument(u.id) pour chacun (Promise.all) **search.service.ts:20**
+SS -> MEILI : addDocuments(documents) **search.service.ts:21**
+deactivate SS
+
+note over CLI
+  Lancé à la main : `npm run search:reindex`.
+  **Aucune réindexation automatique au démarrage** du serveur :
+  index.ts ne fait que http.createServer + initSocket + listen.
+end note
+
+@enduml
+
+' =====================================================================
+
+@startuml sequence-top-rated
+title /search/top-rated — l'exception qui n'utilise PAS Meilisearch
+
+skinparam sequenceMessageAlign left
+skinparam maxMessageSize 190
+
+actor "Visiteur\n(non authentifié)" as V
+participant "Express\nsearch.router.ts" as API
+participant "search.service.ts" as SVC
+database "PostgreSQL" as DB
+
+V -> API : GET /api/v1/search/top-rated?limit=N **search.router.ts:21**
+activate API
+API -> API : validate('query', TopRatedSchema)\n**pas de checkAuth — endpoint public**
+API -> SVC : getBestUsersService(params) **search.controller.ts:16**
+activate SVC
+SVC -> DB : user.findMany({ include: skills.skill.category,\nevaluationsReceived }) **search.service.ts:81-94**
+note right #FFE9E9
+  Charge **toute la table user**
+  avec toutes ses relations,
+  sans `where` ni `take`.
+end note
+DB --> SVC : tous les utilisateurs
+SVC -> SVC : moyenne par utilisateur (JS) **search.service.ts:96-109**
+SVC -> SVC : tri décroissant puis slice(0, limit) **search.service.ts:110-112**
+SVC --> API : N meilleurs membres
+deactivate SVC
+API --> V : 200 OK
+deactivate API
+
+note over SVC
+  Ce classement est calculé **en mémoire applicative**,
+  alors que l'index Meilisearch expose déjà `rating`
+  comme attribut triable (mailisearch.ts:15).
+  Incohérence assumée à connaître.
+end note
+
+@enduml

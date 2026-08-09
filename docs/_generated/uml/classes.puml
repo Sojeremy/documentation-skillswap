@@ -1,0 +1,420 @@
+@startuml classes-domaine
+title Modèle de domaine — classes Prisma (nom physique de table en stéréotype)
+
+' Dérivé de backend/prisma/schema.prisma et vérifié contre la base réelle.
+' Les noms de classes sont les modèles Prisma ; les tables physiques (celles du
+' MPD/MLD/ERD/MCD) figurent en stéréotype quand elles diffèrent.
+
+skinparam classAttributeIconSize 0
+hide methods
+
+enum RoleOfUser {
+  Membre
+}
+enum StatusOfConversation {
+  Open
+  Close
+}
+enum dayInAWeek {
+  Lundi
+  Mardi
+  Mercredi
+  Jeudi
+  Vendredi
+  Samedi
+  Dimanche
+}
+enum Time {
+  Morning
+  Afternoon
+}
+
+class Role <<table: role>> {
+  +id : Int <<PK>>
+  +name : RoleOfUser = Membre
+  +createdAt / updatedAt : DateTime
+}
+
+class User <<table: user>> {
+  +id : Int <<PK>>
+  +firstname : String
+  +lastname : String
+  +email : String <<UNIQUE>>
+  +password : String
+  +address : String?
+  +postalCode : Int? <<postal_code>>
+  +city : String?
+  +age : Int?
+  +avatarUrl : String? <<avatar_url>>
+  +description : String?
+  +roleId : Int <<FK>>
+  +createdAt / updatedAt : DateTime
+}
+
+class Category <<table: category>> {
+  +id : Int <<PK>>
+  +name : String
+  +slug : String <<UNIQUE>>
+  +createdAt / updatedAt : DateTime
+}
+
+class Skill <<table: skill>> {
+  +id : Int <<PK>>
+  +name : String
+  +categoryId : Int <<FK>>
+  +createdAt / updatedAt : DateTime
+}
+
+class UserHasSkill <<table: user_has_skill>> {
+  +userId : Int <<PK, FK>>
+  +skillId : Int <<PK, FK>>
+  +createdAt / updatedAt : DateTime
+}
+
+class UserHasInterest <<table: user_has_interest>> {
+  +userId : Int <<PK, FK>>
+  +skillId : Int <<PK, FK>>
+  +createdAt / updatedAt : DateTime
+}
+
+class Conversation <<table: conversation>> {
+  +id : Int <<PK>>
+  +status : StatusOfConversation = Open
+  +title : String
+  +createdAt / updatedAt : DateTime
+}
+
+class UserHasConversation <<table: user_has_conversation>> {
+  +userId : Int <<PK, FK>>
+  +conversationId : Int <<PK, FK>>
+  +createdAt / updatedAt : DateTime
+}
+
+class Message <<table: message>> {
+  +id : Int <<PK>>
+  +content : String
+  +senderId : Int <<FK>>
+  +receiverId : Int <<FK>>
+  +conversationId : Int <<FK>>
+  +createdAt / updatedAt : DateTime
+}
+
+class Rating <<table: evaluation>> {
+  +id : Int <<PK>>
+  +score : Int
+  +comments : String?
+  +evaluatorId : Int <<FK>>
+  +evaluatedId : Int <<FK>>
+  --
+  <<UNIQUE (evaluatorId, evaluatedId)>>
+}
+
+class Follow <<table: follow>> {
+  +id : Int <<PK>>
+  +followedId : Int <<FK>>
+  +followerId : Int <<FK>>
+  --
+  <<UNIQUE (followedId, followerId)>>
+}
+
+class Available <<table: available>> {
+  +id : Int <<PK>>
+  +day : dayInAWeek
+  +timeSlot : Time <<time_slot>>
+  +createdAt / updatedAt : DateTime
+}
+
+class UserHasAvailable <<table: user_has_available>> {
+  +userId : Int <<PK, FK>>
+  +availableId : Int <<PK, FK>>
+  +createdAt / updatedAt : DateTime
+}
+
+class RefreshToken <<table: refresh_token>> {
+  +id : Int <<PK>>
+  +token : String <<UNIQUE>>
+  +userId : Int <<FK>> <<INDEX>>
+  +expireAt : DateTime <<expire_at>>
+  +issuedAt : DateTime <<issued_at>>
+}
+
+Role "1" <-- "0..*" User : roleId
+Category "1" <-- "0..*" Skill : categoryId
+
+User "1" <-- "0..*" UserHasSkill : userId
+Skill "1" <-- "0..*" UserHasSkill : skillId
+User "1" <-- "0..*" UserHasInterest : userId
+Skill "1" <-- "0..*" UserHasInterest : skillId
+
+User "1" <-- "0..2" UserHasConversation : userId
+Conversation "1" <-- "0..2" UserHasConversation : conversationId
+
+Conversation "1" <-- "0..*" Message : conversationId
+User "1" <-- "0..*" Message : senderId
+User "1" <-- "0..*" Message : receiverId
+
+User "1" <-- "0..*" Rating : evaluatorId
+User "1" <-- "0..*" Rating : evaluatedId
+User "1" <-- "0..*" Follow : followerId
+User "1" <-- "0..*" Follow : followedId
+
+User "1" <-- "0..*" UserHasAvailable : userId
+Available "1" <-- "0..*" UserHasAvailable : availableId
+User "1" <-- "0..*" RefreshToken : userId
+
+note as NDOM
+  **18 clés étrangères, toutes en ON DELETE CASCADE.**
+  Aucune classe métier ne double ces modèles : il n'existe
+  ni entité de domaine, ni DTO généralisé, ni repository.
+  Les services manipulent directement le client Prisma.
+end note
+
+@enduml
+
+' =====================================================================
+
+@startuml classes-couches
+title Architecture en couches — modules réels et fonctions exportées
+
+' Toutes les fonctions listées existent : extraites par grep des `export`
+' dans le dépôt d'équipe. Aucune méthode inventée, orthographe d'origine
+' conservée (y compris la coquille `addProfleInterests`).
+
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+hide empty members
+
+package "Présentation — routers (8 + index)" as P1 {
+  class "index.router.ts" as R0 {
+    /auth /profiles /conversations /follows
+    /categories /skills /availabilities /search
+  }
+  class "auth.router.ts (5)" as R1
+  class "profile.router.ts (14)" as R2
+  class "conv.router.ts (9)" as R3
+  class "follow.router.ts (4)" as R4
+  class "search.router.ts (2)" as R5
+  class "category.router.ts (1)" as R6
+  class "skill.router.ts (1)" as R7
+  class "availability.router.ts (1)" as R8
+}
+
+package "Présentation — middlewares" as P2 {
+  class "auth.middleware.ts" as MW1 {
+    +validate(dataSource, schema)   l.8
+    +checkAuth(req,res,next)        l.15
+    +isOwner(req,res,next)          l.28
+    +parseNumericParams(...)        l.38
+  }
+  class "conv.middleware.ts" as MW2 {
+    +requireFollow(config)          l.11
+    +requireMutualFollow(config)    l.48  <<jamais utilisé>>
+    +requireSimpleFollow(...)       l.78
+  }
+  class "error.middleware.ts" as MW3 {
+    +errorHandler(...)              l.9
+  }
+  class "response.middleware.ts" as MW4 {
+    +addResponseMethodsMiddleware() l.4
+  }
+  class "upload.middleware.ts" as MW5 {
+    +uploadAvatar (multer)          l.45
+  }
+}
+
+package "Présentation — controllers (7)" as P3 {
+  class "auth.controller.ts" as C1 {
+    +register  +login  +logout
+    +refreshAccessToken  +getMe
+    +setTokenInCookie        l.63
+    +setRefreshTokenInCookie l.83
+  }
+  class "profile.controller.ts (16)" as C2 {
+    +getProfile  +getPublicProfile
+    +changeOwnProfile  +getAllSkills
+    +addProfileSkills  +deleteProfileSkills
+    +addProfleInterests  <<coquille d'origine>>
+    +deleteProfileInterests
+    +getAllAvailabilities
+    +addProfileAvailabilities
+    +deleteOwnAvailabilities
+    +addRateToUser  +changePassword
+    +deleteAccount
+    +updateAvatar  +deleteAvatar
+  }
+  class "conv.controller.ts" as C3 {
+    +getAllUserConversationsController
+    +createConversationController
+    +getConversationByIdController
+    +deleteConversationController
+    +closeConversationController
+  }
+  class "message.controller.ts" as C4 {
+    +createMessageController
+    +getConversationMessagesController
+    +updateMessageController
+    +deleteMessageController
+  }
+  class "follow.controller.ts" as C5 {
+    +followUser  +unfollowUser
+    +getAllFollowers  +getAllFollowing
+  }
+  class "search.controller.ts" as C6 {
+    +getUserSearch  +getBestUsers
+  }
+  class "category.controller.ts" as C7 {
+    +GetTopUserCategories  <<PascalCase>>
+  }
+}
+
+package "Métier — services (7)" as P4 {
+  class "auth.service.ts" as S1 {
+    +registerService  +loginService
+    +logoutService
+    +refreshAccessTokenService
+    +getMeService
+  }
+  class "profile.service.ts (16)" as S2 {
+    +getPublicProfileService      l.30
+    +getProfileService            l.90
+    +changeOwnProfileService      l.181
+    +getAllSkillsService          l.227
+    +addProfileSkillService       l.243
+    +deleteProfileSkillService    l.282
+    +addProfileInterestsService   l.310
+    +deleteProfileInterestService l.342
+    +getAllAvailabilitiesService  l.358
+    +addProfileAvailabilitiesService l.366
+    +deleteOwnAvailabilitiesService  l.392
+    +addRateToUserService         l.407
+    +changePasswordService        l.442
+    +deleteAccountService         l.473
+    +updateAvatarService          l.486
+    +deleteAvatarService          l.559
+  }
+  class "conv.service.ts" as S3 {
+    +getAllUserConversationsService l.36
+    +createConversationService      l.160
+    +getConversationByIdService     l.293
+    +leaveConversationService       l.410
+    +closeConversationService       l.443
+  }
+  class "message.service.ts" as S4 {
+    +getConversationMessagesService l.5
+    +createMessageService           l.105
+    +updateMessageService           l.182
+    +deleteMessageService           l.238
+  }
+  class "follow.service.ts" as S5 {
+    +followUserService  +unfollowUserService
+    +getAllFollowersService
+    +getAllFollowingService
+  }
+  class "search.service.ts" as S6 {
+    +indexMember        l.12
+    +indexAllMembers    l.18
+    +removeMember       l.26
+    +getUserSearchService l.30
+    +getBestUsersService  l.80
+  }
+  class "category.service.ts" as S7 {
+    +getTopUserCategoriesService l.28
+    <<seule requête SQL brute>>
+  }
+}
+
+package "Accès aux données" as P5 {
+  class "models/index.ts" as M1 {
+    +prisma : PrismaClient  l.6
+    <<singleton + adapter PrismaPg>>
+  }
+  class "mappers/member.mapper.ts" as M2 {
+    +userToDocument(userId) l.11
+  }
+}
+
+package "Transverse" as P6 {
+  class "lib/auth.ts" as L1 {
+    +generateAccessToken       l.9
+    +generateRefreshToken      l.20
+    +decodeAccesToken          l.39  <<coquille>>
+    +extractAccessTokenFromReq l.48
+    +extractRefreshTokenFromReq l.58
+  }
+  class "lib/error.ts" as L2 {
+    HttpError + 7 sous-classes
+  }
+  class "lib/mailisearch.ts" as L3 {
+    +membersIndex  +setupMembersIndex
+    +testMeiliConnexion
+    <<coquille : mailisearch>>
+  }
+  class "validation/ (5 schémas Zod)" as L4
+}
+
+package "Temps réel" as P7 {
+  class "realtime/socket.ts (446 LOC)" as WS {
+    +initSocket(server)
+    conversation:join / :leave
+    message:send / :new
+    conversation:close / :closed
+  }
+}
+
+R0 --> R1
+R0 --> R2
+R0 --> R3
+R0 --> R4
+R0 --> R5
+R0 --> R6
+R0 --> R7
+R0 --> R8
+
+R1 --> C1
+R2 --> C2
+R3 --> C3
+R3 --> C4
+R4 --> C5
+R5 --> C6
+R6 --> C7
+R7 --> C2 : getAllSkills
+R8 --> C2 : getAllAvailabilities
+
+C1 --> S1
+C2 --> S2
+C3 --> S3
+C4 --> S4
+C5 --> S5
+C6 --> S6
+C7 --> S7
+
+S1 --> M1
+S2 --> M1
+S3 --> M1
+S4 --> M1
+S5 --> M1
+S6 --> M1
+S7 --> M1
+S2 --> S6 : indexMember / removeMember
+S6 --> M2
+M2 --> M1
+
+MW1 ..> R2 : monté
+MW2 ..> R3 : monté
+
+WS ..> M1 : <<fuite de couche>>\naccès Prisma direct
+MW2 ..> M1 : <<fuite de couche>>
+MW3 ..> M1 : <<types Prisma>>
+M2 ..> M1
+L1 ..> M1 : <<fuite de couche>>
+
+note as NARCH
+  **Vérifié par dependency-cruiser : 0 violation** sur 4 règles
+  (aucun controller ni router n'importe Prisma, aucun service
+  ne dépend de la présentation).
+  Les 5 dépendances pointillées vers models/index.ts sont les
+  seules fuites : socket.ts, conv.middleware.ts,
+  error.middleware.ts, member.mapper.ts, lib/auth.ts.
+end note
+
+@enduml
