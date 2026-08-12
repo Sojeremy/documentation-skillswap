@@ -6,7 +6,7 @@
 // Sous-sections obligatoires : 7.1 à 7.4
 // =============================================================================
 
-= Réalisations — Messagerie temps réel
+= Réalisations — Messagerie temps réel <sec-realisations>
 
 La présente section porte sur la *fonctionnalité la plus représentative* du
 projet, au sens du référentiel : la messagerie temps réel entre membres.
@@ -101,7 +101,7 @@ La liste de messages est virtualisée en pagination ascendante (cursor-based)
 afin de supporter des conversations longues sans charger l'intégralité de
 l'historique. La saisie utilisateur transite par #raw("MessageInput.tsx", lang: "ts"),
 qui émet l'event Socket.IO #raw("message:send", lang: "ts") plutôt qu'une
-requête REST — choix architectural justifié dans la sous-section 7.4.
+requête REST — choix architectural justifié dans la #ref(<sub-socket-server>, supplement: [sous-section]).
 
 === Dialogue d'évaluation après clôture
 
@@ -272,7 +272,7 @@ L'effet de bord crucial est l'enregistrement des trois listeners globaux
 synchronisée même quand l'utilisateur n'est pas en train de regarder la
 conversation concernée. Cette logique exploite le modèle de rooms Socket.IO :
 chaque utilisateur connecté rejoint automatiquement sa room personnelle
-#raw("user:${userId}", lang: "ts") (cf. sous-section 7.4), ce qui permet au
+#raw("user:${userId}", lang: "ts") (cf. #ref(<sub-socket-server>, supplement: [sous-section])), ce qui permet au
 serveur de pousser les notifications de mise à jour ciblées.
 
 === Optimistic UI — gestion du `tempId` négatif
@@ -332,7 +332,7 @@ actuel). Une amélioration V2 consiste à introduire un timeout de
 réconciliation et un état visuel "en cours d'envoi / échec" — point
 identifié dans la dette technique en fin de section.
 
-== Composants d'accès aux données — services Prisma
+== Composants d'accès aux données — services Prisma <sub-acces-donnees>
 
 // -----------------------------------------------------------------------------
 // 7.3 — Composants d'accès aux données
@@ -458,7 +458,7 @@ serveur dans le handler Socket.IO et dans le schéma Zod
 #raw("CreateMessageSchema", lang: "ts"), sans contrainte SQL explicite —
 trade-off de simplicité assumé.
 
-== Autres composants — Socket.IO server et middleware métier
+== Autres composants — Socket.IO server et middleware métier <sub-socket-server>
 
 // -----------------------------------------------------------------------------
 // 7.4 — Autres composants : socket.ts + conv.middleware.ts
@@ -629,7 +629,7 @@ mobilisées dans la réalisation se cartographient ainsi :
   [CP2 — Développer des interfaces utilisateur], [9 composants React (#raw("ConversationPage/", lang: "ts")) avec composition Atomic Design (atoms via shadcn/ui, molécules #raw("ConversationItem", lang: "ts") et #raw("MessageBubble", lang: "ts"), organisme #raw("MessageThread", lang: "ts") sous-composé en 5 fragments), responsive Tailwind, accessibilité ARIA.],
   [CP3 — Développer des composants métier], [Composition de 8 hooks React (orchestrateur + 7 spécialisés), pattern optimistic UI avec #raw("tempId", lang: "ts") négatif, gestion fine du cycle de vie des sockets via #raw("useSocket(conversationId)", lang: "ts").],
   [CP6 — Définir l'architecture logicielle], [Architecture hybride REST + WebSocket assumée et documentée (ADR-011), séparation claire des responsabilités entre handlers Socket et services métier, modèle de rooms à deux niveaux (room utilisateur + room conversation).],
-  [CP7 — Concevoir et mettre en place une BDD relationnelle], [3 modèles dédiés (#raw("Conversation", lang: "sql"), #raw("UserHasConversation", lang: "sql"), #raw("Message", lang: "sql")), cascade de suppression sécurisée, pagination cursor-based exploitant la PK #raw("id", lang: "sql"), longueur de message bornée côté serveur (2000 caractères) et côté Zod.],
+  [CP7 — appliqué à la messagerie], [3 modèles dédiés (#raw("Conversation", lang: "sql"), #raw("UserHasConversation", lang: "sql"), #raw("Message", lang: "sql")), cascade de suppression sécurisée, pagination cursor-based exploitant la PK #raw("id", lang: "sql"), longueur de message bornée côté serveur (2000 caractères) et côté Zod.],
   [CP8 — Développer des composants d'accès aux données], [Services Prisma type-safe avec #raw("select", lang: "ts") explicite anti-overfetch, pagination cursor-based, parallélisation #raw("Promise.all", lang: "ts") sur écritures indépendantes.],
 )
 
@@ -639,8 +639,8 @@ Les zones de fragilité connues sont assumées et reportées en V2 :
 
 - *Handler `message:send` dense* (#raw("socket.ts:167-347", lang: "ts")) — fetch, vérifs, persistance et 3 émissions concentrés dans une seule fonction ; refactorisation vers #raw("services/message.service.ts", lang: "ts") prévue en V2.
 - *Validation Socket non-Zod* — bornes manuelles (#raw("Number.isInteger", lang: "ts"), longueur) au lieu de schémas Zod ; trade-off latence assumé, harmonisation possible en V2.
-- *Tests E2E messagerie absents* — Playwright couvre auth + recherche mais pas le scénario `alice→bob` à deux navigateurs.
-- *Tests unitaires hooks `messaging/*` absents* — Vitest cible aujourd'hui validation et utils ; extension aux hooks planifiée en V2.
+- *Aucun test automatisé côté frontend* — le livrable ne contient ni test unitaire, ni test E2E : le scénario `alice→bob` à deux navigateurs n'est validé que manuellement (cf. #ref(<sec-jeu-essai>, supplement: [section])). L'outillage correspondant (Vitest, Playwright) est décidé dans l'ADR-010 mais n'a pas été intégré avant la soutenance.
+- *Couverture non mesurée* — aucun outil de couverture n'est branché, ni en local ni en CI ; les sept fichiers de tests backend ne sont donc pas quantifiés.
 
 Ces dettes n'ont pas affecté la stabilité observée en production sur
 #link("https://skill-swap.fr")[skill-swap.fr] depuis la mise en service.
