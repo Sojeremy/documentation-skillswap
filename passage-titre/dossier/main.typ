@@ -7,8 +7,8 @@
 #import "template.typ": dossier
 
 #show: dossier.with(
-  candidat: "Jérémy [NOM_DE_FAMILLE]",
-  date-soutenance: "Mardi 13 mai 2026",
+  candidat: "Jérémy Soriano",
+  date-soutenance: "Mercredi 26 août 2026",
 )
 
 #include "sections/00-introduction.typ"

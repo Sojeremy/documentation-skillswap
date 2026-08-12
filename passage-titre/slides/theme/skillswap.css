@@ -1,6 +1,6 @@
 /* =============================================================================
    Theme Marp — SkillSwap
-   Cohérent visuellement avec le dossier Typst (accent #FF6B35)
+   Cohérent visuellement avec le dossier Typst (accent #A71E34)
    ============================================================================= */
 
 /* @theme skillswap */
@@ -8,8 +8,8 @@
 @import 'default';
 
 :root {
-  --accent: #FF6B35;
-  --accent-soft: #FFF1EB;
+  --accent: #A71E34;
+  --accent-soft: #FDF2F4;
   --code-bg: #f6f8fa;
   --code-border: #d0d7de;
   --muted: #57606a;

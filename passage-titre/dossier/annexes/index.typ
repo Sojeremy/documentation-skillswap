@@ -9,7 +9,7 @@
 // Volume cible : 15-20 pages.
 // =============================================================================
 
-= Annexes
+= Annexes <sec-annexes>
 
 Les présentes annexes regroupent les éléments matériels demandés par le
 référentiel pour la *fonctionnalité la plus représentative* du projet — la
@@ -575,16 +575,8 @@ export function MessageInput({
 
 == Annexe E — Plan de tests détaillé de la messagerie
 
-// TODO : tableau complet des cas de test (acteur / fonctionnalité / page /
-// objectif / version / résultat attendu) pour l'intégralité du périmètre
-// messagerie. À compléter par claude.ai en synthèse de la section 9.
-// Format prévu : table Typst, environ 2 pages.
-
-#rect(width: 100%, height: 5cm, fill: rgb("#f6f8fa"), stroke: 0.5pt + rgb("#d0d7de"))[
-  #align(center + horizon)[#text(fill: rgb("#57606a"), size: 9pt)[
-    Plan de tests détaillé — à rédiger en synthèse de la section 9 par claude.ai
-  ]]
-]
+Le plan de tests est détaillé en #ref(<sec-plan-tests>, supplement: [section]) ; les jeux d'essai de
+la fonctionnalité représentative figurent en #ref(<sec-jeu-essai>, supplement: [section]).
 
 == Annexe F — Maquettes Figma de la messagerie
 
@@ -612,6 +604,5 @@ export function MessageInput({
 
 - *Application en production* : #link("https://skill-swap.fr")[skill-swap.fr]
 - *Documentation technique Arc42* : #link("https://skillswap-docs.vercel.app")[skillswap-docs.vercel.app]
-- *Storybook (composants atomiques)* : #link("https://skillswap-storybook.vercel.app")[skillswap-storybook.vercel.app]
 - *Guide utilisateur (Diátaxis)* : #link("https://skillswap-guide.vercel.app")[skillswap-guide.vercel.app]
 - *Repo GitHub doc* : #link("https://github.com/Sojeremy/documentation-skillswap")[Sojeremy/documentation-skillswap]

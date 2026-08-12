@@ -92,8 +92,9 @@ marp soutenance.md --html -o output/presentation.html --theme-set theme/skillswa
   Le style est appliqué automatiquement via `template.typ`.
 - **Polices** : Inter (texte) + JetBrains Mono (code). Fallbacks
   système (DejaVu Sans / Liberation Sans) si non installées.
-- **Couleur d'accent** : `#FF6B35` (à ajuster avec la charte SkillSwap si
-  une autre couleur est officielle).
+- **Couleur d'accent** : `#A71E34` — sourcée de la palette du frontend
+  (`primary-700`, `frontend/src/app/globals.css`). Teinte pâle associée :
+  `#FDF2F4` (`primary-50`).
 - **Numérotation des headings** : `1.1.1.` (3 niveaux dans le sommaire).
 
 ## Personnalisation

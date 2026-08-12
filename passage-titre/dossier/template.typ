@@ -5,8 +5,8 @@
 // Code blocks en thème light obligatoire (exigence O'clock)
 // =============================================================================
 
-#let accent = rgb("#FF6B35")
-#let accent-soft = rgb("#FFF1EB")
+#let accent = rgb("#A71E34")
+#let accent-soft = rgb("#FDF2F4")
 #let code-bg = rgb("#f6f8fa")
 #let code-border = rgb("#d0d7de")
 #let muted = rgb("#57606a")
@@ -29,8 +29,8 @@
 // Page de garde
 // -----------------------------------------------------------------------------
 #let page-de-garde(
-  candidat: "Jérémy [NOM_DE_FAMILLE]",
-  date-soutenance: "Mardi 13 mai 2026",
+  candidat: "Jérémy Soriano",
+  date-soutenance: "Mercredi 26 août 2026",
   url-prod: "https://skill-swap.fr",
   url-doc: "https://skillswap-docs.vercel.app",
 ) = {
@@ -91,8 +91,8 @@
 // Template principal
 // -----------------------------------------------------------------------------
 #let dossier(
-  candidat: "Jérémy [NOM_DE_FAMILLE]",
-  date-soutenance: "Mardi 13 mai 2026",
+  candidat: "Jérémy Soriano",
+  date-soutenance: "Mercredi 26 août 2026",
   body,
 ) = {
   // Métadonnées PDF

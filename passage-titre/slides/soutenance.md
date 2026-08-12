@@ -4,7 +4,7 @@ theme: skillswap
 paginate: true
 size: 16:9
 title: Soutenance SkillSwap — Dossier Projet CDA
-author: Jérémy [NOM_DE_FAMILLE]
+author: Jérémy Soriano
 ---
 
 <!-- _class: lead -->
@@ -13,9 +13,9 @@ author: Jérémy [NOM_DE_FAMILLE]
 
 ## Plateforme communautaire d'échange de compétences
 
-**Jérémy [NOM_DE_FAMILLE]** — Lead Front
+**Jérémy Soriano** — Lead Front
 Promotion Dublin · O'clock
-Soutenance Titre Professionnel CDA — Mardi 13 mai 2026
+Soutenance Titre Professionnel CDA — Mercredi 26 août 2026
 
 🌐 https://skill-swap.fr · 📚 https://skillswap-docs.vercel.app
 
