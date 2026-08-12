@@ -118,7 +118,7 @@ Les migrations sont versionnées dans `backend/prisma/migrations/` et appliquée
 
 | Ordre | Identifiant                                                      | Effet                                                                                              |
 | :---: | ---------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
-|   1   | `20260112133206_init_db`                                         | Création initiale des 14 tables, enums, FK et index — l'ensemble du schéma de base                 |
+|   1   | `20260112133206_init_db`                                         | Création initiale de 13 tables, 3 enums, FK et index — l'essentiel du schéma de base               |
 |   2   | `20260114134738_add_category_slug`                               | Ajout de la colonne `slug` sur `category` + index unique pour les URLs canoniques                  |
 |   3   | `20260116161218_create_relation_table_user_available`            | Introduction de la jonction `user_has_available` reliant utilisateurs et créneaux                  |
 |   4   | `20260117012249_fix_snake_case`                                  | Renommage `avatarUrl → avatar_url` sur `user` (oubli de `@map()` lors de l'init)                   |

@@ -6,7 +6,7 @@ Accepté (2025-01)
 
 ## Contexte
 
-Le frontend SkillSwap utilise l'architecture Atomic Design avec **58 composants** React et **31 fichiers** de logique métier (21 hooks + 6 utilitaires `lib/` + 4 validators Zod, comptages au 2026-05-07). Une approche naïve consistant à tout tester avec un seul outil (Jest/Vitest) créerait :
+Le frontend SkillSwap utilise l'architecture Atomic Design avec **68 composants** React et **34 fichiers** de logique métier (24 hooks + 6 utilitaires `lib/` + 4 validators Zod, comptages au 2026-08-09). Une approche naïve consistant à tout tester avec un seul outil (Jest/Vitest) créerait :
 
 - ~90 fichiers de tests
 - Une duplication significative entre tests unitaires et documentation Storybook

@@ -6,7 +6,7 @@ Ce document retrace l'évolution du schéma de base de données SkillSwap.
 
 | # | Migration | Date | Description |
 |---|-----------|------|-------------|
-| 1 | `20260112133206_init_db` | 2026-01-12 | Création initiale (14 tables, 3 enums, FK, index) |
+| 1 | `20260112133206_init_db` | 2026-01-12 | Création initiale (13 tables, 3 enums, FK, index) |
 | 2 | `20260114134738_add_category_slug` | 2026-01-14 | Ajout colonne `slug` (NOT NULL) sur `category` + index unique |
 | 3 | `20260116161218_create_relation_table_user_available` | 2026-01-16 | Refonte `Available` : jonction `user_has_available`, ajout enum `Time`, colonne `time_slot` |
 | 4 | `20260117012249_fix_snake_case` | 2026-01-17 | Correction `user.avatarUrl` → `user.avatar_url` |
@@ -66,7 +66,6 @@ npx prisma generate
 | `user_has_skill` | Jonction User-Skill (compétences) |
 | `user_has_interest` | Jonction User-Skill (intérêts) |
 | `available` | Créneaux de disponibilité |
-| `user_has_available` | Jonction User-Available |
 | `conversation` | Conversations |
 | `user_has_conversation` | Jonction User-Conversation |
 | `message` | Messages |
@@ -80,7 +79,10 @@ npx prisma generate
 - `StatusOfConversation` (`Open`, `Close`)
 - `dayInAWeek` (`Lundi` à `Dimanche`)
 
-L'enum `Time` (`Morning`, `Afternoon`) a été ajouté ultérieurement par la migration 3 lors de la refonte de la table `Available`.
+La migration initiale crée **13** tables. La 14ᵉ, `user_has_available`, ainsi que
+l'enum `Time` (`Morning`, `Afternoon`), ont été ajoutés ultérieurement par la
+migration 3 lors de la refonte de la table `available`
+(`backend/prisma/migrations/20260116161218_create_relation_table_user_available/migration.sql`).
 
 ### SQL généré (extrait)
 
@@ -89,7 +91,6 @@ L'enum `Time` (`Morning`, `Afternoon`) a été ajouté ultérieurement par la mi
 CREATE TYPE "RoleOfUser" AS ENUM ('Membre');
 CREATE TYPE "StatusOfConversation" AS ENUM ('Open', 'Close');
 CREATE TYPE "dayInAWeek" AS ENUM ('Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche');
-CREATE TYPE "Time" AS ENUM ('Morning', 'Afternoon');
 
 -- CreateTable
 CREATE TABLE "user" (

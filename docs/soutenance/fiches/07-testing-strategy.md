@@ -1,107 +1,86 @@
-# Fiche: Stratégie de Tests Diversifiée
+# Fiche: Stratégie de Tests
+
+!!! danger "Lire avant d'utiliser cette fiche"
+    Une version antérieure de cette fiche présentait la stratégie de l'ADR-010
+    comme **réalisée** (« ~25 stories Storybook », « ~14 tests Vitest »,
+    « 4 tests E2E », « 100% de couverture composants »). **Ces chiffres étaient
+    faux.** Storybook, Vitest, Playwright et TypeDoc ne sont pas installés dans
+    le livrable certifié. Ne récitez aucun de ces chiffres devant le jury.
 
 ## En une phrase
 
-Approche où chaque outil teste ce qu'il fait le mieux, réduisant de 50% l'effort tout en améliorant la couverture.
+L'ADR-010 documente une **stratégie de tests cible** ; ce qui a été **livré**,
+c'est une couche de tests d'intégration backend en Node Test Runner natif —
+le frontend n'est pas testé automatiquement.
 
-## Schéma mental
+## Ce qui existe réellement dans le livrable
 
-```mermaid
-graph TB
-    subgraph "Pyramide des Tests"
-        A[TypeScript<br/>Tests de types gratuits] --> B[Storybook<br/>~25 stories<br/>Composants UI]
-        B --> C[Vitest<br/>~14 tests<br/>Logique métier]
-        C --> D[Playwright<br/>4 tests E2E<br/>Parcours critiques]
-    end
+| Périmètre | Outil | Réalité |
+|-----------|-------|---------|
+| Backend — intégration | `node --test` natif (Node 24) | **7 fichiers `*.spec.test.ts`** : `auth.controller`, `conv`, `message`, `profile.controller`, `follow.controller`, `search.controller`, `realtime/socket` |
+| Backend — unitaire | `node --test` | Script `test:unit` déclaré, **0 fichier `*.unit.test.ts`** |
+| Frontend — unitaire | — | **Aucun** (Vitest non installé) |
+| Frontend — E2E | — | **Aucun** (Playwright non installé) |
+| Composants UI | — | **Aucun** catalogue (Storybook non installé) |
+| Couverture | — | **Non mesurée**, aucun outil branché en CI |
 
-    subgraph "Répartition"
-        E[53 Composants] -->|Storybook| F[Props, variants, a11y]
-        G[23 Hooks/Lib] -->|TypeDoc + Vitest| H[Doc API + comportement]
-        I[4 Parcours] -->|Playwright| J[Intégration complète]
-    end
-```
+Vérifiable en une commande sur le dépôt de production :
+`grep -iE 'vitest|playwright|storybook|typedoc' frontend/package.json` → 0 résultat.
+Le `frontend/package.json` livré ne contient que `dev`, `build`, `start`,
+`lint`, `format`.
 
-## Points clés
-
-1. **Pas de tests Vitest pour les composants** : Storybook les documente ET les teste (visuels, interactions, accessibilité)
-
-2. **Vitest uniquement pour la logique métier** : Hooks avec comportement async (useSearch, useMessaging), fonctions pures (dateTime.utils), schemas Zod
-
-3. **4 tests E2E suffisent** : Auth, Search, Messaging, Profile couvrent l'intégration complète
-
-4. **TypeScript = tests gratuits** : Les types valident la structure, pas besoin de tests pour ça
-
-5. **Réduction de 50% de l'effort** : ~44 fichiers au lieu de ~90, même couverture fonctionnelle
-
-## Code essentiel
-
-```typescript
-// vitest.config.ts - Exclure explicitement les composants
-export default defineConfig({
-  test: {
-    include: [
-      'src/hooks/**/*.test.ts',  // ✅ Hooks
-      'src/lib/**/*.test.ts',    // ✅ Lib
-    ],
-    exclude: [
-      'src/components/**',       // ❌ Pas de tests composants
-    ],
-  },
-});
-```
+État d'implémentation détaillé : [ADR-010 §Statut d'implémentation](../../documentation-implementation/arc42/09-decisions/010-testing-strategy.md).
+État des tests backend (dont les échecs sur fixture) : [10.2 Tests](../../documentation-implementation/arc42/10-quality/testing.md).
 
 ## Questions probables du jury
 
-### Q1: "Pourquoi ne pas tester les composants avec Vitest ?"
+### Q1 : « Comment testez-vous votre application ? »
 
-**R**: "Storybook fait tout ce que Vitest ferait, en mieux :
+**R** : « Sur le backend, par des tests d'intégration : 7 fichiers de specs qui
+montent l'application Express et tapent sur les routes réelles avec une base de
+test, plus un fichier dédié aux events Socket.IO. J'ai utilisé le Node Test
+Runner natif plutôt qu'un framework tiers, pour ne pas ajouter de dépendance
+là où la plateforme fournit déjà l'outil. Le frontend, lui, n'a pas de tests
+automatisés dans le livrable : c'est une dette que j'assume. »
 
-- **addon-interactions** pour les clics et saisies
-- **addon-a11y** pour l'accessibilité WCAG
-- **Chromatic** pour la régression visuelle
-- **Autodocs** pour la documentation
+### Q2 : « Pourquoi pas de tests frontend ? »
 
-Dupliquer avec Vitest serait du travail redondant sans valeur ajoutée."
+**R** : « Arbitrage de temps sur la période projet. La stratégie était décidée
+et documentée — l'ADR-010 prévoit Vitest pour la logique métier, Playwright
+pour les parcours critiques et Storybook pour les composants — mais elle n'a
+pas été implémentée avant la soutenance. J'ai préféré documenter honnêtement
+l'écart entre la cible et le réalisé plutôt que d'afficher une couverture que
+je n'avais pas. »
 
-### Q2: "Comment garantissez-vous que tout fonctionne ensemble ?"
+### Q3 : « Que testeriez-vous en priorité si vous repreniez le projet ? »
 
-**R**: "Les 4 tests E2E Playwright simulent de vrais parcours utilisateur : inscription, recherche, messagerie, profil. Ils valident l'intégration de tous les composants, hooks et API ensemble. C'est plus fiable que des centaines de tests unitaires isolés."
+**R** : « Trois choses, dans cet ordre. D'abord les schémas Zod et les
+utilitaires purs — c'est rapide et ça sécurise les entrées. Ensuite un E2E sur
+le parcours inscription → recherche → follow → message, parce que c'est le
+chemin critique du produit et qu'il traverse toutes les couches. Enfin les
+hooks de messagerie, qui concentrent la logique asynchrone et le temps réel,
+donc le risque de régression le plus élevé. »
 
-### Q3: "N'est-ce pas risqué d'avoir peu de tests ?"
+### Q4 : « Vos tests backend passent-ils tous ? »
 
-**R**: "Au contraire. Notre approche donne :
-
-- **100% des composants** documentés et testés visuellement (Storybook)
-- **80%+ de coverage** sur la logique métier critique (Vitest)
-- **100% des parcours critiques** couverts (Playwright)
-- **Tests d'accessibilité** automatiques (addon-a11y)
-
-C'est une couverture supérieure à 'tout tester avec Jest', avec moins d'effort de maintenance."
-
-### Q4: "Comment avez-vous décidé de cette stratégie ?"
-
-**R**: "En analysant notre architecture :
-
-- 53 composants Atomic Design → Storybook est fait pour ça
-- 23 fichiers hooks/lib → Logique métier à tester avec Vitest
-- 4 parcours utilisateur critiques → E2E avec Playwright
-
-Chaque outil est optimisé pour son usage. C'est documenté dans l'ADR-010."
+**R** : à préparer honnêtement à partir de
+[10.2 Tests](../../documentation-implementation/arc42/10-quality/testing.md),
+qui documente l'état réel d'exécution de la suite. Ne pas affirmer « tout
+passe » sans avoir relancé la suite.
 
 ## Liens
 
 - ADR : [ADR-010 Testing Strategy](../../documentation-implementation/arc42/09-decisions/010-testing-strategy.md)
-- Plan Storybook : [08-storybook.md](../../documentation-strategy/08-storybook.md)
-- Plan TypeDoc : [09-typedoc.md](../../documentation-strategy/09-typedoc.md)
-- Plan Tests : [10-tests.md](../../documentation-strategy/10-tests.md)
+- État réel des tests : [10.2 Tests](../../documentation-implementation/arc42/10-quality/testing.md)
+- Plans (intentions non implémentées) : [08-storybook.md](../../documentation-strategy/08-storybook.md), [09-typedoc.md](../../documentation-strategy/09-typedoc.md), [10-tests.md](../../documentation-strategy/10-tests.md)
 
 ## Métriques à retenir
 
 | Métrique | Valeur |
 |----------|--------|
-| Réduction effort | **-50%** |
-| Stories Storybook | ~25 |
-| Tests Vitest | ~14 |
-| Tests E2E | 4 |
-| Coverage composants | 100% (Storybook) |
-| Coverage logique métier | ≥80% (Vitest) |
+| Fichiers de tests backend | **7** (`*.spec.test.ts`) |
+| Fichiers de tests frontend | **0** |
+| Stories Storybook | **0** |
+| Tests E2E | **0** |
+| Couverture mesurée | **aucune** |
+| Runner utilisé | `node --test` natif (aucune dépendance de test) |

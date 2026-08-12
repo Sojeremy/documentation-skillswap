@@ -55,7 +55,7 @@ frontend/src/
 │   ├── layouts/               # 1 layout (MainLayout)
 │   └── providers/             # 1 provider (AuthProvider)
 │
-├── hooks/                     # 21 hooks personnalisés (8 racine + 7 messaging + 6 profile)
+├── hooks/                     # 24 hooks personnalisés (9 racine + 8 messaging + 7 profile)
 │
 └── lib/
     ├── api-client.ts          # Singleton fetch + retry refresh-token
@@ -344,12 +344,22 @@ Implémentation dans `frontend/src/middleware.ts`. Le middleware :
 | Outil           | Usage                                                                                       |
 |-----------------|---------------------------------------------------------------------------------------------|
 | TypeScript      | `tsconfig.json` strict, alias `@/*` vers `src/`                                              |
-| ESLint          | Flat config, plugins React/Next/a11y/storybook                                              |
+| ESLint          | Flat config, plugins React/Next/a11y                                                         |
 | Prettier        | Formatage automatique (intégré aux hooks pre-commit)                                        |
-| Vitest          | Tests unitaires (utils, schémas Zod) — scripts `test`, `test:run`, `test:coverage`           |
-| Playwright      | Tests e2e — scripts `test:e2e`, `test:e2e:ui`                                               |
-| Storybook       | Visualisation isolée des atoms/molecules — script `storybook` (port 6006)                   |
-| TypeDoc         | Génération de la documentation API des hooks/utils — scripts `docs`, `docs:watch`           |
+
+Le `frontend/package.json` du livrable ne déclare que cinq scripts : `dev`,
+`build`, `start`, `lint`, `format`. **Aucun outil de test, de catalogue de
+composants ou de génération de documentation d'API n'y figure.**
+
+!!! warning "Vitest, Playwright, Storybook et TypeDoc ne font pas partie du livrable certifié"
+    Ces quatre outils ont été **ajoutés après la période projet**, dans le dépôt
+    de documentation uniquement. Ils sont absents du dépôt de production
+    (`O-clock-Dublin/projet-skillswap`) : `grep -iE 'vitest|playwright|storybook|typedoc'
+    frontend/package.json` y renvoie **0 résultat**, et ni `frontend/e2e/`, ni
+    `*.stories.tsx`, ni `*.test.ts` n'y existent.
+    Statut détaillé dans [ADR-010](../09-decisions/010-testing-strategy.md) ;
+    divergence entre les deux dépôts documentée dans
+    [devops-quickref](../../../devops/devops-quickref.md).
 
 ---
 

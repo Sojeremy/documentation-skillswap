@@ -86,8 +86,11 @@
 
 ## 12.4 Stack technique & métriques
 
-!!! info "Snapshot du 2026-05-07"
-    Les valeurs ci-dessous reflètent l'état du dépôt de production à cette date.
+!!! info "Datation des mesures"
+    **Volumétrie du code** et **volumétrie fonctionnelle** ont été recomptées
+    depuis le dépôt le **2026-08-09**, avec les commandes reproductibles données
+    dans chaque sous-section. Les **versions de la stack** et l'**audit npm**
+    restent l'instantané du **2026-05-07** et n'ont pas été revérifiés.
     Pour rafraîchir : voir les commandes en bas de section.
 
 ### Versions de la stack
@@ -119,26 +122,48 @@ Lues depuis les `package.json` du dépôt de production (ranges `^` conservés t
 
 ### Volumétrie du code
 
-Mesurée par `find ... -name "*.ts" -o -name "*.tsx"` (exclus : `node_modules/`, `generated/`, `.next/`, `dist/`).
+Recomptée le **2026-08-09**. Le code applicatif n'a pas évolué depuis son import
+initial (`git log --oneline -- frontend/src` → 1 commit) : ces valeurs sont stables.
 
-| Indicateur                              | Valeur     |
-| --------------------------------------- | ---------- |
-| Fichiers TypeScript total               | 182        |
-| Fichiers frontend (`frontend/src/`)     | 124        |
-| Fichiers backend (`backend/`, hors gen) | 58         |
-| Lignes de code total                    | 21 401     |
-| Lignes frontend                         | 11 984     |
-| Lignes backend                          | 9 360      |
+Méthode exacte, reproductible :
+
+```bash
+# backend — tous les .ts, fichiers de test compris
+find backend -name '*.ts' -not -path '*/node_modules/*' \
+     -not -path '*/generated/*' -not -path '*/dist/*' | wc -l
+
+# frontend — .ts/.tsx de src/, hors stories et hors tests
+find frontend/src \( -name '*.ts' -o -name '*.tsx' \) \
+     ! -name '*.stories.tsx' ! -name '*.test.ts' ! -name '*.test.tsx' | wc -l
+
+# pour les lignes : remplacer « | wc -l » par « -exec cat {} + | wc -l »
+```
+
+| Indicateur                                                    | Valeur     |
+| ------------------------------------------------------------- | ---------- |
+| Fichiers TypeScript total                                     | 182        |
+| Fichiers frontend (`frontend/src/`, hors stories et tests)     | 124        |
+| Fichiers backend (`backend/`, hors `generated/`, tests inclus) | 58         |
+| Lignes de code total                                          | 21 746     |
+| Lignes frontend                                               | 12 386     |
+| Lignes backend                                                | 9 360      |
+
+!!! warning "Les deux périmètres ne sont pas symétriques"
+    Le comptage backend **inclut** les 7 fichiers `*.spec.test.ts` (51 fichiers
+    hors tests), tandis que le comptage frontend **exclut** les 28 `*.stories.tsx`
+    et les 5 fichiers de test. Les totaux ne sont donc pas comparables entre les
+    deux moitiés du projet ; ils sont conservés tels quels pour rester cohérents
+    avec les mesures antérieures.
 
 ### Volumétrie fonctionnelle
 
 | Indicateur                       | Valeur                                |
 | -------------------------------- | ------------------------------------- |
-| Composants React                 | 58 (18 atoms + 9 molecules + 29 organisms + 1 layout + 1 provider) |
-| Hooks personnalisés              | 21 (8 racine + 7 `messaging/` + 6 `profile/`) |
+| Composants React                 | 68 (18 atoms + 9 molecules + 39 organisms + 1 layout + 1 provider) |
+| Hooks personnalisés              | 24 (9 racine + 8 `messaging/` + 7 `profile/`) |
 | Controllers backend              | 7                                     |
 | Routers backend                  | 9                                     |
-| Endpoints HTTP exposés           | 37                                    |
+| Endpoints HTTP exposés           | 38 (37 routes applicatives + `/health`) |
 | Services backend                 | 7                                     |
 | Middlewares Express              | 5                                     |
 | Validators Zod (backend)         | 5                                     |

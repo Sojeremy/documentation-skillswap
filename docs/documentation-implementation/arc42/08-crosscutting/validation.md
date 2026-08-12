@@ -13,7 +13,7 @@ flowchart LR
     subgraph Server
         API --> ZS["Zod Server"]
         ZS -->|"Valid"| C["Controller"]
-        ZS -->|"Invalid"| E2["400 Bad Request"]
+        ZS -->|"Invalid"| E2["422 Unprocessable Entity"]
     end
 ```
 

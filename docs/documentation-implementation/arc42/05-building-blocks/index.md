@@ -42,14 +42,14 @@ C4Container
 
 ## Statistiques du projet
 
-Snapshot du **2026-05-07**. Source canonique et procédure de rafraîchissement :
+Comptages recomptés depuis le code le **2026-08-09**. Source canonique et procédure de rafraîchissement :
 [12.4 Stack technique & métriques](../12-glossary/index.md#124-stack-technique--métriques).
 
 | Métrique             | Valeur |
 | -------------------- | -----: |
-| Composants React     |     58 |
-| Hooks personnalisés  |     21 |
-| Endpoints HTTP       |     37 |
+| Composants React     |     68 |
+| Hooks personnalisés  |     24 |
+| Endpoints HTTP       |     38 |
 | Modèles Prisma       |     14 |
 | Enums Prisma         |      4 |
 | Migrations Prisma    |      6 |
@@ -58,7 +58,7 @@ Snapshot du **2026-05-07**. Source canonique et procédure de rafraîchissement 
 
 ## Sous-sections
 
-- [5.2 Frontend](./frontend.md) - Architecture frontend avec Atomic Design (58 composants, 21 hooks)
+- [5.2 Frontend](./frontend.md) - Architecture frontend avec Atomic Design (68 composants, 24 hooks)
 - [5.3 Backend](./backend.md) - Architecture en couches (routers, controllers, services)
 - [5.4 Database](./database.md) - Schéma PostgreSQL avec 14 modèles Prisma
 

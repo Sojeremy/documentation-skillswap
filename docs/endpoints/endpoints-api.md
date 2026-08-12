@@ -140,6 +140,6 @@ Toutes les routes authentifiées utilisent le **cookie HTTP-only `accessToken`**
 
 ## Voir aussi
 
-- [Matrice RBAC complète](./rbac.md)
+- [Matrice d'autorisation complète (Visiteur / Membre)](./rbac.md)
 - [Authentification — détail JWT, cookies, rotation](../documentation-implementation/arc42/08-crosscutting/authentication.md)
 - [Validation Zod — schémas par domaine](../documentation-implementation/arc42/08-crosscutting/security.md#validation-zod--couverture-par-domaine)

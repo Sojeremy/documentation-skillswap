@@ -369,14 +369,22 @@ Toutes les relations utilisent `onDelete: Cascade` :
 
 ### Index
 
-| Table | Index | Colonnes |
+Noms **physiques** (tels qu'ils existent en base), et non les noms logiques Prisma.
+
+| Table | Index | Colonnes (physiques) |
 | ----- | ----- | -------- |
 | `user` | Unique | `email` |
 | `category` | Unique | `slug` |
 | `refresh_token` | Unique | `token` |
-| `refresh_token` | Index | `userId` |
-| `evaluation` | Unique | `(evaluatorId, evaluatedId)` |
-| `follow` | Unique | `(followedId, followerId)` |
+| `refresh_token` | Index | `user_id` |
+| `evaluation` | Unique | `(evaluator_id, evaluated_id)` |
+| `follow` | Unique | `(followed_id, follower_id)` |
+
+À quoi s'ajoutent les **clés primaires composites** des quatre tables de jonction,
+qui sont elles aussi des index uniques : `user_has_skill (user_id, skill_id)`,
+`user_has_interest (user_id, skill_id)`,
+`user_has_conversation (user_id, conversation_id)` et
+`user_has_available (user_id, available_id)`.
 
 ---
 
@@ -395,8 +403,10 @@ npx prisma migrate deploy
 # Ouvrir Prisma Studio (interface graphique)
 npx prisma studio
 
-# Seed la base de données
-npx prisma db seed
+# Seed la base de données (aucun bloc `seed` n'est déclaré dans prisma.config.ts :
+# `npx prisma db seed` ne fonctionne pas, il faut passer par les scripts npm)
+npm run db:seed:dev   # dev  — tsx src/models/seeding.ts
+npm run db:seed       # prod — node dist/src/models/seeding.js
 
 # Réinitialiser la base de données
 npx prisma migrate reset

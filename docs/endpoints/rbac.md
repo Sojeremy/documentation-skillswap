@@ -1,10 +1,37 @@
-# Role-Based Access Control
+# Matrice d'autorisation (Visiteur / Membre)
 
 Matrice de contrôle d'accès des **38 endpoints** de l'API SkillSwap. La distinction
 est binaire en V1 entre **Visiteur** (non authentifié) et **Membre** (authentifié,
 seul rôle métier `RoleOfUser.Membre` en seed prod).
 
 Source de vérité : `backend/src/routers/*.ts` + `backend/src/middlewares/{auth,conv}.middleware.ts`.
+
+!!! warning "SkillSwap n'implémente pas de RBAC"
+    Il n'existe **aucun contrôle d'accès fondé sur un rôle** dans le code, et ce
+    document n'en décrit pas. L'enum `RoleOfUser` ne compte qu'une seule valeur,
+    `Membre` (`backend/prisma/schema.prisma`, vérifié en base :
+    `SELECT enumlabel FROM pg_enum` → `Membre`). Le `roleId` de l'utilisateur est
+    bien embarqué dans le JWT (`backend/src/lib/auth.ts:13`) puis exposé sur la
+    requête par `checkAuth` (`backend/src/middlewares/auth.middleware.ts:20`),
+    mais **`req.userRole` n'est lu nulle part** pour prendre une décision
+    d'autorisation : aucun middleware ni controller ne le teste.
+
+    L'autorisation réellement en vigueur repose sur trois mécanismes, tous
+    indépendants du rôle :
+
+    | Mécanisme | Implémentation | Question posée |
+    | --------- | -------------- | -------------- |
+    | **Authentification** | `checkAuth` — `auth.middleware.ts:15-26` | La requête porte-t-elle un cookie `accessToken` valide ? |
+    | **Propriété** | `isOwner` — `auth.middleware.ts:28-36` | L'utilisateur authentifié est-il la ressource ciblée (`req.userId === req.params.id`) ? |
+    | **Relation sociale** | `requireFollow` / `requireSimpleFollow` — `conv.middleware.ts` | L'utilisateur suit-il la cible ? |
+
+    À quoi s'ajoutent des vérifications d'appartenance écrites **impérativement
+    dans les controllers** (participant d'une conversation, auteur d'un message),
+    signalées `self*` dans la matrice ci-dessous.
+
+    La table `role` et son enum existent donc comme **point d'extension du modèle
+    de données**, prêt à accueillir d'autres valeurs, mais aucune logique
+    d'autorisation ne s'y adosse en V1.
 
 ## Légende
 

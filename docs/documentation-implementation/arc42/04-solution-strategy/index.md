@@ -89,25 +89,42 @@ graph TD
 graph TB
     subgraph "Couche Présentation"
         R["Routers"]
+        V["Middlewares<br/>checkAuth · validate (Zod) · isOwner · requireFollow"]
         C["Controllers"]
     end
 
     subgraph "Couche Métier"
         S["Services"]
-        V["Validation"]
     end
 
-    subgraph "Couche Données"
-        M["Models/Prisma"]
-        DB["(PostgreSQL)"]
+    subgraph "Accès aux données"
+        M["models/index.ts<br/>PrismaClient + adapter PrismaPg"]
+        DB[("PostgreSQL 16")]
     end
 
-    R --> C
+    R --> V
+    V --> C
     C --> S
-    C --> V
     S --> M
     M --> DB
 ```
+
+!!! note "Où s'exécute la validation"
+    La validation Zod **n'est pas appelée par le controller** : `validate(...)`
+    est un middleware monté dans le router, exécuté **avant** lui
+    (`backend/src/middlewares/auth.middleware.ts:8-13`, monté par exemple dans
+    `backend/src/routers/auth.router.ts:14`). Elle appartient donc à la couche
+    présentation, comme garde d'entrée.
+
+!!! warning "« Accès aux données » ≠ couche d'abstraction"
+    Ce bloc ne représente **pas** un pattern Repository ou DAO. Il n'y a ni
+    entité de domaine, ni DTO généralisé : `models/index.ts` est un fichier de
+    8 lignes qui instancie et exporte le client Prisma, et les services
+    appellent `prisma.<modèle>.<verbe>()` en direct. Détail des composants
+    réellement implémentés — client unique, SQL brut paramétré, transaction,
+    mapper Meilisearch — dans [ADR-003](../09-decisions/003-prisma.md).
+    Cinq modules accèdent à Prisma hors de la couche Services ; ils sont
+    listés dans [5.3 Backend](../05-building-blocks/backend.md).
 
 ---
 
@@ -116,7 +133,7 @@ graph TB
 | Objectif | Stratégie | Outils |
 | -------- | --------- | ------ |
 | **Maintenabilité** | Clean Code, SOLID, documentation | ESLint, Prettier, Husky pre-commit (TypeDoc en V2) |
-| **Testabilité** | Tests d'intégration backend | `node --test` natif (7 specs) — Vitest/Playwright frontend prévus en V2 |
+| **Testabilité** | Tests d'intégration backend uniquement | `node --test` natif (7 fichiers `*.spec.test.ts`) — **aucun test frontend dans le livrable** ; Vitest/Playwright planifiés, cf. [ADR-010](../09-decisions/010-testing-strategy.md) |
 | **Performance** | SSR, caching, lazy loading | Next.js (App Router) |
 | **Sécurité** | Validation, hashing, HTTPS, cookies httpOnly | Zod, argon2, JWT, Nginx (TLS) |
 

@@ -4,64 +4,119 @@
 
 ```mermaid
 graph TB
-    subgraph "Routers Layer"
-        R1["auth.router"]
-        R2["profile.router"]
-        R3["conv.router"]
-        R4["follow.router"]
-        R5["skill.router"]
+    subgraph PRES["Couche Présentation"]
+        subgraph RT["Routers (8 + index.router)"]
+            R1["auth.router"]
+            R2["profile.router"]
+            R3["conv.router"]
+            R4["follow.router"]
+            R5["skill.router"]
+            R6["availability.router"]
+            R7["category.router"]
+            R8["search.router"]
+        end
+        subgraph CT["Controllers (7)"]
+            C1["auth.controller"]
+            C2["profile.controller"]
+            C3["conv.controller"]
+            C4["message.controller"]
+            C5["follow.controller"]
+            C6["category.controller"]
+            C7["search.controller"]
+        end
     end
 
-    subgraph "Controllers Layer"
-        C1["auth.controller"]
-        C2["profile.controller"]
-        C3["conv.controller"]
-        C4["follow.controller"]
-        C5["skill.controller"]
-    end
-
-    subgraph "Services Layer"
+    subgraph METIER["Couche Métier — Services (7)"]
         S1["auth.service"]
         S2["profile.service"]
         S3["conv.service"]
-        S4["follow.service"]
-        S5["skill.service"]
+        S4["message.service"]
+        S5["follow.service"]
+        S6["category.service"]
+        S7["search.service"]
     end
 
-    subgraph "Middlewares"
-        M1["auth.middleware"]
-        M2["error.middleware"]
-        M3["validation.middleware"]
+    subgraph PERSIST["Accès aux données"]
+        DB["models/index.ts — PrismaClient + adapter PrismaPg"]
+        PG[("PostgreSQL 16")]
     end
 
-    subgraph "Data Access"
-        DB["(Prisma Client)"]
+    subgraph HORS["Modules accédant à Prisma hors couche Services"]
+        X1["realtime/socket.ts"]
+        X2["middlewares/conv.middleware.ts"]
+        X3["middlewares/error.middleware.ts"]
+        X4["mappers/member.mapper.ts"]
+        X5["lib/auth.ts"]
     end
 
     R1 --> C1
     R2 --> C2
     R3 --> C3
-    R4 --> C4
-    R5 --> C5
+    R3 --> C4
+    R4 --> C5
+    R5 --> C2
+    R6 --> C2
+    R7 --> C6
+    R8 --> C7
 
     C1 --> S1
     C2 --> S2
     C3 --> S3
     C4 --> S4
     C5 --> S5
+    C6 --> S6
+    C7 --> S7
 
     S1 --> DB
     S2 --> DB
     S3 --> DB
     S4 --> DB
     S5 --> DB
+    S6 --> DB
+    S7 --> DB
+    DB --> PG
 
-    M1 -.-> R2
-    M1 -.-> R3
-    M1 -.-> R4
-    M3 -.-> C1
-    M3 -.-> C2
+    X1 -.-> DB
+    X2 -.-> DB
+    X3 -.-> DB
+    X4 -.-> DB
+    X5 -.-> DB
 ```
+
+!!! note "Lecture du diagramme"
+    **Il n'existe ni `skill.controller` ni `skill.service`.** `skill.router` et
+    `availability.router` sont servis par `profile.controller`
+    (`getAllSkills` — `profile.controller.ts:46` — et `getAllAvailabilities`),
+    lui-même adossé à `profile.service`. De même, `conv.router` pilote **deux**
+    controllers : `conv.controller` (conversations) et `message.controller`
+    (messages). Le middleware `validate` n'a pas de fichier dédié : il vit dans
+    `auth.middleware.ts:8-13`.
+
+!!! success "Étanchéité des couches — vérifiée mécaniquement"
+    Le respect du sens de dépendance a été contrôlé par
+    [dependency-cruiser](https://github.com/sverweij/dependency-cruiser) sur les
+    72 modules du backend (169 dépendances), avec quatre règles bloquantes :
+    aucun controller n'importe Prisma, aucun router ne court-circuite un
+    controller, aucun router n'importe Prisma, aucun service ne dépend de la
+    couche présentation. **Résultat : 0 violation.** Les traits pleins du
+    diagramme sont donc une propriété vérifiée, pas une intention.
+
+!!! warning "Cinq accès Prisma hors de la couche Services (traits pointillés)"
+    Cinq modules importent `models/index.ts` sans passer par un service. Ce sont
+    les **seules** exceptions, elles sont connues et assumées — détail ci-dessous.
+
+| Module | Raison |
+| ------ | ------ |
+| `realtime/socket.ts` | Les handlers Socket.IO persistent et relisent les messages sans repasser par les services REST (cf. § Module `realtime/`). C'est la fuite la plus structurante : elle duplique une partie de la logique de `message.service`. |
+| `middlewares/conv.middleware.ts` | `requireFollow` / `requireSimpleFollow` doivent interroger la table `follow` **avant** d'atteindre le controller, donc avant toute couche service. |
+| `middlewares/error.middleware.ts` | N'importe que le **namespace de types** `Prisma` pour discriminer les erreurs (`PrismaClientKnownRequestError`) — aucune requête émise. Fuite formelle, pas fonctionnelle. |
+| `mappers/member.mapper.ts` | Projette un `User` et ses relations vers le document Meilisearch ; c'est un composant d'accès aux données à part entière (cf. § Module `mappers/`). |
+| `lib/auth.ts` | `generateRefreshToken` écrit directement dans `refresh_token` au moment de l'émission du jeton. |
+
+Ces cinq points constituent la **dette d'architecture identifiée** du backend.
+Le chemin de résorption est connu (extraire un `message.service` partagé avec
+Socket.IO, déplacer les lectures de `conv.middleware` dans `follow.service`),
+mais n'a pas été jugé prioritaire avant la soutenance.
 
 ---
 
@@ -93,7 +148,7 @@ backend/
     ├── models/                # 3 fichiers — Prisma client + seeding (prod + dev)
     ├── @types/                # 2 fichiers — augmentations Express + types Meilisearch
     ├── validation/            # 5 schémas Zod (auth, category, conversation, profile, search)
-    └── test/                  # Setup tests (Vitest + supertest)
+    └── test/                  # Setup tests (Node Test Runner natif — ni Vitest ni supertest côté backend)
 ```
 
 !!! note "Différences avec la doc précédente"
@@ -172,22 +227,32 @@ export const checkAuth = (req: Request, res: Response, next: NextFunction) => {
 ### Validation Middleware
 
 ```typescript
-// backend/src/middlewares/auth.middleware.ts (extrait simplifié)
-export const validate =
-  (source: 'body' | 'query' | 'params', schema: ZodSchema) =>
-  (req: Request, res: Response, next: NextFunction) => {
-    const result = schema.safeParse(req[source]);
-    if (!result.success) {
-      return next(result.error); // ZodError → middleware errorHandler → 422
-    }
-    req[source] = result.data;
+// backend/src/middlewares/auth.middleware.ts:6-13 (copie verbatim)
+type DataSource = 'body' | 'params' | 'query';
+
+export const validate = (dataSource: DataSource, schema: ZodObject) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    await schema.parseAsync(req[dataSource]);
     next();
   };
+};
 ```
 
-> En cas d'échec, on délègue au middleware `errorHandler` qui mappe le
-> `ZodError` en réponse `422 { error: prettifyZodError(...) }`. Détails :
+> En cas d'échec, `parseAsync` **lève** un `ZodError` (il n'y a pas de
+> `safeParse`). L'erreur est capturée par Express et remonte au middleware
+> `errorHandler`, qui la mappe en `422 { error: prettifyZodError(...) }`
+> (`backend/src/middlewares/error.middleware.ts:32-33`). Détails :
 > [`06-runtime/error-handling.md`](../06-runtime/error-handling.md).
+
+!!! warning "Limite assumée : le résultat parsé n'est pas réinjecté"
+    Le middleware **ne réassigne pas** `req[dataSource]` avec la valeur
+    retournée par Zod. Les transformations et coercions éventuelles d'un
+    schéma (`z.coerce`, `.transform()`, valeurs par défaut) sont donc
+    **perdues** : le controller lit la valeur brute de la requête. Le rôle
+    du middleware est ici purement celui d'un **garde** (rejeter une entrée
+    invalide), pas d'un normaliseur. Les conversions nécessaires sont faites
+    explicitement ailleurs — par exemple `parseNumericParams`
+    (`auth.middleware.ts:38-45`) qui expose `req.paramsId` en `Number`.
 
 ### Error Middleware
 
@@ -296,7 +361,7 @@ l'index from scratch après une migration.
 | Path                                                  | LOC | Exports principaux                                                                                | Liens                                                                                                                            |
 |-------------------------------------------------------|-----|---------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------|
 | `backend/src/middlewares/response.middleware.ts`      | 21  | `addResponseMethodsMiddleware`                                                                    | [GitHub](https://github.com/Sojeremy/documentation-skillswap/blob/main/backend/src/middlewares/response.middleware.ts)         |
-| `backend/src/@types/express.d.ts`                     | 21  | Augmentations globales `Express.Request` (`userId`, `userRole`, `paramsId`, `cookies`) et `Express.Response` (`success`, `created`, `deleted`) | [GitHub](https://github.com/Sojeremy/documentation-skillswap/blob/main/backend/src/@types/express.d.ts) |
+| `backend/src/@types/express.d.ts`                     | 20  | Augmentations globales `Express.Request` (`userId`, `userRole`, `paramsId`, `cookies`) et `Express.Response` (`success`, `created`, `deleted`) | [GitHub](https://github.com/Sojeremy/documentation-skillswap/blob/main/backend/src/@types/express.d.ts) |
 
 Le middleware `addResponseMethodsMiddleware` (monté tôt dans `app.ts:23`)
 **injecte trois helpers** sur l'objet `Response`, utilisés par tous les
