@@ -2,13 +2,13 @@
 // Section 08 — Éléments de sécurité (REAC §8)
 // Volume cible : 3 pages MAX
 // Périmètre : sécurité FONCTIONNELLE de la messagerie (la sécurité transversale
-// est en section 6 : argon2, JWT, CORS, HTTPS).
+// est en #ref(<sub-secu-transverse>, supplement: [sous-section]) : argon2, JWT, CORS, HTTPS).
 // =============================================================================
 
-= Éléments de sécurité
+= Éléments de sécurité <sec-securite>
 
 Les choix de sécurité transversale (hashing argon2, JWT en cookies #raw("httpOnly", lang: "ts"),
-CORS, HTTPS) ont été présentés en section 6. La présente section porte sur
+CORS, HTTPS) ont été présentés en #ref(<sub-secu-transverse>, supplement: [sous-section]). La présente section porte sur
 les contrôles *spécifiques à la messagerie* — la fonctionnalité retenue
 comme la plus représentative — qui combinent authentification du canal
 WebSocket, autorisation contextuelle à chaque event, validation des

@@ -4,7 +4,7 @@
 // Sous-sections : présentation candidat, pitch SkillSwap, plan du dossier
 // =============================================================================
 
-= Introduction
+= Introduction <sec-intro>
 
 == Présentation du candidat
 
@@ -25,5 +25,5 @@
 == Plan du dossier
 
 // TODO : récap des 14 sections du dossier en 3-5 lignes, mettre en avant la
-// section 7 (Réalisations) comme cœur du dossier, focalisée sur la messagerie
+// #ref(<sec-realisations>, supplement: [section]) (Réalisations) comme cœur du dossier, focalisée sur la messagerie
 // temps réel (cf. docs/audits/feature-inventory-cda.md).

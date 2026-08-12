@@ -2,15 +2,15 @@
 // Section 06 — Spécifications techniques (REAC §6)
 // Volume cible : 3 pages MAX
 // Périmètre : stack technique, choix architecturaux (ADRs), patterns transversaux,
-// sécurité transversale (la sécurité fonctionnelle messagerie est en section 8).
+// sécurité transversale (la sécurité fonctionnelle messagerie est en #ref(<sec-securite>, supplement: [section])).
 // =============================================================================
 
-= Spécifications techniques
+= Spécifications techniques <sec-specs-tech>
 
 La présente section couvre les choix techniques transversaux du projet —
 stack, architecture, patterns et sécurité de niveau infrastructure. Les
 déclinaisons fonctionnelles spécifiques à la messagerie (auth Socket,
-gating métier, cloisonnement par rooms) sont traitées en section 8.
+gating métier, cloisonnement par rooms) sont traitées en #ref(<sec-realisations>, supplement: [section]).
 
 == Stack technique
 
@@ -32,13 +32,13 @@ et autorise une seule boîte à outils mentale pour toute l'équipe.
   [Temps réel], [Socket.IO (intégré au serveur HTTP Express)], [4.8.3],
   [Infrastructure], [Docker Compose + Nginx (reverse proxy + TLS)], [—],
   [Tests backend], [Node Test Runner natif (sans framework tiers)], [—],
-  [Tests frontend], [Vitest (unitaire) + Playwright (E2E)], [—],
+  [Tests frontend], [Aucun outil de test dans le livrable (Vitest et Playwright planifiés — cf. ADR-010)], [—],
 )
 
 // Versions reconfirmées en audit S8 contre package.json (front + back) et
 // docker-compose.prod.yml.
 
-== Choix architecturaux — synthèse des ADRs
+== Choix architecturaux — synthèse des ADRs <sub-adrs>
 
 Onze décisions architecturales ont été formalisées en ADRs (Architecture
 Decision Records) dans la documentation Arc42#footnote[#raw("docs/documentation-implementation/arc42/09-decisions/", lang: "txt") — onze fichiers numérotés `001-` à `011-`. Chaque ADR documente le contexte, les options envisagées, la décision retenue et ses conséquences.]. Synthèse :
@@ -53,12 +53,12 @@ Decision Records) dans la documentation Arc42#footnote[#raw("docs/documentation-
   [002], [Styling frontend], [Tailwind CSS + shadcn/ui — utility-first, cohérence visuelle, composants accessibles par défaut.],
   [003], [Accès aux données], [Prisma — ORM type-safe, migrations versionnées, génération automatique du client TypeScript.],
   [004], [Gestion d'état serveur], [*TanStack Query rejeté* — composition de hooks React natifs préférée pour le contrôle fin du cycle de vie des sockets.],
-  [005], [Validation des entrées], [Zod — schémas type-safe partagés front/back, messages d'erreur explicites, intégration native Express.],
-  [006], [Architecture des composants UI], [Atomic Design — atoms / molécules / organismes / pages, lisibilité accrue, Storybook public.],
+  [005], [Validation des entrées], [Zod — schémas type-safe côté serveur et côté client, volontairement dupliqués faute de package partagé ; messages d'erreur explicites via un middleware Express maison de six lignes.],
+  [006], [Architecture des composants UI], [Atomic Design — atoms / molécules / organismes / pages, lisibilité accrue. Le catalogue Storybook prévu par l'ADR n'a pas été intégré au livrable.],
   [007], [Authentification], [JWT + cookies httpOnly + refresh token rotatif — pas d'exposition côté client, rotation automatique à chaque refresh.],
   [008], [Recherche full-text], [Meilisearch — performance et simplicité d'API supérieures à `pg_trgm` natif PostgreSQL, ressources opérationnelles maîtrisées.],
   [009], [Stratégie de bascule], [Mock → API — développement front sur mocks réalistes en début d'apothéose, migration progressive vers l'API réelle au sprint 2.],
-  [010], [Stratégie de tests], [Pyramide condensée : unitaires (Vitest) sur la validation et les utilitaires, intégration (Node Test Runner) sur les routes REST et les events Socket.IO, E2E (Playwright) sur les parcours critiques.],
+  [010], [Stratégie de tests], [Pyramide condensée décidée : unitaires (Vitest), intégration (Node Test Runner), E2E (Playwright). *Seul l'étage intégration a été implémenté* — sept specs backend ; les étages Vitest et Playwright restent à l'état de décision.],
   [011], [Communications temps réel], [Socket.IO — auth par cookie partagé, modèle de rooms (`user:X` + `conversation:Y`), serveur unique avec l'API REST.],
 )
 
@@ -79,6 +79,19 @@ logique métier et appelle Prisma. Cette régularité permet de localiser
 n'importe quelle fonctionnalité backend par convention plutôt que par
 documentation.
 
+Le sens des dépendances a été vérifié mécaniquement sur les 72 modules du
+backend avec #raw("dependency-cruiser", lang: "txt") : aucun #emph[controller] ni
+#emph[router] n'importe Prisma, et aucun service ne dépend de la couche
+présentation — zéro violation. Cinq modules font néanmoins exception en
+accédant au client Prisma hors de la couche service :
+#raw("realtime/socket.ts", lang: "txt") (persistance des messages temps réel sans
+repasser par les services REST), #raw("middlewares/conv.middleware.ts", lang: "txt")
+(la vérification du lien de suivi précède le controller),
+#raw("middlewares/error.middleware.ts", lang: "txt") (import de types seul, aucune
+requête), #raw("mappers/member.mapper.ts", lang: "txt") (projection vers
+Meilisearch) et #raw("lib/auth.ts", lang: "txt") (écriture du refresh token à
+l'émission). Ces cinq points sont la dette d'architecture identifiée du backend.
+
 *Atomic Design côté frontend.* Les composants sont rangés en quatre
 niveaux — atoms (boutons, inputs, badges issus de shadcn/ui), molécules
 (items composés réutilisables), organismes (sections de page), et pages
@@ -88,15 +101,20 @@ neuf organismes dans `ConversationPage/` composent les molécules
 
 *Type-safety end-to-end.* Les types TypeScript se propagent de la base
 de données (générés par Prisma) jusqu'à l'UI (consommés par les hooks
-React). Les schémas Zod, partagés entre la validation serveur et la
-validation des formulaires côté client (#raw("frontend/src/lib/validation/", lang: "txt")),
-garantissent une cohérence contractuelle sans duplication de logique.
+React). La validation des entrées s'appuie sur Zod des deux côtés, mais
+les schémas ne sont *pas* mutualisés : cinq schémas serveur
+(#raw("backend/src/validation/", lang: "txt")) et quatre schémas client
+(#raw("frontend/src/lib/validation/", lang: "txt")) coexistent en
+duplication assumée. Extraire un package partagé imposait un build
+TypeScript commun et une publication interne, effort écarté avant la
+soutenance ; la cohérence contractuelle repose donc sur une discipline de
+relecture, et constitue la dette technique la plus visible du projet.
 
-== Sécurité transversale
+== Sécurité transversale <sub-secu-transverse>
 
 Cinq mécanismes de sécurité couvrent l'ensemble des routes et des
 échanges, complétés par les contrôles spécifiques à la messagerie
-détaillés en section 8.
+détaillés en #ref(<sec-realisations>, supplement: [section]).
 
 #table(
   columns: (12em, 1fr),
@@ -105,8 +123,8 @@ détaillés en section 8.
   align: (left, left),
   [*Domaine*], [*Mesure et implémentation*],
   [Hashing mots de passe], [#raw("argon2", lang: "ts") (paramètres par défaut de la lib `argon2` Node) appliqué dans #raw("auth.service.ts:21", lang: "ts") avant insertion en base. Pas de hashage côté client.],
-  [Sessions], [JWT signés (#raw("jsonwebtoken", lang: "ts")) en cookies #raw("httpOnly + secure + sameSite='strict'", lang: "ts") en production (#raw("auth.controller.ts:68-94", lang: "ts")). Refresh token rotatif renouvelé à chaque appel #raw("/api/v1/auth/refresh", lang: "txt") (#raw("auth.service.ts:103-108", lang: "ts")), invalidation de l'ancien.],
-  [Validation des entrées], [Schémas Zod sur l'intégralité des payloads REST (body, query, params) — register, login, profil, conversations, recherche. Erreur 400 explicite avec champ et message en cas d'écart.],
+  [Sessions], [JWT signés (#raw("jsonwebtoken", lang: "ts")) en cookies #raw("httpOnly + secure + sameSite='strict'", lang: "ts") en production (#raw("auth.controller.ts:63-94", lang: "ts")). Refresh token rotatif renouvelé à chaque appel #raw("/api/v1/auth/refresh", lang: "txt") (#raw("auth.service.ts:103-108", lang: "ts")), invalidation de l'ancien.],
+  [Validation des entrées], [Schémas Zod appliqués par middleware déclaratif sur 18 des 37 routes applicatives (#raw("body", lang: "txt"), #raw("query", lang: "txt"), #raw("params", lang: "txt")) — register, login, profil, conversations, recherche, catégories. Les routeurs #raw("follow", lang: "txt"), #raw("skill", lang: "txt") et #raw("availability", lang: "txt") n'ont pas de schéma : leurs seuls paramètres sont des identifiants numériques convertis par #raw("parseNumericParams", lang: "ts") (#raw("auth.middleware.ts:38-45", lang: "ts")) — écart assumé. En cas d'échec, #raw("parseAsync", lang: "ts") lève et le gestionnaire d'erreurs répond #raw("422 Unprocessable Entity", lang: "txt") avec la liste des messages de validation (#raw("error.middleware.ts:32-33", lang: "ts")).],
   [Transport], [HTTPS forcé en production via Nginx + certificats Let's Encrypt renouvelés automatiquement. Redirection HTTP → HTTPS systématique.],
   [CORS], [Liste blanche d'origines configurée côté Express (#raw("app.ts", lang: "ts")), rejet des requêtes hors-domaine.],
 )

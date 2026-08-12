@@ -5,7 +5,7 @@
 // Réf : docs/documentation-implementation/arc42/01-introduction/
 // =============================================================================
 
-= Cahier des charges
+= Cahier des charges <sec-cahier>
 
 == Contexte et problématique
 

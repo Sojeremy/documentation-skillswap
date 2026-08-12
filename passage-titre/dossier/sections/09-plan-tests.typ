@@ -5,19 +5,20 @@
 //       docs/documentation-implementation/arc42/10-quality/
 // =============================================================================
 
-= Plan de tests
+= Plan de tests <sec-plan-tests>
 
 == Stratégie de tests
 
 // TODO : référer ADR-010 (docs/documentation-implementation/arc42/09-decisions/010-*.md)
-// Pyramide : tests unitaires (Vitest, schémas + utils) → tests intégration
-// (Vitest backend sur controllers + Socket) → tests E2E (Playwright sur
-// auth + recherche).
-// Couverture mesurée nativement Node 24 (--experimental-test-coverage),
+// Pyramide CIBLE de l'ADR-010 : unitaires (Vitest) → intégration → E2E
+// (Playwright). RÉALISÉ : seul l'étage intégration existe (7 specs backend,
+// Node Test Runner natif). Les étages Vitest et Playwright ne sont pas
+// implémentés dans le livrable — ne pas les présenter comme faits.
+// Couverture NON mesurée (aucun outil branché) ; l'option native Node 24
 // décision documentée dans memoire (cf. memoire utilisateur "tenter outils
 // natifs avant non mesurable").
 
-== Tests backend (Vitest)
+== Tests backend (Node Test Runner natif)
 
 // TODO : lister les 7 fichiers de tests backend
 // - backend/src/controllers/auth.controller.spec.test.ts
@@ -28,21 +29,16 @@
 // - backend/src/controllers/search.controller.spec.test.ts
 // - backend/src/realtime/socket.spec.test.ts
 
-== Tests E2E front (Playwright)
+== Absence de tests automatisés côté frontend
 
-// TODO : lister les 2 fichiers E2E
-// - frontend/e2e/auth.spec.ts
-// - frontend/e2e/search.spec.ts
-// - Playwright configuré dans playwright.config.ts
-
-== Tests unitaires front (Vitest)
-
-// TODO : lister les fichiers
-// - frontend/src/lib/dateTime.utils.test.ts
-// - frontend/src/lib/utils.test.ts
-// - frontend/src/lib/validation/auth.validation.test.ts
-// - frontend/src/lib/validation/updatePassword.validation.test.ts
-// - frontend/src/lib/validation/updateProfile.validation.test.ts
+// ATTENTION — ne pas réintroduire de fichiers de tests front ici.
+// Le livrable certifié ne contient AUCUN test frontend : ni Vitest, ni
+// Playwright, ni Storybook. Vérifiable sur le dépôt de production :
+//   grep -iE 'vitest|playwright|storybook' frontend/package.json  -> 0 resultat
+// Les fichiers frontend/e2e/*.spec.ts et frontend/src/**/*.test.ts existent
+// uniquement dans le depot de documentation, ajoutes APRES la periode projet.
+// TODO : expliquer l'arbitrage (temps projet) et renvoyer au jeu d'essai
+// manuel de la #ref(<sec-jeu-essai>, supplement: [section]), qui tient lieu de validation des parcours.
 
 == Plan de tests fonctionnels
 
@@ -73,4 +69,4 @@
 // - Pas de tests unitaires des hooks frontend (messaging/* et profile/*)
 // - Pas de tests d'intégration Meilisearch (mocked dans les tests search)
 // - Couverture front non mesurée (uniquement back via Node coverage natif)
-// → identifié comme dette V2 (cf. section 12)
+// → identifié comme dette V2 (cf. #ref(<sec-difficultes>, supplement: [section]))

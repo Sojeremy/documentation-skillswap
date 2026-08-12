@@ -4,7 +4,7 @@
 // Sous-sections : satisfactions, apprentissages, perspectives V2
 // =============================================================================
 
-= Conclusion
+= Conclusion <sec-conclusion>
 
 == Satisfactions
 
@@ -12,7 +12,7 @@
 // - Application en production accessible publiquement (https://skill-swap.fr)
 // - Documentation Arc42 publiée et indexée (https://skillswap-docs.vercel.app)
 // - Messagerie temps réel fonctionnelle (Socket.IO + persistance + double room)
-// - Architecture front structurée (Atomic Design + 21 hooks dont 7 messaging)
+// - Architecture front structurée (Atomic Design + 24 hooks dont 8 messaging)
 // - Code review systématique respectée
 
 == Apprentissages techniques

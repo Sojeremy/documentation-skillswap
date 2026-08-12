@@ -4,7 +4,7 @@
 // Réf : docs/documentation-implementation/arc42/12-glossary/
 // =============================================================================
 
-= Lexique
+= Lexique <sec-lexique>
 
 // TODO : compléter — termes techniques utilisés dans le dossier qui méritent
 // une définition pour le jury non-technique.

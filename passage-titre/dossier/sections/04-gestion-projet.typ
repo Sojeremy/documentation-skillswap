@@ -4,7 +4,7 @@
 // Sous-sections : méthodologie, outils, équipe, rituels, communication, qualité
 // =============================================================================
 
-= Gestion de projet
+= Gestion de projet <sec-gestion>
 
 == Méthodologie agile — Scrum
 
@@ -21,7 +21,7 @@
 // - Drive (partage documents, maquettes)
 // - [autre outil ?]
 
-== Composition de l'équipe Dublin et rôles
+== Composition de l'équipe Dublin et rôles <sub-equipe>
 
 // TODO : tableau des membres de l'équipe avec rôles attribués.
 // Mon rôle : Lead Front — responsable architecture front, design system,
@@ -57,5 +57,5 @@
 
 == Métriques projet
 
-// TODO : vélocité par sprint, dette technique identifiée (cf. section 12),
+// TODO : vélocité par sprint, dette technique identifiée (cf. #ref(<sec-difficultes>, supplement: [section])),
 // taux de couverture (à mesurer si possible).

@@ -5,7 +5,7 @@
 // Scénario : "Alice envoie un premier message à Bob qu'elle suit"
 // =============================================================================
 
-= Jeu d'essai
+= Jeu d'essai <sec-jeu-essai>
 
 == Scénario testé
 

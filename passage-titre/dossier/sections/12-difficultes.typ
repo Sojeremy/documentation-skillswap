@@ -4,7 +4,7 @@
 // Sous-sections : techniques, méthodologiques, humaines
 // =============================================================================
 
-= Difficultés rencontrées et solutions
+= Difficultés rencontrées et solutions <sec-difficultes>
 
 == Difficultés techniques
 
@@ -25,8 +25,6 @@
 // l'utilisateur dans Meilisearch. Solution : appeler `indexMember(userId)`
 // depuis les services qui modifient User/Skills/Rating + script de
 // ré-indexation complète (`scripts/reindex-search.ts`).
-
-=== [autre difficulté technique à compléter]
 
 == Difficultés méthodologiques
 
@@ -51,4 +49,3 @@
 // TODO : Discord vocal permanent compense partiellement. Rituels Scrum bien
 // suivis. Difficulté = lecture du non-verbal, fatigue Discord.
 
-=== [autre difficulté humaine à compléter]

@@ -5,7 +5,7 @@
 // + solution mise en place
 // =============================================================================
 
-= Veille technologique
+= Veille technologique <sec-veille>
 
 == Veille 1 — argon2 vs bcrypt pour le hashing des mots de passe
 

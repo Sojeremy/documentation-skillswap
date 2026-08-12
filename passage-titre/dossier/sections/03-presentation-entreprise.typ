@@ -6,7 +6,7 @@
 // l'entreprise, l'équipe Dublin comme l'équipe projet.
 // =============================================================================
 
-= Cadre du projet et équipe
+= Cadre du projet et équipe <sec-cadre>
 
 == L'École O'clock — cadre de formation
 
