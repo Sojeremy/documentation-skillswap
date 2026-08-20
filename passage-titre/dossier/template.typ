@@ -82,7 +82,7 @@
   align(center)[
     #text(size: 9pt, fill: muted)[
       Application en production : #link(url-prod)[#url-prod] \
-      Documentation technique : #link(url-doc)[#url-doc]
+      Documentation technique (extension post-projet) : #link(url-doc)[#url-doc]
     ]
   ]
 }

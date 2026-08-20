@@ -134,8 +134,9 @@ au lieu de split-view sur écran étroit) et le dialogue de création
 
 L'orchestration de la messagerie côté frontend repose sur la *composition
 de hooks React natifs* plutôt que sur une bibliothèque tierce de gestion
-d'état serveur (TanStack Query par exemple). Ce choix est documenté dans
-l'ADR-004#footnote[#raw("docs/documentation-implementation/arc42/09-decisions/004-tanstack-query.md", lang: "txt")] et motivé par trois considérations : la maîtrise fine
+d'état serveur. TanStack Query avait été envisagé (ADR-004#footnote[#raw("docs/documentation-implementation/arc42/09-decisions/004-tanstack-query.md", lang: "txt") — dépôt d'équipe, branche #raw("Documentation", lang: "txt").]) mais n'a
+finalement pas été intégré : la composition de hooks natifs a été retenue à
+l'usage, pour trois raisons — la maîtrise fine
 du cycle de vie des sockets et des effets, la réduction de la surface
 de dépendances externes, et l'apprentissage approfondi des hooks React
 natifs (#raw("useState", lang: "ts"), #raw("useEffect", lang: "ts"),
@@ -340,7 +341,7 @@ identifié dans la dette technique en fin de section.
 // -----------------------------------------------------------------------------
 
 L'accès à la base de données passe par Prisma comme ORM type-safe (cf.
-ADR-003#footnote[#raw("docs/documentation-implementation/arc42/09-decisions/003-prisma.md", lang: "txt")]). Les services backend exposent les opérations métier en
+ADR-003#footnote[#raw("docs/documentation-implementation/arc42/09-decisions/003-prisma.md", lang: "txt") — dépôt d'équipe, branche #raw("Documentation", lang: "txt").]). Les services backend exposent les opérations métier en
 masquant la mécanique des requêtes, ce qui permet aux contrôleurs et
 handlers Socket.IO de se concentrer sur la logique de validation et la
 diffusion des events.
@@ -628,7 +629,7 @@ mobilisées dans la réalisation se cartographient ainsi :
   [*Compétence CDA*], [*Mise en œuvre*],
   [CP2 — Développer des interfaces utilisateur], [9 composants React (#raw("ConversationPage/", lang: "ts")) avec composition Atomic Design (atoms via shadcn/ui, molécules #raw("ConversationItem", lang: "ts") et #raw("MessageBubble", lang: "ts"), organisme #raw("MessageThread", lang: "ts") sous-composé en 5 fragments), responsive Tailwind, accessibilité ARIA.],
   [CP3 — Développer des composants métier], [Composition de 8 hooks React (orchestrateur + 7 spécialisés), pattern optimistic UI avec #raw("tempId", lang: "ts") négatif, gestion fine du cycle de vie des sockets via #raw("useSocket(conversationId)", lang: "ts").],
-  [CP6 — Définir l'architecture logicielle], [Architecture hybride REST + WebSocket assumée et documentée (ADR-011), séparation claire des responsabilités entre handlers Socket et services métier, modèle de rooms à deux niveaux (room utilisateur + room conversation).],
+  [CP6 — Définir l'architecture logicielle], [Architecture hybride REST + WebSocket assumée et documentée (ADR-011, formalisé a posteriori pour ce dossier), séparation claire des responsabilités entre handlers Socket et services métier, modèle de rooms à deux niveaux (room utilisateur + room conversation).],
   [CP7 — appliqué à la messagerie], [3 modèles dédiés (#raw("Conversation", lang: "sql"), #raw("UserHasConversation", lang: "sql"), #raw("Message", lang: "sql")), cascade de suppression sécurisée, pagination cursor-based exploitant la PK #raw("id", lang: "sql"), longueur de message bornée côté serveur (2000 caractères) et côté Zod.],
   [CP8 — Développer des composants d'accès aux données], [Services Prisma type-safe avec #raw("select", lang: "ts") explicite anti-overfetch, pagination cursor-based, parallélisation #raw("Promise.all", lang: "ts") sur écritures indépendantes.],
 )

@@ -40,7 +40,7 @@ mission en entreprise.
   [*Type de contrainte*], [*Description*],
   [Temporelle], [Apothéose conduite sur quatre semaines réparties en sprints courts (méthode Scrum), avec une livraison incrémentale et une démonstration en fin d'apothéose.],
   [Humaine], [Équipe de cinq personnes #footnote[Composition de l'équipe Dublin : Sébastien (Product Owner), Loïc (Scrum Master), Yorgan (Lead Back), Jérémy Soriano (Lead Front) et Antoine (Frontend).] avec rôles distribués (Lead Front, Lead Back, contributeurs full-stack), travaillant en distanciel synchrone via Discord (salons vocaux dédiés au pair-programming).],
-  [Technique — stack], [Choix d'une stack moderne TypeScript de bout en bout : Next.js (App Router) côté front, Express côté back, PostgreSQL pour les données relationnelles, Meilisearch pour la recherche full-text, Socket.IO pour le temps réel. Choix documentés dans onze ADRs (cf. #ref(<sub-adrs>, supplement: [section])).],
+  [Technique — stack], [Choix d'une stack moderne TypeScript de bout en bout : Next.js (App Router) côté front, Express côté back, PostgreSQL pour les données relationnelles, Meilisearch pour la recherche full-text, Socket.IO pour le temps réel. Choix documentés dans dix ADRs formalisés pendant le projet (cf. #ref(<sub-adrs>, supplement: [section])).],
   [Technique — qualité], [Performance perçue inférieure à 500 ms (mesure Lighthouse), couverture OWASP Top 10 sur la sécurité, conformité visée RGAA 4.1 / WCAG 2.1 AA #footnote[L'audit accessibilité formel via `axe-core` et Lighthouse est planifié mais non réalisé à la date de rédaction. Cette dette qualité est documentée en #ref(<sec-difficultes>, supplement: [section]).], conventions de code partagées (Prettier, ESLint).],
   [Réglementaire], [Conformité RGPD : minimisation des données collectées, consentement explicite, droits d'accès et de suppression. Mentions légales et politique de confidentialité requises avant mise en production.],
   [Fonctionnelle], [Périmètre MVP imposé : authentification, profil et compétences, recherche de membres, messagerie temps réel, système de notation et suivi entre membres. Hors-scope : paiement, application mobile native, vidéoconférence, géolocalisation avancée.],
@@ -80,6 +80,25 @@ concerns.
   caption: [Architecture logicielle macro de SkillSwap. Le proxy Nginx assure la terminaison TLS et le routage des requêtes vers le frontend Next.js et l'API Express. Le serveur Express héberge à la fois les routes REST (`/api/v1/*`) et le serveur Socket.IO (sur le même port). PostgreSQL persiste les données relationnelles ; Meilisearch sert l'index de recherche full-text, alimenté par une réindexation lancée manuellement (script #raw("search:reindex", lang: "txt")) — il n'y a pas de réindexation automatique au démarrage du serveur.],
 )
 
+#block(
+  fill: rgb("#FDF2F4"),
+  stroke: 0.5pt + rgb("#d0d7de"),
+  inset: 8pt,
+  radius: 2pt,
+  width: 100%,
+)[
+  *Provenance des figures UML.* Les sources PlantUML sont des livrables
+  d'équipe (#raw("docs/uml/**.puml", lang: "txt")). Quatre figures de cette
+  section — architecture (ci-dessus), parcours utilisateur, ERD et cas
+  d'utilisation — sont des *rendus PNG regénérés pour ce dossier* à partir de
+  ces mêmes sources, via PlantUML. Deux d'entre elles portent un autre nom
+  dans le livrable : #raw("diagramme-architecture.png", lang: "txt") et
+  #raw("use-case.png", lang: "txt"). Les figures
+  #raw("arborescence.png", lang: "txt") et
+  #raw("sequence/conversation.png", lang: "txt") sont, elles, reprises
+  telles quelles du livrable.
+] <note-figures-uml>
+
 === Communications inter-composants
 
 Le frontend communique avec le backend via deux canaux complémentaires :
@@ -87,7 +106,8 @@ Le frontend communique avec le backend via deux canaux complémentaires :
 listing initial des messages) et *WebSocket* via Socket.IO sur le même
 serveur HTTP pour les flux temps réel (envoi/réception de messages,
 notifications de nouvelles conversations). Ce choix d'architecture hybride
-est documenté dans l'ADR-011 et détaillé techniquement en #ref(<sub-socket-server>, supplement: [sous-section]).
+est documenté dans l'ADR-011 — formalisé a posteriori pour ce dossier — et
+détaillé techniquement en #ref(<sub-socket-server>, supplement: [sous-section]).
 
 == Maquettes et enchaînement des maquettes <sub-maquettes>
 

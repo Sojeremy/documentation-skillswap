@@ -603,6 +603,10 @@ la fonctionnalité représentative figurent en #ref(<sec-jeu-essai>, supplement:
 == Liens utiles
 
 - *Application en production* : #link("https://skill-swap.fr")[skill-swap.fr]
+
+La documentation Arc42 et le guide utilisateur Diátaxis publiés ci-dessous
+constituent une *extension post-projet, hors périmètre du livrable d'équipe* :
+
 - *Documentation technique Arc42* : #link("https://skillswap-docs.vercel.app")[skillswap-docs.vercel.app]
 - *Guide utilisateur (Diátaxis)* : #link("https://skillswap-guide.vercel.app")[skillswap-guide.vercel.app]
 - *Repo GitHub doc* : #link("https://github.com/Sojeremy/documentation-skillswap")[Sojeremy/documentation-skillswap]
