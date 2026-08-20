@@ -10,6 +10,34 @@
 // d'équipe O-clock-Dublin/projet-skillswap). Chaque part est vérifiable.
 // Ne pas revendiquer : CI/CD (pipeline CD), api-client.ts, useMessaging,
 // paternité des tests, intégration Meilisearch.
+//
+// CHIFFRES RECALCULÉS EN AUDIT S10 sur le dépôt d'équipe (HEAD de73323), via
+// git blame --line-porcelain sur les deux identités
+// (jeremy.soriano@oclock.school + sorianojeremyba@gmail.com) :
+//   PR intégrées .......... 13 (majorité des commits) / 14 (>=1 commit)
+//                           sur 130 PR mergées — l'ancien « 31 » était faux
+//   branches portées ...... 6 : SEO(4 PR), profile-page(3), SearchPage(2),
+//                           fix-setup-docker(2), code-review(1), Profile-Page2(1)
+//   rang contributeur ..... 2e — 115 commits hors merge (Sebastien 124,
+//                           Yorgan 74, Loïc 53)
+//   devops/ global ........ 76 % (728/956)
+//   devops/README.md ...... 92 % (298/323)   [ancien « 97 % » faux]
+//   nginx/prod.conf ....... 99 % (110/111)
+//   docker-compose.prod ... 82 % (97/117)
+//   Dockerfile.prod front . 100 % (53/53)
+//   Dockerfile.prod back .. 86 % (32/37)     [ancien « 89 % » faux]
+//   .env.prod.example ..... 100 % (35/35)
+//   HomePage/ ............. 90 % (305/339) — on conserve « 89 % », valeur
+//                           basse, pour ne jamais surévaluer
+//   SearchPage/ ........... 80 % (232/290)
+//   ProfileFull/Teaser .... 100 % / 100 %
+//   DesktopNav / MobileNav  100 % / 92 %
+//   useFormState .......... 100 % ; useSearch 88 % ; useFollowedUsers 86 %
+//   profile.service.ts:20-88  100 % (le fichier entier n'est qu'à 13 % :
+//                           toujours citer la TRANCHE, pas le fichier)
+//   profil-teaser-strategy.md  601 lignes, 100 %
+//   specs backend ......... 7 fichiers, TROIS auteurs (Yorgan-Agb 4, Loïc 3,
+//                           Sebastien 1 en co-auteur) — ancien « deux » faux
 // =============================================================================
 
 = Compétences du référentiel CDA couvertes <sec-competences>
@@ -47,9 +75,9 @@ par un coéquipier. → §#ref(<sec-specs-fonc>, supplement: none), annexes.
 === CP4 — Contribuer à la gestion d'un projet informatique
 
 J'ai travaillé en flux de Pull Requests sur branches de feature — six branches
-portées (SEO, page profil, recherche, setup Docker), trente et une PR intégrées,
-deuxième contributeur en volume de commits — au sein d'une organisation Scrum
-d'équipe (quatre sprints, rituels agiles, backlog Trello). → §#ref(<sec-gestion>, supplement: none).
+portées (SEO, page profil, recherche, setup Docker), treize Pull Requests
+intégrées, deuxième contributeur en volume de commits — au sein d'une
+organisation Scrum d'équipe (quatre sprints, rituels agiles, backlog Trello). → §#ref(<sec-gestion>, supplement: none).
 
 == AT2 — Concevoir et développer une application sécurisée organisée en couches
 
@@ -69,7 +97,7 @@ spécification → implémentation. → détail §#ref(<sub-maquettes>, suppleme
 
 J'ai conçu la chaîne de déploiement de production (reverse proxy Nginx,
 #raw("docker-compose.prod", lang: "txt"), #raw("Dockerfile.prod", lang: "txt")
-multi-étapes) — #raw("devops/", lang: "txt") à 77 %, dont
+multi-étapes) — #raw("devops/", lang: "txt") à 76 %, dont
 #raw("nginx/prod.conf", lang: "txt") et #raw("Dockerfile.prod", lang: "txt")
 quasi intégralement. Côté applicatif, j'ai contribué à l'implémentation de
 l'architecture frontend en Atomic Design. Concernant l'architecture backend en
@@ -132,7 +160,7 @@ L'accès aux données NoSQL (Meilisearch) a été porté par le Lead Back.
 === CP9 — Préparer et exécuter les plans de tests d'une application
 
 L'équipe a mis en place sept suites de tests d'intégration backend exécutées par
-le Node Test Runner natif, écrites par deux coéquipiers. Le frontend, dont
+le Node Test Runner natif, écrites par trois coéquipiers. Le frontend, dont
 j'étais le principal contributeur, n'a pas été couvert par des tests automatisés
 — c'est la première dette que j'identifie, et la stratégie de test frontend
 (Vitest, Playwright) reste à l'état de décision documentée. → §#ref(<sec-plan-tests>, supplement: none).
@@ -140,10 +168,10 @@ j'étais le principal contributeur, n'a pas été couvert par des tests automati
 === CP10 — Préparer et documenter le déploiement d'une application
 
 J'ai conçu la chaîne de déploiement de production : images Docker multi-étapes
-(#raw("Dockerfile.prod", lang: "txt") front 100 %, back 89 %), orchestration
+(#raw("Dockerfile.prod", lang: "txt") front 100 %, back 86 %), orchestration
 #raw("docker-compose.prod", lang: "txt") (82 %), variables d'environnement
 (#raw(".env.prod.example", lang: "txt"), 100 %), le tout documenté dans
-#raw("devops/README.md", lang: "txt") (97 %, 323 lignes). → §#ref(<sec-specs-tech>, supplement: none), dépôt
+#raw("devops/README.md", lang: "txt") (92 %, 323 lignes). → §#ref(<sec-specs-tech>, supplement: none), dépôt
 #raw("devops/", lang: "txt").
 
 === CP11 — Contribuer à la mise en production dans une démarche DevOps

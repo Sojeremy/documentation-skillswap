@@ -8,9 +8,14 @@
 
 == Méthodologie agile — Scrum
 
-// TODO : Scrum adapté apothéose — sprints d'1 semaine (5 sprints sur 5
-// semaines), rituels condensés. Rôles : Product Owner, Scrum Master, équipe
-// dev. Backlog priorisé en début de projet, refining hebdo.
+// TODO : Scrum adapté apothéose — sprints d'1 semaine, rituels condensés.
+// Rôles : Product Owner, Scrum Master, équipe dev. Backlog priorisé en début
+// de projet, refining hebdo.
+// DURÉE VÉRIFIÉE (audit S10, dépôt d'équipe) : premier commit hors merge
+// 2026-01-06, dernier 2026-01-29 → 4 semaines ISO (W02→W05). Retenir
+// QUATRE sprints, cohérent avec 01-competences.typ:52 et
+// 05-specifications-fonctionnelles.typ:41. L'ancienne mention « 5 sprints sur
+// 5 semaines » de ce TODO était erronée.
 
 == Outils de gestion de projet
 
