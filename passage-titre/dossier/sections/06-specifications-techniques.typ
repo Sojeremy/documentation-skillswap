@@ -40,8 +40,10 @@ et autorise une seule boîte à outils mentale pour toute l'équipe.
 
 == Choix architecturaux — synthèse des ADRs <sub-adrs>
 
-Onze décisions architecturales ont été formalisées en ADRs (Architecture
-Decision Records) dans la documentation Arc42#footnote[#raw("docs/documentation-implementation/arc42/09-decisions/", lang: "txt") — onze fichiers numérotés `001-` à `011-`. Chaque ADR documente le contexte, les options envisagées, la décision retenue et ses conséquences.]. Synthèse :
+Dix décisions d'architecture ont été formalisées en ADRs (Architecture
+Decision Records) pendant le projet. La décision d'adopter Socket.IO pour le
+temps réel a été formalisée a posteriori dans un onzième ADR rédigé pour ce
+dossier#footnote[Les dix ADRs du projet — #raw("001-nextjs.md", lang: "txt") à #raw("010-testing-strategy.md", lang: "txt") — se trouvent dans #raw("docs/documentation-implementation/arc42/09-decisions/", lang: "txt") du dépôt d'équipe (branche #raw("Documentation", lang: "txt")). Le onzième, #raw("011-socket-io.md", lang: "txt"), a été rédigé le 8 mai 2026 pour ce dossier : il formalise après coup un choix technique réellement en production depuis janvier 2026. Chaque ADR documente le contexte, les options envisagées, la décision retenue et ses conséquences.]. Synthèse :
 
 #table(
   columns: (3em, 11em, 1fr),
@@ -52,18 +54,31 @@ Decision Records) dans la documentation Arc42#footnote[#raw("docs/documentation-
   [001], [Framework frontend], [Next.js (App Router) — SSR pour le SEO des profils publics, écosystème React maîtrisé, configuration de production simple.],
   [002], [Styling frontend], [Tailwind CSS + shadcn/ui — utility-first, cohérence visuelle, composants accessibles par défaut.],
   [003], [Accès aux données], [Prisma — ORM type-safe, migrations versionnées, génération automatique du client TypeScript.],
-  [004], [Gestion d'état serveur], [*TanStack Query rejeté* — composition de hooks React natifs préférée pour le contrôle fin du cycle de vie des sockets.],
+  [004], [Gestion d'état serveur], [TanStack Query avait été envisagé (ADR-004) mais n'a finalement pas été intégré ; la gestion des données côté client s'appuie sur une composition de hooks React natifs.],
   [005], [Validation des entrées], [Zod — schémas type-safe côté serveur et côté client, volontairement dupliqués faute de package partagé ; messages d'erreur explicites via un middleware Express maison de six lignes.],
-  [006], [Architecture des composants UI], [Atomic Design — atoms / molécules / organismes / pages, lisibilité accrue. Le catalogue Storybook prévu par l'ADR n'a pas été intégré au livrable.],
+  [006], [Architecture des composants UI], [Atomic Design — atoms / molécules / organismes / pages, lisibilité accrue.],
   [007], [Authentification], [JWT + cookies httpOnly + refresh token rotatif — pas d'exposition côté client, rotation automatique à chaque refresh.],
-  [008], [Recherche full-text], [Meilisearch — performance et simplicité d'API supérieures à `pg_trgm` natif PostgreSQL, ressources opérationnelles maîtrisées.],
-  [009], [Stratégie de bascule], [Mock → API — développement front sur mocks réalistes en début d'apothéose, migration progressive vers l'API réelle au sprint 2.],
-  [010], [Stratégie de tests], [Pyramide condensée décidée : unitaires (Vitest), intégration (Node Test Runner), E2E (Playwright). *Seul l'étage intégration a été implémenté* — sept specs backend ; les étages Vitest et Playwright restent à l'état de décision.],
+  [008], [Recherche full-text], [Meilisearch — performance et simplicité d'API supérieures à la recherche full-text native de PostgreSQL, ressources opérationnelles maîtrisées.],
+  [009], [Stratégie de bascule], [Mock → API — développement front sur mocks réalistes en début d'apothéose, puis migration progressive vers l'API réelle jusqu'au retrait complet des mocks.],
+  [010], [Stratégie de tests], [Pyramide diversifiée décidée, chaque outil sur son étage : TypeScript (types), Storybook (composants UI), Vitest (hooks et utilitaires), Playwright (E2E), TypeDoc pour la documentation d'API. Hors l'étage TypeScript, acquis de fait, *aucun de ces quatre outils n'a été intégré au livrable* ; les tests effectivement écrits sont côté backend — sept specs d'intégration au Node Test Runner natif.],
   [011], [Communications temps réel], [Socket.IO — auth par cookie partagé, modèle de rooms (`user:X` + `conversation:Y`), serveur unique avec l'API REST.],
 )
 
-// Effectif et titres des 11 ADRs reconfirmés en audit S8 contre les fichiers
-// 001-nextjs.md → 011-socket-io.md. Aucun ADR manquant ni en surnombre.
+// Effectif corrigé en audit S10 contre le DÉPÔT D'ÉQUIPE (l'audit S8 avait
+// contrôlé contre ce fork, d'où l'erreur) :
+//   git ls-tree -r origin/Documentation | grep 09-decisions
+//   → 001-nextjs.md … 010-testing-strategy.md + index.md = DIX ADRs.
+//   011-socket-io.md est absent du dépôt d'équipe ; créé ici le 2026-05-08
+//   (commit 4293b3c), donc post-soutenance.
+// ADR-004 : version équipe = « TanStack Query » / statut « Accepté (2024-12) »
+//   (50 lignes) ; la version « Rejeté (2026-01-22) » (128 lignes) de ce fork
+//   est une réécriture post-projet. Le fait reste vrai (aucun @tanstack dans
+//   frontend/package.json) mais n'était pas une décision documentée à l'époque.
+// ADR-008 : statut équipe « Proposé (2025-01) », promu « Accepté » dans ce fork.
+// ADR-010 : la pyramide réelle de l'ADR est TypeScript / Storybook (~25 stories)
+//   / Vitest (~14 tests) / Playwright (4 tests) + TypeDoc. Le Node Test Runner
+//   n'y est PAS un étage — il n'apparaît que dans l'encart « Statut
+//   d'implémentation ». 7 fichiers *.spec.test.ts confirmés côté backend.
 
 == Patterns transversaux
 
@@ -79,8 +94,9 @@ logique métier et appelle Prisma. Cette régularité permet de localiser
 n'importe quelle fonctionnalité backend par convention plutôt que par
 documentation.
 
-Le sens des dépendances a été vérifié mécaniquement sur les 72 modules du
-backend avec #raw("dependency-cruiser", lang: "txt") : aucun #emph[controller] ni
+Le sens des dépendances a été vérifié mécaniquement avec
+#raw("dependency-cruiser", lang: "txt") — 72 modules et 169 dépendances
+analysés : aucun #emph[controller] ni
 #emph[router] n'importe Prisma, et aucun service ne dépend de la couche
 présentation — zéro violation. Cinq modules font néanmoins exception en
 accédant au client Prisma hors de la couche service :
@@ -124,17 +140,26 @@ détaillés en #ref(<sec-realisations>, supplement: [section]).
   [*Domaine*], [*Mesure et implémentation*],
   [Hashing mots de passe], [#raw("argon2", lang: "ts") (paramètres par défaut de la lib `argon2` Node) appliqué dans #raw("auth.service.ts:21", lang: "ts") avant insertion en base. Pas de hashage côté client.],
   [Sessions], [JWT signés (#raw("jsonwebtoken", lang: "ts")) en cookies #raw("httpOnly + secure + sameSite='strict'", lang: "ts") en production (#raw("auth.controller.ts:63-94", lang: "ts")). Refresh token rotatif renouvelé à chaque appel #raw("/api/v1/auth/refresh", lang: "txt") (#raw("auth.service.ts:103-108", lang: "ts")), invalidation de l'ancien.],
-  [Validation des entrées], [Schémas Zod appliqués par middleware déclaratif sur 18 des 37 routes applicatives (#raw("body", lang: "txt"), #raw("query", lang: "txt"), #raw("params", lang: "txt")) — register, login, profil, conversations, recherche, catégories. Les routeurs #raw("follow", lang: "txt"), #raw("skill", lang: "txt") et #raw("availability", lang: "txt") n'ont pas de schéma : leurs seuls paramètres sont des identifiants numériques convertis par #raw("parseNumericParams", lang: "ts") (#raw("auth.middleware.ts:38-45", lang: "ts")) — écart assumé. En cas d'échec, #raw("parseAsync", lang: "ts") lève et le gestionnaire d'erreurs répond #raw("422 Unprocessable Entity", lang: "txt") avec la liste des messages de validation (#raw("error.middleware.ts:32-33", lang: "ts")).],
+  [Validation des entrées], [Schémas Zod appliqués par middleware déclaratif sur 18 des 37 routes applicatives (#raw("body", lang: "txt"), #raw("query", lang: "txt"), #raw("params", lang: "txt")) — register, login, profil, conversations, recherche, catégories. Les routeurs #raw("follow", lang: "txt"), #raw("skill", lang: "txt") et #raw("availability", lang: "txt") n'ont pas de schéma : #raw("follow", lang: "txt") ne valide que des identifiants numériques, convertis par #raw("parseNumericParams", lang: "ts") (#raw("auth.middleware.ts:38-45", lang: "ts")), tandis que #raw("skill", lang: "txt") et #raw("availability", lang: "txt") n'exposent qu'une lecture sans paramètre — écart assumé. En cas d'échec, #raw("parseAsync", lang: "ts") lève et le gestionnaire d'erreurs répond #raw("422 Unprocessable Entity", lang: "txt") avec la liste des messages de validation (#raw("error.middleware.ts:32-33", lang: "ts")).],
   [Transport], [HTTPS forcé en production via Nginx + certificats Let's Encrypt renouvelés automatiquement. Redirection HTTP → HTTPS systématique.],
-  [CORS], [Liste blanche d'origines configurée côté Express (#raw("app.ts", lang: "ts")), rejet des requêtes hors-domaine.],
+  [CORS], [Une origine autorisée, configurée par variable d'environnement, appliquée à Express (#raw("app.ts:12-17", lang: "ts")) comme au handshake Socket.IO (#raw("socket.ts:81-82", lang: "ts")) ; rejet des requêtes hors-domaine. En production, le serveur refuse de démarrer si #raw("ALLOWED_ORIGIN", lang: "txt") est absente (#raw("config.ts:29-38", lang: "ts")).],
 )
 
-// Lignes de référence reconfirmées en audit S8 :
-// - argon2 : auth.service.ts:21 (hashage avant insertion)
-// - cookies : auth.controller.ts:63-94 (helpers setTokenInCookie + setRefreshTokenInCookie)
+// Lignes de référence reconfirmées en audit S10 (dépôt d'équipe) :
+// - argon2 : auth.service.ts:21 (hashage avant insertion). Second point de
+//   hachage non cité : profile.service.ts:464 (changement de mot de passe).
+// - cookies : auth.controller.ts:63-94 (helpers setTokenInCookie 63-81 +
+//   setRefreshTokenInCookie 83-94) ; secure/sameSite conditionnés à isProduction.
 // - rotation : auth.service.ts:103-108 (deleteMany + new generateRefreshToken)
-// - CORS : app.ts:12-17 (origin: config.allowedOrigin, credentials: true)
-// - HTTPS : devops/nginx/prod.conf:18-29 (redirection 80→443) + HSTS l51
+// - CORS : app.ts:12-17 (origin: config.allowedOrigin, credentials: true) +
+//   socket.ts:81-82 (même origine sur le handshake). config.ts:5 lit
+//   ALLOWED_ORIGIN ; config.ts:29-38 (getEnv) throw si absente hors dev.
+// - HTTPS : devops/nginx/prod.conf:16-29 (redirection 80→443, exception
+//   /.well-known/acme-challenge/) ; HSTS ligne 49 ; X-Frame-Options l46,
+//   X-Content-Type-Options l47, X-XSS-Protection l48 ; certbot renew en boucle
+//   12 h dans devops/docker-compose.prod.yml:104-110.
+// - Dettes confirmées : 0 occurrence helmet dans backend/src ; 0 limit_req dans
+//   devops/nginx ; 0 Content-Security-Policy (Express ET Nginx) ; 0 axe-core.
 
 Quatre zones de fragilité sont assumées et reportées en V2 : *Helmet
 installé mais non monté côté Express* (la dépendance #raw("helmet@8.1.0", lang: "txt")
