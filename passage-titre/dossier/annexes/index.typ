@@ -132,52 +132,77 @@ CREATE UNIQUE INDEX "follow_followed_id_follower_id_key"
 
 == Annexe B — Handler Socket.IO `message:send` (code complet)
 
-Extrait de #raw("backend/src/realtime/socket.ts:167-347", lang: "txt") — handler
-complet de l'envoi d'un message, incluant validation, vérification de
-participation, persistance Prisma en parallèle, et diffusion multi-rooms.
+Reproduction *verbatim* de #raw("backend/src/realtime/socket.ts:167-347", lang: "txt")
+(dépôt d'équipe, branche #raw("main", lang: "txt")) — handler complet de l'envoi
+d'un message : validation, vérification de participation, persistance Prisma en
+parallèle, et diffusion multi-rooms. Seule adaptation de mise en page : le bloc
+est désindenté de quatre espaces, le handler étant imbriqué dans
+#raw("io.on('connection')", lang: "ts") dans le fichier source. Commentaires
+d'origine conservés en anglais, tels qu'ils figurent dans le livrable.
 
 ```ts
 socket.on('message:send', async (payload) => {
   const conversationId = Number(payload?.conversationId);
   const content = String(payload?.message ?? '').trim();
 
-  // 1. Validation des bornes
+  // Validate input
   if (!Number.isInteger(conversationId) || conversationId <= 0) {
-    socket.emit('error', { code: 'VALIDATION', message: 'Invalid conversationId' });
-    return;
-  }
-  if (!content || content.length > 2000) {
-    socket.emit('error', { code: 'VALIDATION', message: 'Invalid message' });
+    socket.emit('error', {
+      code: 'VALIDATION',
+      message: 'Invalid conversationId',
+    });
     return;
   }
 
-  // 2. Récupération de la conversation + participants + nombre de messages
+  if (!content || content.length > 2000) {
+    socket.emit('error', {
+      code: 'VALIDATION',
+      message: 'Invalid message',
+    });
+    return;
+  }
+
+  // Get conversation with participants and message count
   const conv = await prisma.conversation.findUnique({
     where: { id: conversationId },
     select: {
-      id: true, title: true, status: true,
+      id: true,
+      title: true,
+      status: true,
       users: {
         select: {
           userId: true,
           user: {
-            select: { id: true, firstname: true, lastname: true, avatarUrl: true },
+            select: {
+              id: true,
+              firstname: true,
+              lastname: true,
+              avatarUrl: true,
+            },
           },
         },
       },
-      _count: { select: { messages: true } },
+      _count: {
+        select: { messages: true },
+      },
     },
   });
 
-  // 3. Refus si conversation absente ou clôturée
   if (!conv || conv.status === 'Close') {
-    socket.emit('error', { code: 'FORBIDDEN', message: 'Conversation closed' });
+    socket.emit('error', {
+      code: 'FORBIDDEN',
+      message: 'Conversation closed',
+    });
     return;
   }
 
-  // 4. Vérification participant (defense in depth, indépendant du join préalable)
+  // Verify that the sender is a participant in the conversation
   const userIds = conv.users.map((u) => u.userId);
   if (!userIds.includes(userId)) {
-    socket.emit('error', { code: 'FORBIDDEN', message: 'Not a participant' });
+    socket.emit('error', {
+      code: 'FORBIDDEN',
+      message: 'Not a participant',
+    });
     return;
   }
 
@@ -189,17 +214,29 @@ socket.on('message:send', async (payload) => {
     return;
   }
 
-  // 5. Détection du premier message (déclenche la branche conversation:new)
+  // Check if this is the first message
   const isFirstMessage = conv._count.messages === 0;
 
-  // 6. Persistance parallèle : message + bumping de updatedAt sur conversation
+  // Create the message AND update conversation's updatedAt
   const [msg] = await Promise.all([
     prisma.message.create({
-      data: { conversationId, senderId: userId, receiverId, content },
+      data: {
+        conversationId,
+        senderId: userId,
+        receiverId,
+        content,
+      },
       select: {
-        id: true, content: true, createdAt: true,
+        id: true,
+        content: true,
+        createdAt: true,
         sender: {
-          select: { id: true, firstname: true, lastname: true, avatarUrl: true },
+          select: {
+            id: true,
+            firstname: true,
+            lastname: true,
+            avatarUrl: true,
+          },
         },
       },
     }),
@@ -209,29 +246,31 @@ socket.on('message:send', async (payload) => {
     }),
   ]);
 
-  // 7. Préparation du DTO (sender omis si plus participant)
+  // Prepare DTO
   const dto: MessageDTO = {
     id: msg.id,
-    sender: msg.sender && participantIds.has(msg.sender.id)
-      ? {
-          id: msg.sender.id,
-          firstname: msg.sender.firstname,
-          lastname: msg.sender.lastname,
-          avatarUrl: msg.sender.avatarUrl ?? undefined,
-        }
-      : undefined,
+    sender:
+      msg.sender && participantIds.has(msg.sender.id)
+        ? {
+            id: msg.sender.id,
+            firstname: msg.sender.firstname,
+            lastname: msg.sender.lastname,
+            avatarUrl: msg.sender.avatarUrl ?? undefined,
+          }
+        : undefined,
     content: msg.content,
     timestamp: msg.createdAt.toISOString(),
   };
 
-  // 8. Diffusion ciblée : room conversation (clients actifs sur le thread)
+  // Emit message to conversation room (for users actively viewing)
   io.to(room(conversationId)).emit('message:new', {
     conversationId,
     message: dto,
   });
 
-  // 9. Cas particulier — premier message : notifier le receveur (room user:)
+  // If first message, notify the receiver about the new conversation
   if (isFirstMessage) {
+    // Get follow/rating status for the receiver
     const [followStatus, ratingStatus] = await Promise.all([
       prisma.follow.findUnique({
         where: {
@@ -251,9 +290,11 @@ socket.on('message:send', async (payload) => {
       }),
     ]);
 
+    // Get sender info for the receiver's perspective
     const senderUser = conv.users.find((u) => u.userId === userId)?.user;
 
     if (senderUser) {
+      // Emit new conversation to receiver only
       io.to(`user:${receiverId}`).emit('conversation:new', {
         conversation: {
           id: conv.id,
@@ -273,7 +314,7 @@ socket.on('message:send', async (payload) => {
     }
   }
 
-  // 10. Notification de mise à jour à TOUS les participants (via leur room user:)
+  // Emit conversation update to all participants (via user rooms)
   userIds.forEach((participantId) => {
     io.to(`user:${participantId}`).emit('conversation:updated', {
       conversationId,
@@ -285,9 +326,10 @@ socket.on('message:send', async (payload) => {
 
 == Annexe C — Orchestrateur frontend `useMessaging` (139 LOC, complet)
 
-Extrait intégral de #raw("frontend/src/hooks/useMessaging.ts", lang: "txt") — la
-façade qui compose les sept hooks spécialisés et écoute les trois events
-Socket globaux (`conversation:updated`, `conversation:closed`, `conversation:new`).
+Reproduction *verbatim* et intégrale de #raw("frontend/src/hooks/useMessaging.ts", lang: "txt")
+(dépôt d'équipe, branche #raw("main", lang: "txt")) — la façade qui compose les
+sept hooks spécialisés et écoute les trois events Socket globaux
+(`conversation:updated`, `conversation:closed`, `conversation:new`).
 
 ```ts
 'use client';
@@ -367,7 +409,10 @@ export function useMessaging() {
 
   useEffect(() => {
     onConversationNew((conversation) => {
+      // Add the new conversation to the list
       addConversation(conversation);
+
+      // Show notification
       toast.info(
         `${conversation.participant?.firstname} a démarré un nouvel échange`,
       );
@@ -377,6 +422,7 @@ export function useMessaging() {
   const selectedConvWithMessages: ConversationWithMessages | undefined =
     useMemo(() => {
       if (!selectedConv) return undefined;
+
       return {
         ...selectedConv,
         messages,
@@ -431,9 +477,10 @@ export function useMessaging() {
 
 === `MessageList.tsx` — affichage virtualisé du fil de discussion
 
-Extrait de #raw("frontend/src/components/organisms/ConversationPage/MessageThread/MessageList.tsx", lang: "txt") — le composant qui rend la liste de messages, gère le
-spinner de chargement de la pagination cursor-based, l'empty state et la
-détection de doublons (sentinelle de cohérence).
+Reproduction *verbatim* et intégrale de #raw("frontend/src/components/organisms/ConversationPage/MessageThread/MessageList.tsx", lang: "txt")
+(dépôt d'équipe, branche #raw("main", lang: "txt")) — le composant qui rend la
+liste de messages, gère le spinner de chargement de la pagination cursor-based,
+l'empty state et la détection de doublons.
 
 ```tsx
 'use client';
@@ -458,13 +505,14 @@ export function MessageList({
   isLoading = false,
   hasMore = false,
 }: MessageListProps) {
-  // Sentinelle de cohérence : alerter en console si un doublon d'id est détecté
   useEffect(() => {
     if (messages) {
       const ids = messages.map((m) => m.id);
       const duplicates = ids.filter((id, index) => ids.indexOf(id) !== index);
+
       if (duplicates.length > 0) {
         console.error('Duplicate message IDs detected:', duplicates);
+        console.error('All messages:', messages);
       }
     }
   }, [messages]);
@@ -473,15 +521,17 @@ export function MessageList({
     <div
       ref={scrollRef}
       className="flex-1 overflow-y-auto p-6"
-      style={{ overflowAnchor: 'none' }} // Anti scroll-jump lors du load-more
+      style={{ overflowAnchor: 'none' }} // Important pour éviter le scroll jump
     >
       <div className="flex flex-col">
+        {/* Indicateur de chargement en haut */}
         {isLoading && (
           <div className="flex justify-center py-4">
             <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
           </div>
         )}
 
+        {/* Indicateur de début de conversation */}
         {!hasMore && messages && messages.length > 0 && (
           <div className="flex justify-center py-4">
             <p className="text-sm text-muted-foreground">
@@ -490,6 +540,7 @@ export function MessageList({
           </div>
         )}
 
+        {/* Messages */}
         {messages && messages.length > 0 ? (
           <div className="flex flex-col gap-4">
             {messages.map((m) => (
@@ -518,11 +569,14 @@ export function MessageList({
 
 === `MessageInput.tsx` — saisie utilisateur et envoi
 
-Extrait de #raw("frontend/src/components/organisms/ConversationPage/MessageThread/MessageInput.tsx", lang: "txt") — l'input désactivé automatiquement quand la conversation est
-clôturée (cohérent avec le refus serveur dans le handler #raw("message:send", lang: "ts")).
+Reproduction *verbatim* et intégrale de #raw("frontend/src/components/organisms/ConversationPage/MessageThread/MessageInput.tsx", lang: "txt")
+(dépôt d'équipe, branche #raw("main", lang: "txt")) — l'input désactivé
+automatiquement quand la conversation est clôturée (cohérent avec le refus
+serveur dans le handler #raw("message:send", lang: "ts")).
 
 ```tsx
 'use client';
+
 import { Button } from '@/components/atoms/Button';
 import { Input } from '@/components/atoms/Input';
 import { Send } from 'lucide-react';
@@ -536,6 +590,9 @@ interface MessageInputProps {
   conversationStatus: FilterStatus;
 }
 
+/**
+ * Zone de saisie et envoi de message
+ */
 export function MessageInput({
   value,
   onChange,
@@ -544,7 +601,9 @@ export function MessageInput({
   conversationStatus,
 }: MessageInputProps) {
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') onSend();
+    if (e.key === 'Enter') {
+      onSend();
+    }
   };
 
   return (

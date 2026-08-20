@@ -142,12 +142,13 @@ J'ai développé le composant d'accès aux données du profil public
 (#raw("getPublicProfileService", lang: "txt"),
 #raw("profile.service.ts:20-88", lang: "txt"), ainsi que la tranche verticale
 route → service → rendu SSR → composant, 100 %). Ce composant met en œuvre une
-projection explicite via _select_ plutôt
-qu'_include_ (chaque colonne remontée est choisie,
-#raw(":31,:33", lang: "txt")), un chargement ciblé de relations (compétences avec
-leur catégorie #raw(":40", lang: "txt"), évaluations restreintes au seul score
-#raw(":45", lang: "txt")), une agrégation applicative (moyenne des avis arrondie,
-#raw(":58-59", lang: "txt")), et une minimisation des données exposées
+projection maîtrisée : un _select_ racine qui énumère explicitement les colonnes
+remontées (#raw(":31,:33", lang: "txt")), et un chargement ciblé des relations —
+compétences avec leur catégorie via un _include_ imbriqué
+(#raw(":40-44", lang: "txt")), évaluations restreintes au seul champ
+#raw("score", lang: "sql") (#raw(":45-49", lang: "txt")). S'y ajoutent une
+agrégation applicative (moyenne des avis arrondie au dixième,
+#raw(":61-65", lang: "txt")), et une minimisation des données exposées
 (description tronquée #raw(":69-70", lang: "txt"), nom réduit à l'initiale
 #raw(":78", lang: "txt")). J'ai également développé le composant frontend de
 consommation de l'API de recherche (#raw("hooks/useSearch.ts", lang: "txt"),

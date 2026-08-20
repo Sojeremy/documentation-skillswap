@@ -20,6 +20,23 @@
 
 == Tests backend (Node Test Runner natif)
 
+Sept suites d'intégration ont été écrites pour le Node Test Runner natif, sans
+framework tiers, couvrant les contrôleurs (authentification, profil, suivi,
+recherche, conversations, messages) et les events Socket.IO.
+
+*Cinq de ces sept suites échouent.* La cause est identifiée et unique : un bug
+dans la fixture globale, qui ne garantit pas la création de la donnée de rôle
+avant les utilisateurs de test — les utilisateurs sont alors insérés avec une
+clé étrangère invalide et toute la suite tombe. Le défaut est dans le code de
+test, pas dans le code applicatif, et il est commun aux cinq suites concernées.
+
+Cette dette est assumée : elle n'a pas été corrigée avant la soutenance, la
+priorité ayant été donnée à la finition fonctionnelle. Elle est documentée comme
+premier chantier de reprise, et sa correction est de faible ampleur — réordonner
+le #raw("beforeAll", lang: "ts") global. Conséquence honnête à en tirer : le
+projet dispose d'une *intention* de couverture backend, pas d'un filet de
+sécurité opérationnel, et aucune couverture n'a jamais été mesurée.
+
 // TODO : lister les 7 fichiers de tests backend
 // - backend/src/controllers/auth.controller.spec.test.ts
 // - backend/src/controllers/conv.spec.test.ts

@@ -10,11 +10,11 @@
 
 La présente section porte sur la *fonctionnalité la plus représentative* du
 projet, au sens du référentiel : la messagerie temps réel entre membres.
-Ce choix n'est pas anodin — il résulte d'un audit fonctionnel comparatif
-documenté dans #raw("docs/audits/feature-inventory-cda.md", lang: "txt"), qui a évalué
+Ce choix n'est pas anodin — il résulte d'un audit fonctionnel comparatif que
+j'ai conduit pour la préparation de ce dossier#footnote[Analyse rédigée après la période projet, dans le dépôt de documentation ; elle ne fait pas partie du livrable d'équipe.], et qui a évalué
 neuf fonctionnalités principales du projet selon cinq critères (cœur métier,
 couverture technique, visibilité du travail Lead Front, enjeux de sécurité,
-richesse pour la démonstration). La messagerie obtient un score parfait de
+richesse pour la démonstration). La messagerie obtient un score de
 25 sur 25, seule à couvrir l'ensemble des axes en un périmètre unique.
 
 Plus fondamentalement, la messagerie est le moment où SkillSwap cesse d'être
@@ -606,8 +606,8 @@ Un membre tiers ne peut pas écouter passivement les messages d'autrui.
 
 Le flux complet d'un envoi de message, depuis la saisie utilisateur jusqu'à
 la confirmation chez les deux participants, est décrit dans le diagramme
-de séquence ci-après. Il a été produit avec PlantUML et fait partie de
-la documentation Arc42#footnote[Source : #raw("docs/uml/sequence/conversation.puml", lang: "txt")].
+de séquence ci-après. Il a été produit avec PlantUML pendant le projet et fait
+partie du livrable d'équipe mergé sur #raw("main", lang: "txt")#footnote[Source et rendu : #raw("docs/uml/sequence/conversation.puml", lang: "txt") et #raw("conversation.png", lang: "txt"), dépôt d'équipe.].
 
 #figure(
   image("../../../docs/uml/sequence/conversation.png", width: 100%),
