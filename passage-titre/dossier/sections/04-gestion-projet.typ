@@ -84,10 +84,15 @@ recherche en cohérence avec le backend Meilisearch.
 
 == Outils et flux de travail
 
-Le backlog a été géré sur Trello#footnote[#link("https://trello.com/b/536OvoxI/skillswap")[trello.com/b/536OvoxI/skillswap]]. Le flux Git reposait sur une
-stratégie #raw("main", lang: "txt") / #raw("dev", lang: "txt") / branches de
-feature, avec intégration par Pull Request et branches courtes. La qualité de
-code était outillée par ESLint, Prettier et un hook de _pre-commit_ Husky.
+Quatre outils ont structuré la collaboration : *Discord* pour les sessions
+synchrones et le pair-programming, *Slack* pour les échanges écrits, *Trello*
+pour le backlog#footnote[#link("https://trello.com/b/536OvoxI/skillswap")[trello.com/b/536OvoxI/skillswap]] et un *Drive partagé* pour les documents de cadrage — brief
+projet, tableur des user stories, journal de bord.
+
+Le flux Git reposait sur une stratégie #raw("main", lang: "txt") /
+#raw("dev", lang: "txt") / branches de feature, avec intégration par Pull
+Request et branches courtes. La qualité de code était outillée par ESLint,
+Prettier et un hook de _pre-commit_ Husky.
 
 == Anticipation des risques
 
