@@ -1,0 +1,21 @@
+JEU D'ESSAI CDA — ÉTAT INITIAL (avant scénario)
+Base : PostgreSQL 16, environnement de développement conteneurisé
+Date : 2026-08-23 11:54
+
+── R1 ─ Le follow Alice → Bob existe (pré-requis du gating métier)
+ id | suiveur | suivi |       created_at        
+----+---------+-------+-------------------------
+  1 | Alice   | Bob   | 2026-08-22 18:37:48.027
+(1 row)
+
+
+── R1bis ─ La contrainte d'unicité interdit le doublon
+ERROR:  duplicate key value violates unique constraint "follow_followed_id_follower_id_key"
+DETAIL:  Key (followed_id, follower_id)=(27, 1) already exists.
+
+── T0 ─ Aucune conversation « Jeu d'essai CDA » avant le scénario
+ conversations_jeu_essai 
+-------------------------
+                       0
+(1 row)
+

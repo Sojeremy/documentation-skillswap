@@ -1,0 +1,42 @@
+JEU D'ESSAI CDA — VÉRIFICATIONS APRÈS SCÉNARIO
+Date : 2026-08-23 18:28
+
+── R2 ─ La conversation compte EXACTEMENT deux participants
+ id |      title      | status | nb_participants | participants  
+----+-----------------+--------+-----------------+---------------
+ 17 | Jeu d'essai CDA | Open   |               2 | Alice <-> Bob
+(1 row)
+
+
+── R3 ─ Compteur de messages et horodatage de la conversation
+   (LEFT JOIN volontaire : rend visible le 0 avant envoi)
+ id |      title      | nb_messages |     dernier_message     |       updated_at        | conversation_touchee 
+----+-----------------+-------------+-------------------------+-------------------------+----------------------
+ 17 | Jeu d'essai CDA |           1 | 2026-08-23 16:27:20.973 | 2026-08-23 16:27:20.972 | t
+(1 row)
+
+
+── R4 ─ receiver_id correspond bien au SECOND participant
+ id  | expediteur | destinataire |                 contenu                  |       created_at        | destinataire_participe 
+-----+------------+--------------+------------------------------------------+-------------------------+------------------------
+ 108 | Alice      | Bob          | Salut Bob ! Je te contacte pour un échan | 2026-08-23 16:27:20.973 | t
+(1 row)
+
+
+── R5 ─ Évaluations Alice -> Bob
+   NOTE : l'évaluation renvoyée provient du SEED de développement, pas du
+   scénario — la conversation « Jeu d'essai CDA » reste au statut Open, donc
+   aucune évaluation n'a été créée par le jeu d'essai.
+ evaluations_alice_vers_bob 
+----------------------------
+                          1
+(1 row)
+
+
+── R6 ─ Vue d'ensemble Alice / Bob
+ firstname | conversations | messages_envoyes | abonnements 
+-----------+---------------+------------------+-------------
+ Alice     |             4 |               11 |           2
+ Bob       |             2 |                4 |           2
+(2 rows)
+
