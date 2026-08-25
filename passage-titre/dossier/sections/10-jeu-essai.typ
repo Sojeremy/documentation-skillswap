@@ -22,6 +22,8 @@
 // du panneau Réseau/WS resterait à faire manuellement.
 // =============================================================================
 
+#import "../template.typ": code-wrap
+
 = Jeu d'essai <sec-jeu-essai>
 
 == Contexte d'exécution
@@ -80,7 +82,7 @@ seconde#footnote[Outil de pilotage hors périmètre du livrable d'équipe : il n
   ],
   [
     *Conforme.* Le pré-requis métier est satisfait : sans ce lien, la création
-    de conversation serait refusée par #raw("requireSimpleFollow", lang: "ts").
+    de conversation serait refusée par #code-wrap("requireSimpleFollow").
   ],
 )
 
@@ -115,7 +117,7 @@ seconde#footnote[Outil de pilotage hors périmètre du livrable d'équipe : il n
   ],
   [
     *Conforme.* La cardinalité (0,2) est respectée dès la création : les deux
-    lignes #raw("user_has_conversation", lang: "sql") sont insérées en une
+    lignes #code-wrap("user_has_conversation") sont insérées en une
     fois. Le fil est vide, ce qui armera la branche premier message.
   ],
 )

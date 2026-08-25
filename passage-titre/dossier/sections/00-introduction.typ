@@ -57,7 +57,7 @@ Management Commercial Opérationnel et un Bachelor Responsable Manager, j'ai
 exercé six ans en commerce et en management : conseiller client, puis
 responsable du développement de la livraison à domicile pour une enseigne de
 grande distribution, enfin commercial dans l'assurance. Ces années m'ont donné
-une lecture métier des problèmes techniques — l'habitude de chercher le besoin
+une lecture métier des problèmes techniques, l'habitude de chercher le besoin
 réel avant la solution, et le sens des priorités d'une activité.
 
 C'est cette même exigence de compréhension du besoin qui m'a conduit vers

@@ -1,0 +1,19 @@
+' =============================================================================
+' Style commun aux diagrammes C4 de SkillSwap
+' =============================================================================
+' À inclure AVANT C4_Context.puml / C4_Container.puml : la bibliothèque
+' déclare ces variables avec `?=` (lib/C4.puml:122-126), donc une valeur
+' posée ici a la priorité.
+'
+' Raison d'être : par défaut, trois textes sont rendus à 12 px alors que le
+' reste du diagramme est à 14 px — le stéréotype («container»), la technologie
+' ([nginx:alpine]) et les étiquettes de relation ([HTTP/3000]). La police
+' effective d'une figure étant fixée par son plus petit texte, ces 12 px
+' imposaient à eux seuls le facteur de réduction de tout le diagramme.
+' Les porter à 14 px élargit le canevas admissible de 605 x 869 px à
+' 705 x 1014 px pour un même seuil de lisibilité de 9 pt sur 160 mm.
+' =============================================================================
+
+!$STEREOTYPE_FONT_SIZE = 14
+!$TECHN_FONT_SIZE = 14
+!$ARROW_FONT_SIZE = 14

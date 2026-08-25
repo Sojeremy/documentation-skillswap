@@ -449,6 +449,10 @@ trade-off de simplicité assumé.
 
 == Autres composants — Socket.IO server et middleware métier <sub-socket-server>
 
+Le chemin d'exécution complet de #raw("message:send", lang: "ts"), depuis la
+saisie dans l'interface jusqu'aux trois diffusions, est représenté en
+#ref(<annexe-h>) — trois vues, chaque nœud adossé à un fichier et une ligne.
+
 // -----------------------------------------------------------------------------
 // 7.4 — Autres composants : socket.ts + conv.middleware.ts
 // Réf : ADR-011 Socket.IO
@@ -575,7 +579,7 @@ Le serveur exploite deux types de rooms simultanément, chacune avec un
 rôle bien défini :
 
 #table(
-  columns: (auto, auto, 1fr),
+  columns: (auto, 10.2em, 1fr),
   stroke: 0.5pt + rgb("#d0d7de"),
   inset: 6pt,
   align: (left, left, left),

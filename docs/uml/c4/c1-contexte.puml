@@ -1,0 +1,48 @@
+@startuml c1-contexte
+' =============================================================================
+' SkillSwap — C4 niveau 1 : diagramme de contexte
+' =============================================================================
+' Reconstruction déterministe depuis les sources de production du dépôt
+' d'équipe (O-clock-Dublin/projet-skillswap), consulté en lecture seule.
+' Aucun élément n'est inféré : chaque acteur, chaque système et chaque
+' relation est adossé à un fichier:ligne, relevé dans TRACABILITE.md.
+'
+' Bibliothèque C4-PlantUML 2.14.0beta1 vendorisée dans ./lib — rendu hors
+' ligne, indépendant de la version embarquée dans l'image PlantUML.
+'
+' Rendu :  docker run --rm -v "$PWD:/data" -w /data plantuml/plantuml \
+'            -tsvg c1-contexte.puml
+' =============================================================================
+
+!include style-skillswap.puml
+!include lib/C4_Context.puml
+
+title Diagramme de contexte (C4 niveau 1) — SkillSwap
+
+' --- Acteurs -----------------------------------------------------------------
+' frontend/src/middleware.ts:15-16 — l'authentification se réduit à la présence
+' du cookie refreshToken. Les deux acteurs sont les deux valeurs de ce booléen.
+Person(visiteur, "Visiteur", "Sans cookie refreshToken.\nRoutes publiques seulement.")
+Person(membre, "Membre", "Porteur d'un cookie refreshToken.\nRoutes protégées + messagerie.")
+
+' --- Le système --------------------------------------------------------------
+System(skillswap, "SkillSwap", "Plateforme d'échange de compétences.\nSix conteneurs derrière un point\nd'entrée HTTPS unique (voir C2).")
+
+' --- Systèmes externes -------------------------------------------------------
+' Un seul. Le conteneur certbot appelle effectivement l'API ACME de Let's
+' Encrypt (docker-compose.prod.yml:104-110, `certbot renew` en boucle), et
+' nginx sert le challenge correspondant (nginx/prod.conf:21-23).
+' Aucun autre système externe n'est appelé par le code des sources autorisées :
+' ni SMTP, ni passerelle de paiement, ni stockage objet, ni service d'analytics.
+' Meilisearch et PostgreSQL ne figurent pas ici : ce sont des conteneurs du
+' système, pas des systèmes tiers — ils apparaissent au niveau C2.
+System_Ext(letsencrypt, "Let's Encrypt", "Autorité de certification ACME.\nCertificat TLS de skill-swap.fr.")
+
+' --- Relations ---------------------------------------------------------------
+Rel(visiteur, skillswap, "Consulte les pages publiques", "HTTPS/443")
+Rel(membre, skillswap, "Consulte, échange et discute\nen temps réel", "HTTPS/443 + WebSocket")
+Rel(skillswap, letsencrypt, "Demande et renouvelle\nle certificat TLS", "ACME sur HTTPS/443")
+Rel(letsencrypt, skillswap, "Vérifie la possession\ndu domaine", "HTTP/80\n/.well-known/acme-challenge/")
+
+SHOW_LEGEND()
+@enduml

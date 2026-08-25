@@ -1,0 +1,34 @@
+@startuml c4c-message-send-serveur
+' =============================================================================
+' SkillSwap — C4 niveau 4, vue 3/3 : du handshake aux trois diffusions
+' =============================================================================
+' Couture avec la vue 2/3 : l'émission `message:send` arrivant du client.
+' Reproduit la structure de socket.ts:167-347, verbatim en annexe B du dossier.
+' Les cinq gardes du handler sont dans l'ordre du code.
+' =============================================================================
+
+!include style-skillswap.puml
+!include lib/C4_Component.puml
+
+AddElementTag("emis", $bgColor="#0B6E4F", $borderColor="#08503A", $fontColor="#FFFFFF")
+
+title `message:send` (C4 niveau 4, vue 3/3) — serveur
+
+Container(cli, "frontend — socket-client.ts", "vue 2/3", "emit('message:send')")
+
+Container_Boundary(back, "backend — realtime/socket.ts") {
+  Component(use, "io.use", "l. 88-122", "cookies.accessToken, jwt.verify,\nsocket.data.userId entier > 0.")
+  Component(han, "handler message:send", "l. 167-347", "5 gardes : convId (172),\ncontent 1-2000 (180), Close (214),\nparticipant (224), receiver (235)")
+  ComponentDb(pri, "Prisma", "models/", "conversation.findUnique 189\nmessage.create 245\nconversation.update 266")
+  Component(r1, "conversation:{id}", "room, 289", "message:new", $tags="emis")
+  Component(r2, "user:{receiver}", "room, 321", "conversation:new,\nsi isFirstMessage (241, 295)", $tags="emis")
+  Component(r3, "user:{...}", "rooms, 342", "conversation:updated", $tags="emis")
+}
+
+Rel(cli, use, "WebSocket", "via Nginx")
+Rel(use, han, "next() si userId valide", "")
+Rel_L(han, pri, "Promise.all (244-270)", "")
+Rel(han, r1, "io.to(...).emit", "")
+Rel(han, r2, "io.to(...).emit", "")
+Rel(han, r3, "userIds.forEach", "")
+@enduml

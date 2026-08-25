@@ -1,0 +1,23 @@
+@startuml c2b-persistance
+' =============================================================================
+' SkillSwap — C4 niveau 2, vue 2/3 : persistance du backend
+' =============================================================================
+' Couture avec la vue 1/3 : le conteneur backend.
+' =============================================================================
+
+!include style-skillswap.puml
+!include lib/C4_Container.puml
+
+title Conteneurs (C4 niveau 2, vue 2/3) — persistance du backend
+
+System_Boundary(sys, "SkillSwap — pile de production") {
+  Container(back, "backend", "Express + Socket.IO", "Trafic reçu de nginx\n(vue 1/3).")
+  ContainerDb(pg, "postgres", "postgres:16-alpine", "Volume postgres_data.")
+  ContainerDb(meili, "meilisearch", "meilisearch:v1.6", "Volume meilisearch_data.")
+  ContainerDb(vol_av, "avatars_data", "volume Docker", "Avatars téléversés.")
+}
+
+Rel(back, pg, "Requêtes SQL", "TCP/5432")
+Rel(back, meili, "Recherche et réindexation manuelle", "HTTP/7700")
+Rel(back, vol_av, "Écrit et sert /avatars", "montage")
+@enduml

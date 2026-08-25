@@ -1,0 +1,38 @@
+@startuml c2a-entree-routage
+' =============================================================================
+' SkillSwap — C4 niveau 2, vue 1/3 : entrée et routage
+' =============================================================================
+' Voir DECOUPAGE dans TRACABILITE.md : le C2 complet (10 nœuds, 15 relations)
+' mesure 1017 x 1237 px et rend à 5,35 pt sur 160 mm. Découpé en trois vues,
+' chacune tenant le seuil de 9 pt sans réduction supplémentaire.
+' Coutures : nginx (vers 2/3 et 3/3), backend (vers 2/3).
+' =============================================================================
+
+!include style-skillswap.puml
+!include lib/C4_Container.puml
+
+title Conteneurs (C4 niveau 2, vue 1/3) — entrée et routage
+
+Person(visiteur, "Visiteur", "Sans cookie refreshToken.")
+Person(membre, "Membre", "Porteur d'un cookie refreshToken.")
+
+System_Boundary(sys, "SkillSwap — pile de production") {
+  Container(nginx, "nginx", "nginx:alpine", "Seul à publier des ports :\n80 et 443. Terminaison TLS.")
+  Container(front, "frontend", "Next.js standalone", "Rendu des pages.\nAucune route API.")
+  Container(back, "backend", "Express + Socket.IO", "REST /api/v1 + Socket.IO,\nmême port 3000.")
+}
+
+Rel(visiteur, nginx, "Pages publiques", "HTTPS/443")
+Rel(membre, nginx, "Pages + messagerie", "HTTPS/443 + WS")
+Rel(nginx, front, "location / et statiques", "HTTP/3000")
+Rel(nginx, back, "location /api/", "HTTP/3000")
+Rel(nginx, back, "location /socket.io/", "WebSocket/3000")
+' Le conteneur frontend appelle l'API au rendu serveur, en ISR 3600 s :
+'   page.tsx:60 et :82, profil/[id]/page.tsx:64, sitemap.ts:34.
+' L'URL est INTERNAL_API_URL, valant http://backend:3000 en production
+' (devops/.env.prod.example:27), injectée par env_file (compose:37-38).
+' Ce chemin ne passe donc PAS par nginx : c'est le second des deux chemins
+' qui atteignent l'API, l'autre étant celui du navigateur ci-dessus.
+' Il valide au passage le depends_on de compose:41-42.
+Rel(front, back, "Rendu serveur ISR :\nlanding, profils publics, sitemap", "HTTP/3000 interne\nhors Nginx, ISR 3600 s")
+@enduml

@@ -1,0 +1,29 @@
+@startuml c4b-message-send-emission
+' =============================================================================
+' SkillSwap — C4 niveau 4, vue 2/3 : du hook à l'émission Socket.IO
+' =============================================================================
+' Coutures : useMessaging.ts vers la vue 1/3, io.use vers la vue 3/3.
+' Concorde avec la section 8 du dossier — optimistic UI, tempId négatif,
+' useConversationActions.ts:100-118 y est reproduit.
+' =============================================================================
+
+!include style-skillswap.puml
+!include lib/C4_Component.puml
+
+title `message:send` (C4 niveau 4, vue 2/3) — du hook à l'émission
+
+Container(msg, "useMessaging.ts", "vue 1/3", "Orchestrateur.")
+
+Container_Boundary(front, "frontend — hooks et client socket") {
+  Component(act, "useConversationActions.ts", "l. 100-118", "tempId = -Date.now() (104),\naddOptimisticMessage (114),\nsocketSendMessage (115)")
+  Component(sok, "useSocket.ts", "l. 93-100", "emit('message:send',\n{ conversationId, message })")
+  Component(cli, "socket-client.ts", "l. 87-92", "io(SOCKET_URL, withCredentials)")
+}
+
+Container(back, "backend — io.use", "socket.ts:88-122", "Suite en vue 3/3.")
+
+Rel(msg, act, "délègue", "")
+Rel(act, sok, "socketSendMessage(content)", "")
+Rel(sok, cli, "socketRef.current.emit", "")
+Rel(cli, back, "WebSocket, cookie JWT", "via Nginx")
+@enduml

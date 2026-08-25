@@ -5,6 +5,8 @@
 // est en #ref(<sub-secu-transverse>, supplement: [sous-section]) : argon2, JWT, CORS, HTTPS).
 // =============================================================================
 
+#import "../template.typ": code-wrap
+
 = Éléments de sécurité <sec-securite>
 
 Les choix de sécurité transversale (hashing argon2, JWT en cookies #raw("httpOnly", lang: "ts"),
@@ -36,17 +38,17 @@ frontend). Le code complet de ce handshake est reproduit en *annexe B*.
 == Contrôles d'accès appliqués à chaque event
 
 #table(
-  columns: (12em, 1fr, 8em),
+  columns: (12em, 1fr, 6em),
   stroke: 0.5pt + rgb("#d0d7de"),
   inset: 6pt,
   align: (left, left, left),
   [*Contrôle*], [*Effet*], [*Réf. code*],
-  [Auth handshake], [Refus de connexion si JWT manquant ou invalide.], [#raw("socket.ts:88-122", lang: "txt")],
-  [Vérif participant `conversation:join`], [Refus de rejoindre une room conversation si l'utilisateur n'est pas dans `UserHasConversation` pour cette conversation.], [#raw("socket.ts:136-152", lang: "txt")],
-  [Validation bornes message], [Refus si #raw("content", lang: "ts") absent, vide après #raw("trim()", lang: "ts"), ou supérieur à 2000 caractères.], [#raw("socket.ts:167-186", lang: "txt")],
-  [Refus si conversation `Close`], [Aucun message accepté sur une conversation clôturée — le statut est lu en base avant persistance.], [#raw("socket.ts:214-220", lang: "txt")],
-  [Vérif participant `message:send`], [Refus si l'émetteur n'est pas participant de la conversation cible (recheck explicite, indépendant de `conversation:join`).], [#raw("socket.ts:222-230", lang: "txt")],
-  [Cloisonnement par rooms], [Diffusion ciblée — un message émis dans `conversation:42` n'atteint que les sockets ayant rejoint cette room précise. Inscription à la room personnelle à la connexion ; inscription à la room conversation seulement après vérification participant.], [#raw("socket.ts:128, 155", lang: "txt")],
+  [Auth handshake], [Refus de connexion si JWT manquant ou invalide.], [#code-wrap("socket.ts:88-122")],
+  [Vérif participant `conversation:join`], [Refus de rejoindre une room conversation si l'utilisateur n'est pas dans `UserHasConversation` pour cette conversation.], [#code-wrap("socket.ts:136-152")],
+  [Validation bornes message], [Refus si #raw("content", lang: "ts") absent, vide après #raw("trim()", lang: "ts"), ou supérieur à 2000 caractères.], [#code-wrap("socket.ts:167-186")],
+  [Refus si conversation `Close`], [Aucun message accepté sur une conversation clôturée — le statut est lu en base avant persistance.], [#code-wrap("socket.ts:214-220")],
+  [Vérif participant `message:send`], [Refus si l'émetteur n'est pas participant de la conversation cible (recheck explicite, indépendant de `conversation:join`).], [#code-wrap("socket.ts:222-230")],
+  [Cloisonnement par rooms], [Diffusion ciblée — un message émis dans `conversation:42` n'atteint que les sockets ayant rejoint cette room précise. Inscription à la room personnelle à la connexion ; inscription à la room conversation seulement après vérification participant.], [#code-wrap("socket.ts:128, 155")],
 )
 
 // B-008-1 résolu en audit S9 (2026-05-08) : 8 références vérifiées contre

@@ -1,0 +1,36 @@
+@startuml c3a-backend-chaine
+' =============================================================================
+' SkillSwap — C4 niveau 3, vue 1/2 : la chaîne de traitement d'une requête REST
+' =============================================================================
+' Regroupement PAR COUCHE, pas par fichier. Volumes réels, tests exclus.
+' Les nombres portés sur les arêtes sont des nombres d'imports, mesurés par
+' dependency-cruiser 18.1.1 rejoué le 25 août 2026 sur le dépôt d'équipe
+' (72 modules, 169 dépendances, 0 erreur, 5 avertissements).
+' Couture avec la vue 2/2 : la couche Services.
+' Les arcs vers Validation Zod sont posés en Rel_R : sans cette contrainte de
+' direction, Graphviz descend Validation de deux rangs et la figure passe de
+' 1044 à 1150 px de haut, sous le seuil de 9 pt.
+' =============================================================================
+
+!include style-skillswap.puml
+!include lib/C4_Component.puml
+
+title Composants du backend (C4 niveau 3, vue 1/2) — chaîne de traitement REST
+
+Container_Boundary(back, "backend — Express + Socket.IO, un seul processus Node") {
+  Component(app, "Entrée HTTP", "app.ts, 34 l.", "CORS, cookies, /avatars, /api/v1.")
+  Component(rout, "Routers", "9 fichiers, 315 l.", "8 préfixes, 37 routes.")
+  Component(mid, "Middlewares", "5 fichiers, 328 l.", "10 exports : checkAuth, validate,\nisOwner, requireSimpleFollow.")
+  Component(val, "Validation Zod", "5 fichiers, 221 l.", "Schémas d'entrée.")
+  Component(ctrl, "Controllers", "7 fichiers, 497 l.", "Traduit la requête HTTP en appel de service.")
+  Component(srv, "Services", "7 fichiers, 1 744 l.", "Logique métier. Seule couche autorisée\nà appeler Prisma. Suite en vue 2/2.")
+}
+
+Rel(app, rout, "monte /api/v1", "1 import")
+Rel(rout, mid, "applique", "11 imports")
+Rel_R(rout, val, "valide", "5 imports")
+Rel(rout, ctrl, "délègue", "9 imports")
+Rel(ctrl, srv, "appelle", "7 imports")
+Rel_R(ctrl, val, "", "3 imports")
+Rel_R(srv, val, "", "3 imports")
+@enduml

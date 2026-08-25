@@ -1,0 +1,29 @@
+@startuml c4a-message-send-ui
+' =============================================================================
+' SkillSwap — C4 niveau 4, vue 1/3 : de la saisie au hook orchestrateur
+' =============================================================================
+' MESURE QUI IMPOSE LE DÉCOUPAGE. Le chemin message:send en un seul diagramme
+' mesure 942 x 2278 px : à 9 pt il demanderait 213,6 x 516,6 mm, soit plus de
+' deux pages A4 ; en disposition gauche-droite, 4280 px de large (970 mm).
+' Coupé en deux, la seule partie frontend fait encore 497 x 1623 px, soit
+' 368 mm de haut à 9 pt. Il faut donc trois vues. Coutures explicites.
+'
+' Couture avec la vue 2/3 : useMessaging.ts.
+' =============================================================================
+
+!include style-skillswap.puml
+!include lib/C4_Component.puml
+
+title `message:send` (C4 niveau 4, vue 1/3) — de la saisie au hook orchestrateur
+
+Container_Boundary(front, "frontend — composants") {
+  Component(inp, "MessageInput.tsx", "l. 28 et 44", "Entrée ou clic -> onSend().")
+  Component(thr, "MessageThread/index.tsx", "l. 133-136", "handleSend() -> onSendMessage().")
+  Component(pag, "conversation/page.tsx", "l. 62", "onSendMessage={handleSendMessage}")
+  Component(msg, "useMessaging.ts", "l. 108 et 133", "Orchestrateur. Suite en vue 2/3.")
+}
+
+Rel(inp, thr, "onSend()", "")
+Rel(thr, pag, "onSendMessage(content)", "")
+Rel(pag, msg, "handleSendMessage", "")
+@enduml

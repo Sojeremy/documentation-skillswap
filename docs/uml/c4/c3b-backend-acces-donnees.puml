@@ -1,0 +1,46 @@
+@startuml c3b-backend-acces-donnees
+' =============================================================================
+' SkillSwap — C4 niveau 3, vue 2/2 : accès aux données et fuites de couche
+' =============================================================================
+' Cette vue déroge volontairement au regroupement par couche : l'objet du
+' diagramme est de NOMMER les cinq modules qui atteignent le client Prisma
+' hors de la couche service. Ils sont donc représentés un par un, en rouge.
+'
+' Les cinq sont les cinq avertissements de dependency-cruiser 18.1.1, règle
+' `hors-services-vers-persistance`, rejoué le 25 août 2026 sur le dépôt
+' d'équipe : 72 modules, 169 dépendances, 0 erreur, 5 avertissements.
+' Le nombre de requêtes indiqué sous chaque module est le compte des appels
+' `prisma.<modèle>.<opération>` dans le fichier.
+'
+' Couture avec la vue 1/2 : la couche Services.
+' =============================================================================
+
+!include style-skillswap.puml
+!include lib/C4_Component.puml
+
+AddRelTag("fuite", $textColor="#B00020", $lineColor="#B00020")
+AddElementTag("fuite", $bgColor="#8C1D2C", $borderColor="#B00020", $fontColor="#FFFFFF")
+
+title Composants du backend (C4 niveau 3, vue 2/2) — accès aux données\nEn rouge : les cinq modules qui atteignent Prisma hors de la couche service
+
+Container_Boundary(back, "backend") {
+  Component(srv, "Services", "7 fichiers, 1 744 l.", "Chemin autorisé (vue 1/2).")
+  Component(rt, "socket.ts", "realtime/, 446 l.", "8 requêtes", $tags="fuite")
+  Component(cmid, "conv.middleware.ts", "middlewares/, 115 l.", "3 requêtes", $tags="fuite")
+  Component(emid, "error.middleware.ts", "middlewares/, 96 l.", "0 requête (types seuls)", $tags="fuite")
+  Component(map, "member.mapper.ts", "mappers/, 55 l.", "1 requête", $tags="fuite")
+  Component(lib, "auth.ts", "lib/, 45 l.", "1 requête", $tags="fuite")
+  ComponentDb(mod, "index.ts", "models/, 8 l.", "Client Prisma (adapter-pg).")
+}
+
+ContainerDb(pg, "postgres", "postgres:16-alpine", "")
+
+Rel_R(srv, mod, "chemin autorisé", "7 imports")
+Rel(rt, mod, "persiste hors services", "1 import", $tags="fuite")
+Rel(cmid, mod, "gating avant controller", "1 import", $tags="fuite")
+Rel(emid, mod, "namespace Prisma, typage", "1 import", $tags="fuite")
+Rel(map, mod, "projection vers Meilisearch", "1 import", $tags="fuite")
+Rel(lib, mod, "écrit le refresh token", "1 import", $tags="fuite")
+Rel(mod, pg, "requêtes SQL", "TCP/5432")
+
+@enduml

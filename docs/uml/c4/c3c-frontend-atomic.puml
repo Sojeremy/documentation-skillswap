@@ -1,0 +1,41 @@
+@startuml c3c-frontend-atomic
+' =============================================================================
+' SkillSwap — C4 niveau 3, frontend vue 1/2 : la composition de l'interface
+' =============================================================================
+' Comptes réels relevés dans le dépôt d'équipe le 25 août 2026 ; fichiers de
+' test et de story exclus. Les composants ne sont pas listés un par un :
+' chaque niveau porte son nombre de COMPOSANTS et son volume. Les barils
+' `index.ts` sont exclus du décompte, comme dans le dossier (§14.3 : dix-huit
+' atomes, neuf molécules, trente-neuf fichiers d'organismes en cinq ensembles).
+'
+' Constat porté par le diagramme : `components/` contient CINQ répertoires,
+' pas quatre. Aux trois niveaux Atomic Design canoniques présents (atoms,
+' molecules, organisms) s'ajoutent `layouts/` et `providers/`, en gris, qui
+' n'en sont pas. Le niveau `templates/` est absent ; le niveau `pages/` est
+' tenu par les routes de l'App Router, hors de `components/`.
+'
+' Couture avec la vue 2/2 : App Router et organisms/.
+' =============================================================================
+
+!include style-skillswap.puml
+!include lib/C4_Component.puml
+
+AddElementTag("horsad", $bgColor="#57606a", $borderColor="#424a53", $fontColor="#FFFFFF")
+
+title Composants du frontend (C4 niveau 3, vue 1/2) — composition de l'interface
+
+Container_Boundary(front, "frontend — Next.js standalone") {
+  Component(app, "App Router — niveau « pages »", "app/, 13 fichiers, 938 l.", "7 routes, 2 groupes, 1 segment [id],\n4 layouts. Aucune route API.")
+  Component(prov, "providers/", "1 fichier, 166 l.", "AuthProvider.", $tags="horsad")
+  Component(lay, "layouts/", "1 fichier, 33 l.", "MainLayout.", $tags="horsad")
+  Component(orga, "organisms/", "39 composants, 4 973 l.", "5 ensembles : ProfilePage 13,\nConversationPage 9, Header 6,\nSearchPage 5, HomePage 4, racine 2.")
+  Component(mol, "molecules/", "9 composants, 663 l.", "Items composés réutilisables.")
+  Component(atom, "atoms/", "18 composants, 1 891 l.", "Button, Input, Dialog, Form…\nissus de shadcn/ui.")
+}
+
+Rel(app, prov, "enveloppe", "")
+Rel(app, lay, "enveloppe", "")
+Rel(app, orga, "compose", "")
+Rel(orga, mol, "compose", "")
+Rel(mol, atom, "compose", "")
+@enduml

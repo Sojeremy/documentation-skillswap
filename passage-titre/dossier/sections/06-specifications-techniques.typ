@@ -80,7 +80,7 @@ dossier#footnote[Les dix ADRs du projet — #raw("001-nextjs.md", lang: "txt") �
 //   n'y est PAS un étage — il n'apparaît que dans l'encart « Statut
 //   d'implémentation ». 7 fichiers *.spec.test.ts confirmés côté backend.
 
-== Patterns transversaux
+== Patterns transversaux <sub-patterns>
 
 Le code est structuré selon trois patterns récurrents qui assurent
 homogénéité et testabilité.
@@ -99,14 +99,21 @@ Le sens des dépendances a été vérifié mécaniquement avec
 analysés : aucun #emph[controller] ni
 #emph[router] n'importe Prisma, et aucun service ne dépend de la couche
 présentation — zéro violation. Cinq modules font néanmoins exception en
-accédant au client Prisma hors de la couche service :
-#raw("realtime/socket.ts", lang: "txt") (persistance des messages temps réel sans
-repasser par les services REST), #raw("middlewares/conv.middleware.ts", lang: "txt")
-(la vérification du lien de suivi précède le controller),
-#raw("middlewares/error.middleware.ts", lang: "txt") (import de types seul, aucune
-requête), #raw("mappers/member.mapper.ts", lang: "txt") (projection vers
-Meilisearch) et #raw("lib/auth.ts", lang: "txt") (écriture du refresh token à
-l'émission). Ces cinq points sont la dette d'architecture identifiée du backend.
+accédant au client Prisma hors de la couche service. Le nombre d'appels
+#raw("prisma.<modèle>.<opération>", lang: "ts") que chacun émet mesure l'ampleur
+réelle de l'écart : #raw("realtime/socket.ts", lang: "txt") — *8 requêtes*,
+persistance des messages temps réel sans repasser par les services REST ;
+#raw("middlewares/conv.middleware.ts", lang: "txt") — *3 requêtes*, la
+vérification du lien de suivi précède le controller ;
+#raw("mappers/member.mapper.ts", lang: "txt") — *1 requête*, projection vers
+Meilisearch ; #raw("lib/auth.ts", lang: "txt") — *1 requête*, écriture du refresh
+token à l'émission. Le cinquième,
+#raw("middlewares/error.middleware.ts", lang: "txt"), en émet *zéro* : il importe
+le namespace #raw("Prisma", lang: "ts") — majuscule initiale, les types générés —
+et non l'instance #raw("prisma", lang: "ts") du client. La règle de dépendance le
+signale au même titre que les autres, mais aucune requête ne part de ce fichier.
+Ces cinq points sont la dette d'architecture identifiée du backend ; leur
+cartographie est en #ref(<fig-c3-backend-donnees>).
 
 *Atomic Design côté frontend.* Les composants sont rangés en quatre
 niveaux — atoms (boutons, inputs, badges issus de shadcn/ui), molécules
@@ -114,6 +121,38 @@ niveaux — atoms (boutons, inputs, badges issus de shadcn/ui), molécules
 (routes Next.js). Le périmètre messagerie illustre cette discipline :
 neuf organismes dans `ConversationPage/` composent les molécules
 `MessageBubble`, `ConversationItem` et les atoms `Button` / `Input`.
+
+Le compte mérite d'être posé, car #raw("components/", lang: "txt") contient
+*cinq répertoires* alors que l'énumération ci-dessus n'annonce que quatre
+niveaux — et les deux nombres sont justes.
+
+Trois des quatre niveaux sont bien des répertoires de
+#raw("components/", lang: "txt") : #raw("atoms/", lang: "txt"),
+#raw("molecules/", lang: "txt") et #raw("organisms/", lang: "txt"). Le
+quatrième, les *pages*, n'est pas dans
+#raw("components/", lang: "txt") : il est tenu par les routes de l'App Router,
+dans #raw("app/", lang: "txt"). Les deux répertoires restants,
+#raw("layouts/", lang: "txt") et #raw("providers/", lang: "txt") — un fichier
+chacun, #raw("MainLayout.tsx", lang: "ts") et
+#raw("AuthProvider.tsx", lang: "ts") — *ne sont pas des niveaux Atomic Design* ;
+ce sont des utilitaires de composition rangés au même endroit. Enfin, le niveau
+#emph[templates] de la nomenclature d'origine *est absent* du projet : aucun
+répertoire, aucun fichier.
+
+Soit : 3 niveaux dans #raw("components/", lang: "txt") + 1 hors de
+#raw("components/", lang: "txt") = les 4 niveaux ; et 3 niveaux + 2 répertoires
+hors nomenclature = les 5 répertoires. Ces deux derniers sont portés en gris sur
+la figure ci-après, précisément pour qu'on ne les compte pas comme des niveaux.
+
+#figure(
+  image("../../../docs/uml/c4/c3c-frontend-atomic.svg", height: 228mm),
+  caption: [*C4 niveau 3, frontend vue 1/2 — composition de l'interface.* Chaque niveau porte son nombre de composants, barils #raw("index.ts", lang: "txt") exclus, selon la même convention de comptage que le #ref(<sec-lexique>, supplement: [lexique]). En gris, les deux répertoires de #raw("components/", lang: "txt") qui ne sont pas des niveaux Atomic Design. Couture : l'App Router et les organismes sont repris en #ref(<fig-c3-front-donnees>).],
+) <fig-c3-front-atomic>
+
+#figure(
+  image("../../../docs/uml/c4/c3d-frontend-donnees.svg", height: 234mm),
+  caption: [*C4 niveau 3, frontend vue 2/2 — garde de routes et chemins de données.* Les deux chemins d'accès à l'API établis au niveau conteneurs : le code client passe par Nginx en HTTPS, le conteneur frontend appelle le backend directement sur le réseau Docker interne pour le rendu serveur ISR.],
+) <fig-c3-front-donnees>
 
 *Type-safety end-to-end.* Les types TypeScript se propagent de la base
 de données (générés par Prisma) jusqu'à l'UI (consommés par les hooks

@@ -1,0 +1,28 @@
+@startuml c2c-chaine-tls
+' =============================================================================
+' SkillSwap — C4 niveau 2, vue 3/3 : chaîne de renouvellement TLS
+' =============================================================================
+' Couture avec la vue 1/3 : le conteneur nginx.
+' =============================================================================
+
+!include style-skillswap.puml
+!include lib/C4_Container.puml
+
+title Conteneurs (C4 niveau 2, vue 3/3) — chaîne de renouvellement TLS
+
+System_Ext(letsencrypt, "Let's Encrypt", "Autorité de certification.")
+
+System_Boundary(sys, "SkillSwap — pile de production") {
+  Container(nginx, "nginx", "nginx:alpine", "Terminaison TLS\n(vue 1/3).")
+  Container(certbot, "certbot", "certbot/certbot", "certbot renew\ntoutes les 12 h.")
+  ContainerDb(vol_cw, "certbot_www", "volume Docker", "Challenge ACME.")
+  ContainerDb(vol_cc, "certbot_conf", "volume Docker", "fullchain.pem\nprivkey.pem")
+}
+
+Rel(certbot, letsencrypt, "certbot renew", "ACME sur HTTPS/443")
+Rel(letsencrypt, nginx, "Vérifie le domaine", "HTTP/80")
+Rel(certbot, vol_cw, "Dépose le challenge", "rw")
+Rel(nginx, vol_cw, "Sert le challenge", "ro")
+Rel(certbot, vol_cc, "Écrit le certificat", "rw")
+Rel(nginx, vol_cc, "Lit le certificat", "ro")
+@enduml

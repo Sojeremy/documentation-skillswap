@@ -1,0 +1,38 @@
+@startuml c3d-frontend-donnees
+' =============================================================================
+' SkillSwap — C4 niveau 3, frontend vue 2/2 : garde de routes et données
+' =============================================================================
+' Les deux chemins vers l'API sont ceux établis au niveau C2 : le code client
+' passe par Nginx, le conteneur frontend appelle le backend directement.
+'   - garde de routes      : frontend/src/middleware.ts:6, :9, :15-16, :27-37
+'   - rendu serveur ISR    : app/page.tsx:60 et :82,
+'                            app/(app)/profil/[id]/page.tsx:64,
+'                            app/sitemap.ts:34
+'     URL = INTERNAL_API_URL (page.tsx:27-30), valant http://backend:3000
+'     en production (devops/.env.prod.example:27)
+'
+' Couture avec la vue 1/2 : App Router et organisms/.
+' =============================================================================
+
+!include style-skillswap.puml
+!include lib/C4_Component.puml
+
+title Frontend (C4 niveau 3, vue 2/2) — garde de routes et chemins de données
+
+Container_Boundary(front, "frontend — Next.js standalone") {
+  Component(mid, "middleware.ts", "54 l.", "3 routes protégées, 2 d'auth.\nLit le cookie refreshToken.")
+  Component(app, "App Router", "13 fichiers, 938 l.", "6 Server Components,\n5 Client Components.")
+  Component(orga, "organisms/", "39 composants, 4 973 l.", "Consomment les hooks (vue 1/2).")
+  Component(hooks, "hooks/", "21 hooks, 2 073 l.", "hors barils index.ts.")
+  Component(lib, "lib/", "10 fichiers, 1 193 l.", "api-client, socket-client, 4 Zod.")
+}
+
+Container(back, "backend", "Express + Socket.IO", "")
+
+Rel_R(mid, app, "protège\nou redirige", "avant rendu")
+Rel(app, orga, "compose", "")
+Rel(orga, hooks, "consomme", "")
+Rel(hooks, lib, "appelle", "")
+Rel(lib, back, "depuis le navigateur,\nvia Nginx", "HTTPS/443")
+Rel(app, back, "rendu serveur ISR,\nhors Nginx", "HTTP/3000")
+@enduml

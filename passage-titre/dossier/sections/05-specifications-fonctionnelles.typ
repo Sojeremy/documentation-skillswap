@@ -11,6 +11,8 @@
 //   5.7 Diagramme de séquence du cas le plus significatif
 // =============================================================================
 
+#import "../template.typ": code-wrap
+
 = Spécifications fonctionnelles <sec-specs-fonc>
 
 La présente section décline les choix fonctionnels du projet et leur
@@ -52,7 +54,7 @@ L'apothéose impose une chaîne complète de livrables, depuis la conception
 jusqu'à la mise en production effective :
 
 #table(
-  columns: (8em, 1fr, 5em),
+  columns: (9em, 1fr, 5em),
   stroke: 0.5pt + rgb("#d0d7de"),
   inset: 6pt,
   align: (left, left, center),
@@ -69,55 +71,110 @@ jusqu'à la mise en production effective :
 
 L'architecture retenue est celle d'un *monolithe modulaire conteneurisé* :
 les responsabilités sont strictement séparées entre frontend et backend
-(deux applications distinctes, deux conteneurs Docker, deux processus de
+(deux applications distinctes, deux images Docker, deux processus de
 build), mais le backend reste un seul processus Node.js qui sert à la fois
 les routes REST et le serveur Socket.IO. Cette approche évite la complexité
 opérationnelle des microservices tout en autorisant un découpage clair des
-concerns.
+concerns. La pile de production en compte six au total
+(#ref(<fig-c4-entree>) à #ref(<fig-c4-tls>)) ; les deux images applicatives
+en sont le coeur.
+
+L'index Meilisearch est alimenté par une réindexation lancée manuellement
+(script #raw("search:reindex", lang: "txt")) : il n'y a pas de réindexation
+automatique au démarrage du serveur.
 
 #figure(
-  image("../../../docs/uml/architecture/architecture.png", width: 95%),
-  caption: [Architecture logicielle macro de SkillSwap. Le proxy Nginx assure la terminaison TLS et le routage des requêtes vers le frontend Next.js et l'API Express. Le serveur Express héberge à la fois les routes REST (`/api/v1/*`) et le serveur Socket.IO (sur le même port). PostgreSQL persiste les données relationnelles ; Meilisearch sert l'index de recherche full-text, alimenté par une réindexation lancée manuellement (script #raw("search:reindex", lang: "txt")) — il n'y a pas de réindexation automatique au démarrage du serveur.],
-)
+  image("../../../docs/uml/c4/c1-contexte.svg", height: 231mm),
+  caption: [*C4 niveau 1 — diagramme de contexte.* Le système vu de l'extérieur : deux acteurs, distingués par la seule présence du cookie #raw("refreshToken", lang: "ts") (#raw("frontend/src/middleware.ts:15-16", lang: "txt")), et un unique système tiers, Let's Encrypt. Le détail interne est réparti sur les trois vues du niveau C2 qui suivent.],
+) <fig-c4-contexte>
 
-#block(
-  fill: rgb("#FDF2F4"),
+#figure(
+  image("../../../docs/uml/c4/c2a-entree-routage.svg", height: 232mm),
+  caption: [*C4 niveau 2, vue 1/3 — entrée et routage.* Le chemin d'une requête depuis le navigateur. Nginx est le seul conteneur à publier des ports ; le frontend et le backend ne sont joignables que depuis le réseau Compose. Coutures : le conteneur #emph[backend] est repris en #ref(<fig-c4-persistance>), le conteneur #emph[nginx] en #ref(<fig-c4-tls>).],
+) <fig-c4-entree>
+
+#page(flipped: true)[
+  #figure(
+    image("../../../docs/uml/c4/c2b-persistance.svg", height: 155mm),
+    caption: [*C4 niveau 2, vue 2/3 — persistance du backend.* Couture avec #ref(<fig-c4-entree>) : le conteneur #emph[backend], qui y reçoit le trafic de Nginx. Chaque arête porte son protocole et son port réels.],
+  ) <fig-c4-persistance>
+]
+
+#page(flipped: true)[
+  #figure(
+    image("../../../docs/uml/c4/c2c-chaine-tls.svg", height: 155mm),
+    caption: [*C4 niveau 2, vue 3/3 — chaîne de renouvellement TLS.* Couture avec #ref(<fig-c4-entree>) : le conteneur #emph[nginx], qui assure la terminaison TLS. Les deux volumes #emph[certbot] sont montés deux fois — en écriture côté certbot, en lecture seule côté nginx.],
+  ) <fig-c4-tls>
+]
+
+#figure(
+  image("../../../docs/uml/c4/c3a-backend-chaine.svg", height: 233mm),
+  caption: [*C4 niveau 3, backend vue 1/2 — chaîne de traitement d'une requête REST.* Regroupement par couche, non par fichier. Les nombres portés sur les arêtes sont des nombres d'imports, mesurés et non estimés. Couture : la couche #emph[Services] est reprise en #ref(<fig-c3-backend-donnees>).],
+) <fig-c3-backend-chaine>
+
+#page(flipped: true)[
+  #figure(
+    image("../../../docs/uml/c4/c3b-backend-acces-donnees.svg", width: 241mm),
+    caption: [*C4 niveau 3, backend vue 2/2 — accès aux données.* En rouge, les cinq modules atteignant Prisma hors de la couche service, avec leur nombre de requêtes. Analyse #raw("dependency-cruiser", lang: "txt") sur *72 modules et 169 dépendances*, *zéro violation* des quatre règles de sens de dépendance. Détail en #ref(<sub-patterns>, supplement: [sous-section]).],
+  ) <fig-c3-backend-donnees>
+]
+
+Les figures de conception de cette section ont été reconstruites en août 2026
+à partir du code livré et de la base de données, selon une démarche
+déterministe : chaque élément représenté est adossé à un fichier source, une
+route ou une entrée du catalogue PostgreSQL. Les artefacts d'origine produits
+en sprint 0 sont conservés dans le dépôt d'équipe
+(#raw("docs/uml/", lang: "txt")).
+
+=== Écarts relevés lors de la reconstruction <sub-ecarts-c4>
+
+La reconstruction a été confrontée à la figure d'architecture d'origine, en
+comparant non pas deux fichiers source mais la source PlantUML *embarquée dans
+le PNG livré* — donc le texte qui a réellement produit l'image. Onze écarts de
+fait en ressortent, dont quatre structurants, reproduits ci-dessous. Le relevé
+complet, élément par élément et relation par relation, est dans
+#raw("docs/uml/c4/TRACABILITE.md", lang: "txt").
+
+#table(
+  columns: (9em, 1fr, 1fr),
   stroke: 0.5pt + rgb("#d0d7de"),
-  inset: 8pt,
-  radius: 2pt,
-  width: 100%,
-  breakable: false,
-)[
-  *Provenance des figures UML.* Les diagrammes de cette section relèvent de
-  trois filiations distinctes.
+  inset: 6pt,
+  align: (left, left, left),
+  [*Écart*], [*Ce que montrait la figure*], [*Ce que montre le code*],
 
-  Trois figures — architecture, parcours utilisateur et cas d'utilisation —
-  dérivent des sources PlantUML produites par l'équipe pendant le projet
-  (#raw("docs/uml/**.puml", lang: "txt")), reprises dans mon dépôt de
-  documentation, puis amendées et regénérées pour ce dossier. Les écarts avec
-  les sources d'équipe vont de 9 % (cas d'utilisation) à 38 % (parcours
-  utilisateur). Deux d'entre elles portent un autre nom dans le livrable :
-  #raw("diagramme-architecture.png", lang: "txt") et
-  #raw("use-case.png", lang: "txt").
+  [Canal temps réel],
+  [Une liaison WebSocket directe entre le module de chat du frontend et le serveur Socket.IO, hors du proxy.],
+  [Tout le WebSocket transite par Nginx : #code-wrap("nginx/prod.conf:85-94") route #raw("/socket.io/", lang: "txt") vers l'upstream #raw("backend:3000", lang: "txt"). Le backend ne publie aucun port — #code-wrap("docker-compose.prod.yml:9-10") déclare #raw("expose", lang: "txt") et non #raw("ports", lang: "txt") : il est injoignable depuis l'extérieur.],
 
-  Une figure — #raw("arborescence.png", lang: "txt") — est reprise telle
-  quelle du livrable d'équipe, identique bit à bit.
+  [Terminaison TLS],
+  [Aucune. Ni HTTPS, ni port, ni certificat n'apparaissent sur la figure.],
+  [#code-wrap("nginx/prod.conf:33") — #raw("listen 443 ssl http2", lang: "txt") ; certificats en #code-wrap("prod.conf:37-38") ; redirection 80 vers 443 en #code-wrap("prod.conf:26-28") ; ports publiés #raw("80:80", lang: "txt") et #raw("443:443", lang: "txt") en #code-wrap("docker-compose.prod.yml:85-87").],
 
-  Deux artefacts ont été produits en août 2026 pour ce dossier : le diagramme
-  entité-relation et ses cinq sous-modèles d'annexe G, dérivés du catalogue
-  PostgreSQL de la base montée depuis les six migrations ; et le diagramme de
-  séquence de l'envoi d'un message (#ref(<fig-sequence-envoi-6>) et
-  #ref(<fig-sequence-envoi-8>)), décalqué du handler
-  #raw("message:send", lang: "ts")
-  (#raw("realtime/socket.ts:167-347", lang: "txt")). Ce dernier ne figure pas
-  dans le livrable d'équipe : le fichier
-  #raw("docs/uml/sequence/conversation.puml", lang: "txt") y existe mais
-  documente un autre flux, le chargement REST de la page de messagerie.
-] <note-figures-uml>
+  [Limitation de débit],
+  [Le composant de passerelle porte la mention « Rate limiting » parmi ses responsabilités.],
+  [Aucune directive de limitation dans la configuration : #raw("grep -nE \"limit_req|limit_conn|limit_rate\"", lang: "txt") sur #code-wrap("devops/nginx/prod.conf") ne retourne aucun résultat.],
+
+  [Statut de #raw("/profil", lang: "txt")],
+  [La page de profil est placée derrière un composant #raw("[Private]", lang: "txt"), donc réservée aux membres connectés.],
+  [La route est publique, et délibérément : #code-wrap("frontend/src/middleware.ts:6") ne protège que #raw("/recherche", lang: "txt"), #raw("/conversation", lang: "txt") et #raw("/mon-profil", lang: "txt") ; la ligne 5 documente le choix — « #raw("/profil", lang: "txt") est PUBLIC pour le SEO ».],
+)
 
 === Communications inter-composants
 
-Le frontend communique avec le backend via deux canaux complémentaires :
+Deux chemins distincts atteignent l'API. Le code client exécuté dans le
+navigateur appelle #raw("/api/v1/*", lang: "txt") et
+#raw("/socket.io/", lang: "txt") en HTTPS à travers le reverse proxy Nginx,
+seul composant de la pile à publier des ports. Le conteneur frontend, lui,
+appelle directement #raw("http://backend:3000", lang: "txt") sur le réseau
+Docker interne, hors proxy, pour le rendu serveur ISR de la page d'accueil,
+des profils publics et du sitemap (#raw("page.tsx:60", lang: "txt") et
+#raw(":82", lang: "txt"), #raw("profil/[id]/page.tsx:64", lang: "txt"),
+#raw("sitemap.ts:34", lang: "txt")). Le backend ne publiant aucun port
+(#raw("docker-compose.prod.yml:9-10", lang: "txt") déclare #raw("expose", lang: "txt")
+et non #raw("ports", lang: "txt")), ce second chemin n'est joignable que depuis
+l'intérieur du réseau Compose.
+
+Sur l'un comme sur l'autre, deux canaux complémentaires coexistent :
 *REST* (`/api/v1/*`) pour les requêtes synchrones (authentification, CRUD,
 listing initial des messages) et *WebSocket* via Socket.IO sur le même
 serveur HTTP pour les flux temps réel (envoi/réception de messages,
@@ -135,7 +192,7 @@ hiérarchie des écrans et les principaux états interactifs.
 === Arborescence de l'application
 
 #figure(
-  image("../../../docs/uml/user/arborescence.png", width: 90%),
+  image("../../../docs/uml/user/arborescence.png", width: 82%),
   caption: [Arborescence des écrans publics et privés de SkillSwap. La racine `/` présente la page d'accueil (catégories, membres mieux notés). Les écrans en zone publique (consultation profil, page CGU, mentions légales) sont accessibles sans authentification ; les écrans en zone privée (édition profil, recherche, conversations) nécessitent une session valide.],
 )
 
@@ -227,17 +284,17 @@ chacune représentant une étape datée de la conception. La traçabilité
 SQL de cette évolution est intégrale et auditable.
 
 #table(
-  columns: (auto, auto, 1fr),
+  columns: (auto, 7em, 1fr),
   stroke: 0.5pt + rgb("#d0d7de"),
   inset: 6pt,
   align: (left, left, left),
   [*Date*], [*Migration*], [*Objet*],
-  [2026-01-12], [#raw("init_db", lang: "txt")], [Création initiale du schéma : 13 tables, contraintes de clés étrangères, index primaires, enums #raw("RoleOfUser", lang: "sql"), #raw("StatusOfConversation", lang: "sql") et #raw("dayInAWeek", lang: "sql").],
-  [2026-01-14], [#raw("add_category_slug", lang: "txt")], [Ajout du champ #raw("slug", lang: "sql") sur #raw("Category", lang: "sql") pour les URLs SEO-friendly des pages catégorie.],
-  [2026-01-16], [#raw("create_relation_table_user_available", lang: "txt")], [Refonte du modèle de disponibilités : suppression des colonnes #raw("start", lang: "sql") / #raw("end", lang: "sql") / #raw("user_id", lang: "sql") de #raw("available", lang: "sql"), introduction de l'enum #raw("Time", lang: "sql") (#raw("Morning", lang: "sql") / #raw("Afternoon", lang: "sql")) et création de la table de jonction N-N #raw("user_has_available", lang: "sql").],
-  [2026-01-17], [#raw("fix_snake_case", lang: "txt")], [Renommage de la colonne #raw("avatarUrl", lang: "sql") → #raw("avatar_url", lang: "sql") sur la table #raw("user", lang: "sql") (réalignement camelCase → snake_case oublié à la migration initiale).],
-  [2026-01-18], [#raw("add_unique_constrain", lang: "txt")], [Ajout de contraintes d'unicité manquantes (#raw("follow", lang: "sql") sur #raw("(followed_id, follower_id)", lang: "ts"), #raw("evaluation", lang: "sql") sur #raw("(evaluator_id, evaluated_id)", lang: "ts")).],
-  [2026-01-20], [#raw("make_the_comment_field_in_the_rating_table_optional", lang: "txt")], [Passage du champ #raw("comments", lang: "sql") de #raw("evaluation", lang: "sql") en facultatif (UX : l'évaluateur peut donner une note sans être obligé de commenter).],
+  [2026-01-12], [#code-wrap("init_db")], [Création initiale du schéma : 13 tables, contraintes de clés étrangères, index primaires, enums #raw("RoleOfUser", lang: "sql"), #raw("StatusOfConversation", lang: "sql") et #raw("dayInAWeek", lang: "sql").],
+  [2026-01-14], [#code-wrap("add_category_slug")], [Ajout du champ #raw("slug", lang: "sql") sur #raw("Category", lang: "sql") pour les URLs SEO-friendly des pages catégorie.],
+  [2026-01-16], [#code-wrap("create_relation_table_user_available")], [Refonte du modèle de disponibilités : suppression des colonnes #raw("start", lang: "sql") / #raw("end", lang: "sql") / #raw("user_id", lang: "sql") de #raw("available", lang: "sql"), introduction de l'enum #raw("Time", lang: "sql") (#raw("Morning", lang: "sql") / #raw("Afternoon", lang: "sql")) et création de la table de jonction N-N #raw("user_has_available", lang: "sql").],
+  [2026-01-17], [#code-wrap("fix_snake_case")], [Renommage de la colonne #raw("avatarUrl", lang: "sql") → #raw("avatar_url", lang: "sql") sur la table #raw("user", lang: "sql") (réalignement camelCase → snake_case oublié à la migration initiale).],
+  [2026-01-18], [#code-wrap("add_unique_constrain")], [Ajout de contraintes d'unicité manquantes (#raw("follow", lang: "sql") sur #raw("(followed_id, follower_id)", lang: "ts"), #raw("evaluation", lang: "sql") sur #raw("(evaluator_id, evaluated_id)", lang: "ts")).],
+  [2026-01-20], [#code-wrap("make_the_comment_field_in_the_rating_table_optional")], [Passage du champ #raw("comments", lang: "sql") de #raw("evaluation", lang: "sql") en facultatif (UX : l'évaluateur peut donner une note sans être obligé de commenter).],
 )
 
 L'extrait ci-dessous est issu du schéma physique réel, obtenu par

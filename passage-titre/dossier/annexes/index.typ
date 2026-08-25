@@ -130,7 +130,7 @@ CREATE UNIQUE INDEX "follow_followed_id_follower_id_key"
     ON "follow"("followed_id", "follower_id");
 ```
 
-== Annexe B — Handler Socket.IO `message:send` (code complet)
+== Annexe B — Handler Socket.IO `message:send` (code complet) <annexe-b>
 
 Reproduction *verbatim* de #raw("backend/src/realtime/socket.ts:167-347", lang: "txt")
 (dépôt d'équipe, branche #raw("main", lang: "txt")) — handler complet de l'envoi
@@ -714,3 +714,32 @@ constituent une *extension post-projet, hors périmètre du livrable d'équipe* 
 - *Documentation technique Arc42* : #link("https://skillswap-docs.vercel.app")[skillswap-docs.vercel.app]
 - *Guide utilisateur (Diátaxis)* : #link("https://skillswap-guide.vercel.app")[skillswap-guide.vercel.app]
 - *Repo GitHub doc* : #link("https://github.com/Sojeremy/documentation-skillswap")[Sojeremy/documentation-skillswap]
+
+== Annexe H — Chemin d'exécution de `message:send` <annexe-h>
+
+L'annexe B reproduit le code du handler serveur ; la présente annexe en donne
+la contrepartie graphique, et l'étend au chemin complet — de la frappe de
+l'utilisateur jusqu'à l'écriture en base et aux trois diffusions. Chaque nœud
+porte son fichier et ses lignes, chaque arête l'appel exact. Aucun élément n'y
+figure qui ne soit pas dans le code du livrable d'équipe.
+
+Le chemin traverse *dix étages successifs*. Rendu d'un seul tenant, le
+diagramme mesurerait 213 × 517 mm — plus de deux pages A4 — pour rester lisible.
+Il est donc découpé en trois vues, avec coutures nommées : la vue 1/3 se
+raccorde à la 2/3 par #raw("useMessaging.ts", lang: "ts"), la 2/3 à la 3/3 par
+#raw("socket-client.ts", lang: "ts").
+
+#figure(
+  image("../../../docs/uml/c4/c4a-message-send-ui.svg", height: 211mm),
+  caption: [*Vue 1/3 — de la saisie au hook orchestrateur.* Quatre fichiers, de l'événement d'interface jusqu'à la façade #raw("useMessaging", lang: "ts"). Couture avec la vue suivante : #raw("useMessaging.ts", lang: "ts").],
+) <fig-c4-ui>
+
+#figure(
+  image("../../../docs/uml/c4/c4b-message-send-emission.svg", height: 242mm),
+  caption: [*Vue 2/3 — du hook à l'émission Socket.IO.* Le message optimiste est posé avec un #raw("tempId", lang: "ts") négatif avant l'émission. Couture suivante : #raw("socket-client.ts", lang: "ts").],
+) <fig-c4-emission>
+
+#figure(
+  image("../../../docs/uml/c4/c4c-message-send-serveur.svg", height: 223mm),
+  caption: [*Vue 3/3 — handshake, persistance et diffusions.* Le handler, reproduit verbatim en #ref(<annexe-b>), applique cinq gardes successives puis deux #raw("Promise.all", lang: "ts"). En vert, les trois émissions : #raw("message:new", lang: "ts") vers la room de conversation, #raw("conversation:new", lang: "ts") vers le seul destinataire et uniquement au premier message, #raw("conversation:updated", lang: "ts") vers les rooms personnelles des deux participants.],
+) <fig-c4-serveur>
