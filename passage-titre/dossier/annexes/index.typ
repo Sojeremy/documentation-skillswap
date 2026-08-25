@@ -637,27 +637,72 @@ export function MessageInput({
 Le plan de tests est détaillé en #ref(<sec-plan-tests>, supplement: [section]) ; les jeux d'essai de
 la fonctionnalité représentative figurent en #ref(<sec-jeu-essai>, supplement: [section]).
 
-== Annexe F — Maquettes Figma de la messagerie
+== Annexe F — Maquettes Figma des écrans principaux
 
-// TODO : 4-6 captures Figma (ou wireframes) du périmètre messagerie. À
-// exporter manuellement depuis Figma. Placeholders rect en attendant.
+Maquettes produites sous Figma pendant le sprint 0, le 8 janvier 2026, avant
+toute implémentation. Archivées sur le Drive d'équipe, elles ont été versées au
+dépôt d'équipe le 9 mai 2026 sur la branche
+#raw("presentation-seb", lang: "txt"), jamais mergée sur
+#raw("main", lang: "txt"). Elles sont reproduites à l'échelle de l'écran conçu :
+elles documentent la composition, la hiérarchie visuelle et le parcours retenus
+avant développement, non le détail des libellés.
 
-#grid(
-  columns: (1fr, 1fr),
-  gutter: 8pt,
-  rect(width: 100%, height: 6cm, fill: rgb("#f6f8fa"), stroke: 0.5pt + rgb("#d0d7de"))[
-    #align(center + horizon)[#text(fill: rgb("#57606a"), size: 9pt)[Maquette : Liste conversations]]
-  ],
-  rect(width: 100%, height: 6cm, fill: rgb("#f6f8fa"), stroke: 0.5pt + rgb("#d0d7de"))[
-    #align(center + horizon)[#text(fill: rgb("#57606a"), size: 9pt)[Maquette : Thread ouvert]]
-  ],
-  rect(width: 100%, height: 6cm, fill: rgb("#f6f8fa"), stroke: 0.5pt + rgb("#d0d7de"))[
-    #align(center + horizon)[#text(fill: rgb("#57606a"), size: 9pt)[Maquette : Création conversation]]
-  ],
-  rect(width: 100%, height: 6cm, fill: rgb("#f6f8fa"), stroke: 0.5pt + rgb("#d0d7de"))[
-    #align(center + horizon)[#text(fill: rgb("#57606a"), size: 9pt)[Maquette : Évaluation post-clôture]]
-  ],
-)
+#figure(
+  image("../assets/captures-ui/F1-maquette-accueil.png", width: 85%),
+  caption: [Maquette Figma — page d'accueil.],
+) <fig-maquette-accueil>
+
+#figure(
+  image("../assets/captures-ui/F2-maquette-profil.png", width: 100%),
+  caption: [Maquette Figma — profil public d'un membre.],
+) <fig-maquette-profil>
+
+#figure(
+  image("../assets/captures-ui/F3-maquette-recherche.png", width: 100%),
+  caption: [Maquette Figma — page de recherche.],
+) <fig-maquette-recherche>
+
+#figure(
+  image("../assets/captures-ui/F4-maquette-messagerie.png", width: 100%),
+  caption: [Maquette Figma — messagerie.],
+) <fig-maquette-messagerie>
+
+== Annexe G — Modèle de données détaillé par domaine <annexe-g>
+
+Les cinq figures ci-dessous détaillent, colonnes complètes, les cinq domaines
+fonctionnels présentés en #ref(<sec-specs-fonc>, supplement: [section]).
+Elles sont dérivées du catalogue PostgreSQL de la base montée depuis les six
+migrations réelles, et non du code applicatif ; un contrôle automatisé a vérifié
+la concordance de *quatorze tables, soixante-dix-huit colonnes et dix-huit clés
+étrangères* — nom, type, nullabilité et ordre des colonnes. La table
+#raw("user", lang: "sql"), commune à quatre domaines, n'est détaillée qu'une
+fois, en #ref(<fig-erd-identite>) ; elle figure ailleurs en encart grisé
+#raw("«externe»", lang: "txt") réduit à sa clé primaire.
+
+#figure(
+  image("../../../docs/uml/erd/erd-01-identite.svg", width: 90%),
+  caption: [Domaine Identité — #raw("role", lang: "sql"), #raw("user", lang: "sql") et #raw("refresh_token", lang: "sql").],
+) <fig-erd-identite>
+
+#figure(
+  image("../../../docs/uml/erd/erd-02-competences.svg", width: 100%),
+  caption: [Domaine Compétences — #raw("category", lang: "sql"), #raw("skill", lang: "sql"), #raw("user_has_skill", lang: "sql") et #raw("user_has_interest", lang: "sql").],
+) <fig-erd-competences>
+
+#figure(
+  image("../../../docs/uml/erd/erd-03-disponibilites.svg", width: 100%),
+  caption: [Domaine Disponibilités — #raw("available", lang: "sql") et #raw("user_has_available", lang: "sql").],
+) <fig-erd-disponibilites>
+
+#figure(
+  image("../../../docs/uml/erd/erd-04-echange.svg", width: 100%),
+  caption: [Domaine Échange — #raw("conversation", lang: "sql"), #raw("user_has_conversation", lang: "sql") et #raw("message", lang: "sql").],
+) <fig-erd-echange>
+
+#figure(
+  image("../../../docs/uml/erd/erd-05-social.svg", width: 100%),
+  caption: [Domaine Social — #raw("follow", lang: "sql") et #raw("evaluation", lang: "sql"), nom physique du modèle Prisma #raw("Rating", lang: "sql").],
+) <fig-erd-social>
 
 == Liens utiles
 

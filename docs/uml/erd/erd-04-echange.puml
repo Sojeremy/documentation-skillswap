@@ -1,0 +1,73 @@
+@startuml erd-04-echange
+title ERD SkillSwap — domaine Échange
+skinparam dpi 192
+skinparam defaultFontName "DejaVu Sans"
+skinparam defaultFontSize 16
+skinparam classFontSize 16
+skinparam classAttributeFontSize 16
+skinparam titleFontSize 18
+skinparam legendFontSize 16
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam nodesep 30
+skinparam ranksep 100
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #24292f
+  ArrowColor #24292f
+}
+skinparam class<<externe>> {
+  BackgroundColor #F0F3F6
+  BorderColor #8c959f
+}
+hide circle
+hide empty methods
+
+entity "user" as user <<externe>> {
+  *id : integer <<PK>>
+  --
+  .. voir figure Identite ..
+}
+
+entity "conversation" as conv {
+  *id : integer <<PK>>
+  --
+  status : StatusOfConversation = 'Open'
+  title : text
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+entity "user_has_conversation" as uhc {
+  *user_id : integer <<PK, FK>>
+  *conversation_id : integer <<PK, FK>>
+  --
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+entity "message" as msg {
+  *id : integer <<PK>>
+  --
+  sender_id : integer <<FK>>
+  receiver_id : integer <<FK>>
+  content : text
+  conversation_id : integer <<FK>>
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+conv ||--o{ uhc : "(0,n)"
+user ||--o{ uhc : "(0,n)"
+conv ||--o{ msg : "conversation_id"
+user ||--o{ msg : "sender_id"
+user ||--o{ msg : "receiver_id"
+
+legend bottom
+  StatusOfConversation : Open, Close.
+  message porte 3 FK dont 2 vers user : le destinataire
+  est stocke sur chaque message, en plus de l'appartenance
+  a la conversation via user_has_conversation.
+  NOT NULL partout. FK : ON DELETE/UPDATE CASCADE.
+endlegend
+@enduml

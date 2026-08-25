@@ -1,0 +1,78 @@
+@startuml erd-02-competences
+title ERD SkillSwap — domaine Compétences
+skinparam dpi 192
+skinparam defaultFontName "DejaVu Sans"
+skinparam defaultFontSize 16
+skinparam classFontSize 16
+skinparam classAttributeFontSize 16
+skinparam titleFontSize 18
+skinparam legendFontSize 16
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam nodesep 90
+skinparam ranksep 45
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #24292f
+  ArrowColor #24292f
+}
+skinparam class<<externe>> {
+  BackgroundColor #F0F3F6
+  BorderColor #8c959f
+}
+hide circle
+hide empty methods
+
+entity "user" as user <<externe>> {
+  *id : integer <<PK>>
+  --
+  .. voir figure Identite ..
+}
+
+entity "category" as cat {
+  *id : integer <<PK>>
+  --
+  name : text
+  created_at : timestamp
+  updated_at : timestamp
+  slug : text <<UNIQUE>>
+}
+
+entity "skill" as skill {
+  *id : integer <<PK>>
+  --
+  name : text
+  category_id : integer <<FK>>
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+entity "user_has_skill" as uhs {
+  *user_id : integer <<PK, FK>>
+  *skill_id : integer <<PK, FK>>
+  --
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+entity "user_has_interest" as uhi {
+  *user_id : integer <<PK, FK>>
+  *skill_id : integer <<PK, FK>>
+  --
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+cat   ||--o{ skill : "(1,1) - (0,n)"
+skill ||--o{ uhs : "(0,n)"
+user  ||--o{ uhs : "(0,n)"
+skill ||--o{ uhi : "(0,n)"
+user  ||--o{ uhi : "(0,n)"
+
+legend bottom
+  user_has_skill = competences offertes.
+  user_has_interest = competences recherchees.
+  PK composite (user_id, skill_id) : pas de doublon.
+  NOT NULL partout. FK : ON DELETE/UPDATE CASCADE.
+endlegend
+@enduml

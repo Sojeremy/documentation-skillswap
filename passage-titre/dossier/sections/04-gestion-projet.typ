@@ -44,7 +44,7 @@ toute ligne de code applicatif : présentation et clarification du cahier des
 charges, planification et attribution des rôles (lundi) ; user stories, ERD,
 MCD, dictionnaire de données et charte graphique (mardi) ; MPD, cas
 d'utilisation, diagramme de séquence, diagramme d'architecture et contrat
-d'endpoints (mercredi). La réalisation des maquettes m'a été attribuée ;
+d'endpoints (mercredi). La réalisation des maquettes m'a été attribuée#footnote[Répartition consignée dans le document de planification du sprint 0 de l'équipe (tableur partagé, hors dépôt Git), colonne du jeudi 8 janvier 2026.] ;
 Sébastien et Yorgan ont pris les endpoints et la matrice RBAC, Loïc
 l'initialisation Docker. La semaine s'est close par un débrief et la
 planification du sprint 1.

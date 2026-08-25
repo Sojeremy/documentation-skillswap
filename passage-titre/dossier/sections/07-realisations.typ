@@ -72,11 +72,7 @@ du parcours messagerie côté utilisateur connecté.
 === Liste des conversations — vue desktop
 
 #figure(
-  rect(width: 100%, height: 8cm, fill: rgb("#f6f8fa"), stroke: 0.5pt + rgb("#d0d7de"))[
-    #align(center + horizon)[#text(fill: rgb("#57606a"), size: 9pt)[
-      Capture à insérer : ../assets/captures-ui/07-conversation-list-desktop.png
-    ]]
-  ],
+  image("../assets/captures-ui/07-conversation-list-desktop.png", width: 100%),
   caption: [Liste des conversations de l'utilisateur connecté. Composant racine : #raw("ConversationSection.tsx", lang: "ts"). Chaque entrée est rendue par #raw("ConversationItem.tsx", lang: "ts") (molécule), avec avatar, nom du correspondant, dernier message et horodatage relatif.],
 )
 
@@ -89,11 +85,7 @@ non lu sont gérés côté client via le hook #raw("useConversationList", lang: 
 === Thread de message ouvert — vue desktop
 
 #figure(
-  rect(width: 100%, height: 9cm, fill: rgb("#f6f8fa"), stroke: 0.5pt + rgb("#d0d7de"))[
-    #align(center + horizon)[#text(fill: rgb("#57606a"), size: 9pt)[
-      Capture à insérer : ../assets/captures-ui/07-message-thread-desktop.png
-    ]]
-  ],
+  image("../assets/captures-ui/07-message-thread-desktop.png", width: 100%),
   caption: [Thread d'une conversation ouverte. Composants imbriqués : #raw("MessageThread/index.tsx", lang: "ts") encapsule #raw("ThreadHeader", lang: "ts"), #raw("MessageList", lang: "ts") (avec composant atomique #raw("MessageBubble", lang: "ts") pour chaque message) et #raw("MessageInput", lang: "ts"). La pagination cursor-based charge les messages plus anciens au scroll vers le haut.],
 )
 
@@ -106,18 +98,14 @@ requête REST — choix architectural justifié dans la #ref(<sub-socket-server>
 === Dialogue d'évaluation après clôture
 
 #figure(
-  rect(width: 100%, height: 7cm, fill: rgb("#f6f8fa"), stroke: 0.5pt + rgb("#d0d7de"))[
-    #align(center + horizon)[#text(fill: rgb("#57606a"), size: 9pt)[
-      Capture à insérer : ../assets/captures-ui/07-rating-dialog.png
-    ]]
-  ],
-  caption: [Dialogue d'évaluation déclenché à la clôture d'une conversation par l'autre participant (#raw("RatingDialog.tsx", lang: "ts")). Note de 1 à 5 et commentaire facultatif. Bloqué côté serveur si l'utilisateur a déjà évalué le membre cible (contrainte d'unicité Prisma #raw("@@unique([evaluatorId, evaluatedId])", lang: "ts")).],
+  image("../assets/captures-ui/07-rating-dialog.png", width: 100%),
+  caption: [Dialogue d'évaluation accessible après clôture d'une conversation, ou depuis le menu contextuel d'un membre suivi non encore évalué (#raw("RatingDialog.tsx", lang: "ts")). Note de 1 à 5 et commentaire facultatif. Bloqué côté serveur si l'utilisateur a déjà évalué le membre cible (contrainte d'unicité Prisma #raw("@@unique([evaluatorId, evaluatedId])", lang: "ts")).],
 )
 
-L'évaluation est fonctionnellement couplée à la clôture : l'event
-#raw("conversation:closed", lang: "ts") déclenche l'apparition du dialogue,
-ce qui garantit qu'un membre ne peut évaluer qu'après une interaction
-effective. L'adaptation mobile (responsive Tailwind, navigation stack-based
+L'évaluation reste conditionnée à une relation établie : l'event
+#raw("conversation:closed", lang: "ts") déclenche l'apparition du dialogue ;
+un second point d'entrée existe via le menu contextuel, gardé par la double
+condition #raw("isFollowing && !isRated", lang: "ts"). L'adaptation mobile (responsive Tailwind, navigation stack-based
 au lieu de split-view sur écran étroit) et le dialogue de création
 (#raw("NewConversationDialog.tsx", lang: "ts"), avec gating front+back
 #raw("requireSimpleFollow", lang: "ts")) sont visibles directement sur
@@ -606,13 +594,13 @@ Un membre tiers ne peut pas écouter passivement les messages d'autrui.
 
 Le flux complet d'un envoi de message, depuis la saisie utilisateur jusqu'à
 la confirmation chez les deux participants, est décrit dans le diagramme
-de séquence ci-après. Il a été produit avec PlantUML pendant le projet et fait
-partie du livrable d'équipe mergé sur #raw("main", lang: "txt")#footnote[Source et rendu : #raw("docs/uml/sequence/conversation.puml", lang: "txt") et #raw("conversation.png", lang: "txt"), dépôt d'équipe.].
+de séquence ci-après. Je l'ai produit avec PlantUML en août 2026 pour ce
+dossier, en le décalquant du handler #raw("message:send", lang: "ts")#footnote[Le dépôt d'équipe comporte bien un fichier #raw("docs/uml/sequence/conversation.puml", lang: "txt"), mais il documente le chargement REST de la page de messagerie, non le flux d'envoi temps réel. Source de la présente figure : #raw("backend/src/realtime/socket.ts:167-347", lang: "txt").].
 
 #figure(
   image("../../../docs/uml/sequence/conversation.png", width: 100%),
   caption: [Diagramme de séquence de l'envoi d'un message — flux complet : authentification socket, optimistic UI, validation serveur, persistance Prisma, diffusion multi-rooms.],
-)
+) <fig-sequence-envoi-8>
 
 == Bilan technique de la section
 

@@ -59,7 +59,7 @@ jusqu'à la mise en production effective :
   [*Livrable*], [*Description*], [*État*],
   [Application en production], [Plateforme accessible publiquement à #link("https://skill-swap.fr")[skill-swap.fr], intégrant l'ensemble des fonctionnalités MVP.], [✓ Livré],
   [Base de données], [Schéma PostgreSQL en six migrations Prisma successives, avec seed de développement peuplant 41 utilisateurs de démonstration ; le seed de production n'initialise que les référentiels (rôle, catégories, compétences, créneaux).], [✓ Livré],
-  [Documentation technique], [Livrable d'équipe mergé sur #raw("main", lang: "txt") : stratégie de documentation (#raw("docs/documentation-strategy/", lang: "txt")), diagrammes UML (#raw("docs/uml/", lang: "txt")) et référence des endpoints (#raw("docs/endpoints/", lang: "txt")). S'y ajoutent, produits pendant le projet sur la branche #raw("Documentation", lang: "txt") mais jamais mergés sur #raw("main", lang: "txt"), les dix ADRs et une *spécification OpenAPI 3.0 déclarant les 37 endpoints* (21 janvier 2026). Le guide utilisateur Diátaxis et la mise en ligne de l'ensemble sur Vercel sont, eux, une extension post-projet.], [✓ Livré#footnote[Le statut « Livré » porte sur la documentation d'équipe et sur les artefacts produits pendant le projet. La publication en ligne et le guide Diátaxis sont postérieurs à la soutenance.]],
+  [Documentation technique], [Livrable d'équipe mergé sur #raw("main", lang: "txt") : stratégie de documentation (#raw("docs/documentation-strategy/", lang: "txt")), diagrammes UML (#raw("docs/uml/", lang: "txt")) et référence des endpoints (#raw("docs/endpoints/", lang: "txt")). S'y ajoutent, produits pendant le projet sur la branche #raw("Documentation", lang: "txt") mais jamais mergés sur #raw("main", lang: "txt"), les dix ADRs et une *spécification OpenAPI 3.0, initiée le 21 janvier 2026 avec trente endpoints et portée à trente-sept à la fin du projet*. Le guide utilisateur Diátaxis et la mise en ligne de l'ensemble sur Vercel sont, eux, une extension post-projet.], [✓ Livré#footnote[Le statut « Livré » porte sur la documentation d'équipe et sur les artefacts produits pendant le projet. La publication en ligne et le guide Diátaxis sont postérieurs à la soutenance.]],
   [Tests automatisés], [Tests d'intégration backend uniquement : sept fichiers #raw("*.spec.test.ts", lang: "txt") écrits pour le Node Test Runner natif, visant les contrôleurs et les events Socket.IO. *Cinq des sept suites échouent* sur un bug de fixture identifié et documenté — la donnée de rôle n'est pas créée avant les utilisateurs de test. Dette assumée, non corrigée avant la soutenance.], [✓ Partiel #footnote[Deux limites cumulées : cinq des sept suites backend en échec sur fixture, et aucun test automatisé côté frontend dans le livrable (ni unitaire, ni E2E, ni catalogue de composants). Couverture jamais mesurée. Cf. #ref(<sec-plan-tests>, supplement: [section]).]],
   [Conteneurisation], [Stack Docker Compose à six services en production (frontend, backend, postgres, meilisearch, nginx, certbot) avec configurations dev et prod distinctes.], [✓ Livré],
   [Pipeline de déploiement continu (CD)], [Déploiement automatisé vers le VPS de production sur push `main` (#raw(".github/workflows/deploy-prod.yml", lang: "txt")) : connexion SSH, mise à jour du dépôt, reconstruction et redémarrage des conteneurs. *Aucune étape d'intégration continue* — le workflow ne lance ni test, ni lint, ni build de vérification avant de déployer.], [✓ Livré],
@@ -86,17 +86,33 @@ concerns.
   inset: 8pt,
   radius: 2pt,
   width: 100%,
+  breakable: false,
 )[
-  *Provenance des figures UML.* Les sources PlantUML sont des livrables
-  d'équipe (#raw("docs/uml/**.puml", lang: "txt")). Quatre figures de cette
-  section — architecture (ci-dessus), parcours utilisateur, ERD et cas
-  d'utilisation — sont des *rendus PNG regénérés pour ce dossier* à partir de
-  ces mêmes sources, via PlantUML. Deux d'entre elles portent un autre nom
-  dans le livrable : #raw("diagramme-architecture.png", lang: "txt") et
-  #raw("use-case.png", lang: "txt"). Les figures
-  #raw("arborescence.png", lang: "txt") et
-  #raw("sequence/conversation.png", lang: "txt") sont, elles, reprises
-  telles quelles du livrable.
+  *Provenance des figures UML.* Les diagrammes de cette section relèvent de
+  trois filiations distinctes.
+
+  Trois figures — architecture, parcours utilisateur et cas d'utilisation —
+  dérivent des sources PlantUML produites par l'équipe pendant le projet
+  (#raw("docs/uml/**.puml", lang: "txt")), reprises dans mon dépôt de
+  documentation, puis amendées et regénérées pour ce dossier. Les écarts avec
+  les sources d'équipe vont de 9 % (cas d'utilisation) à 38 % (parcours
+  utilisateur). Deux d'entre elles portent un autre nom dans le livrable :
+  #raw("diagramme-architecture.png", lang: "txt") et
+  #raw("use-case.png", lang: "txt").
+
+  Une figure — #raw("arborescence.png", lang: "txt") — est reprise telle
+  quelle du livrable d'équipe, identique bit à bit.
+
+  Deux artefacts ont été produits en août 2026 pour ce dossier : le diagramme
+  entité-relation et ses cinq sous-modèles d'annexe G, dérivés du catalogue
+  PostgreSQL de la base montée depuis les six migrations ; et le diagramme de
+  séquence de l'envoi d'un message (#ref(<fig-sequence-envoi-6>) et
+  #ref(<fig-sequence-envoi-8>)), décalqué du handler
+  #raw("message:send", lang: "ts")
+  (#raw("realtime/socket.ts:167-347", lang: "txt")). Ce dernier ne figure pas
+  dans le livrable d'équipe : le fichier
+  #raw("docs/uml/sequence/conversation.puml", lang: "txt") y existe mais
+  documente un autre flux, le chargement REST de la page de messagerie.
 ] <note-figures-uml>
 
 === Communications inter-composants
@@ -135,16 +151,10 @@ compétence, suivi de membre).
   caption: [Parcours utilisateur d'un nouveau membre — inscription → création du profil → recherche → suivi → ouverture de la première conversation. Cette séquence est exactement celle simulée par le jeu d'essai en #ref(<sec-jeu-essai>, supplement: [section]).],
 )
 
-=== Captures de maquettes Figma
-
-#figure(
-  rect(width: 100%, height: 7cm, fill: rgb("#f6f8fa"), stroke: 0.5pt + rgb("#d0d7de"))[
-    #align(center + horizon)[#text(fill: rgb("#57606a"), size: 9pt)[
-      Capture à insérer : ../assets/captures-ui/05-figma-overview.png
-    ]]
-  ],
-  caption: [Vue d'ensemble du board Figma — atomes, composants et maquettes assemblées des principaux écrans (accueil, profil, recherche, messagerie).],
-)
+Les maquettes des quatre écrans principaux — accueil, profil, recherche et
+messagerie — sont reproduites en annexe F : #ref(<fig-maquette-accueil>),
+#ref(<fig-maquette-profil>), #ref(<fig-maquette-recherche>) et
+#ref(<fig-maquette-messagerie>).
 
 == Modèle entités-associations et modèle physique de la base de données <sub-mea>
 
@@ -163,9 +173,9 @@ documenté et le schéma physique appliqué en production.
 )
 
 #figure(
-  image("../../../docs/uml/erd.png", width: 100%),
-  caption: [Diagramme entité-relation complet de SkillSwap — quatorze modèles, regroupés en cinq domaines fonctionnels : identité, compétences, disponibilités, échange, social.],
-)
+  image("../../../docs/uml/erd/erd-00-vue-ensemble.svg", width: 100%),
+  caption: [Vue d'ensemble du modèle physique — quatorze tables et dix-huit clés étrangères, regroupées en cinq domaines fonctionnels. Chaque domaine est détaillé, colonnes complètes, en annexe G.],
+) <fig-erd-vue-ensemble>
 
 // Diagramme de classes du domaine (docs/_generated/uml/classes-domaine.svg)
 // ÉCARTÉ : format 2793×781 (ratio 1:0,28). En pleine largeur A4, le texte
@@ -184,11 +194,11 @@ Les quatorze modèles se regroupent en cinq domaines cohérents :
   inset: 6pt,
   align: (left, left),
   [*Domaine*], [*Modèles*],
-  [Identité], [#raw("User", lang: "sql"), #raw("Role", lang: "sql"), #raw("RefreshToken", lang: "sql") — gestion des comptes, des rôles et des sessions par rotation de tokens.],
-  [Compétences], [#raw("Skill", lang: "sql"), #raw("Category", lang: "sql"), #raw("UserHasSkill", lang: "sql"), #raw("UserHasInterest", lang: "sql") — référentiel des compétences disponibles sur la plateforme et expression des compétences offertes / recherchées par chaque membre.],
-  [Disponibilités], [#raw("Available", lang: "sql"), #raw("UserHasAvailable", lang: "sql") — créneaux horaires standardisés associés à chaque membre.],
-  [Échange], [#raw("Conversation", lang: "sql"), #raw("Message", lang: "sql"), #raw("UserHasConversation", lang: "sql") — coeur de l'échange, traité en détail en #ref(<sec-realisations>, supplement: [section]).],
-  [Social], [#raw("Follow", lang: "sql"), #raw("Rating", lang: "sql") — graphe de suivi entre membres et système de notation.],
+  [Identité], [#raw("User", lang: "sql"), #raw("Role", lang: "sql"), #raw("RefreshToken", lang: "sql") — gestion des comptes, des rôles et des sessions par rotation de tokens. Détail : #ref(<fig-erd-identite>).],
+  [Compétences], [#raw("Skill", lang: "sql"), #raw("Category", lang: "sql"), #raw("UserHasSkill", lang: "sql"), #raw("UserHasInterest", lang: "sql") — référentiel des compétences disponibles sur la plateforme et expression des compétences offertes / recherchées par chaque membre. Détail : #ref(<fig-erd-competences>).],
+  [Disponibilités], [#raw("Available", lang: "sql"), #raw("UserHasAvailable", lang: "sql") — créneaux horaires standardisés associés à chaque membre. Détail : #ref(<fig-erd-disponibilites>).],
+  [Échange], [#raw("Conversation", lang: "sql"), #raw("Message", lang: "sql"), #raw("UserHasConversation", lang: "sql") — coeur de l'échange, traité en détail en #ref(<sec-realisations>, supplement: [section]). Détail : #ref(<fig-erd-echange>).],
+  [Social], [#raw("Follow", lang: "sql"), #raw("Rating", lang: "sql") — graphe de suivi entre membres et système de notation. Détail : #ref(<fig-erd-social>).],
 )
 
 La différence de comptage entre les deux niveaux est normale et voulue : le MCD
@@ -333,7 +343,7 @@ axes du référentiel#footnote[Audit interne : `docs/audits/feature-inventory-cd
 #figure(
   image("../../../docs/uml/sequence/conversation.png", width: 100%),
   caption: [Diagramme de séquence — envoi d'un message d'Alice vers Bob. Six lignes de vie : Alice et son frontend, le serveur Socket.IO, la base PostgreSQL accédée via Prisma, le frontend de Bob et Bob. Les flèches en pointillés représentent les retours synchrones ; les flèches pleines, les events asynchrones poussés par le serveur.],
-)
+) <fig-sequence-envoi-6>
 
 === Lecture du diagramme
 

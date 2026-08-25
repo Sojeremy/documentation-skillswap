@@ -1,0 +1,73 @@
+@startuml erd-01-identite
+title ERD SkillSwap — domaine Identité
+skinparam dpi 192
+skinparam defaultFontName "DejaVu Sans"
+skinparam defaultFontSize 16
+skinparam classFontSize 16
+skinparam classAttributeFontSize 16
+skinparam titleFontSize 18
+skinparam legendFontSize 16
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam linetype ortho
+skinparam nodesep 30
+skinparam ranksep 45
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #24292f
+  ArrowColor #24292f
+}
+skinparam class<<externe>> {
+  BackgroundColor #F0F3F6
+  BorderColor #8c959f
+}
+hide circle
+hide empty methods
+
+entity "role" as role {
+  *id : integer <<PK>>
+  --
+  name : RoleOfUser = 'Membre'
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+entity "user" as user {
+  *id : integer <<PK>>
+  --
+  firstname : text
+  lastname : text
+  email : text <<UNIQUE>>
+  password : text
+  address : text <<NULL>>
+  postal_code : integer <<NULL>>
+  city : text <<NULL>>
+  age : integer <<NULL>>
+  description : text <<NULL>>
+  role_id : integer <<FK>>
+  created_at : timestamp
+  updated_at : timestamp
+  avatar_url : text <<NULL>>
+}
+
+entity "refresh_token" as rtok {
+  *id : integer <<PK>>
+  --
+  token : text <<UNIQUE>>
+  user_id : integer <<FK>>
+  expire_at : timestamp
+  issued_at : timestamp
+  --
+  <<INDEX>> user_id
+}
+
+role ||--o{ user : "(1,1) - (0,n)"
+user ||--o{ rtok : "(1,1) - (0,n)"
+
+legend bottom
+  Types = catalogue PostgreSQL.
+  timestamp = timestamp(3) without time zone.
+  NOT NULL sauf <<NULL>>. FK : ON DELETE/UPDATE CASCADE.
+  Ordre des colonnes = pg_attribute.attnum.
+endlegend
+@enduml

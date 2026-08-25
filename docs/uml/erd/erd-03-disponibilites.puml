@@ -1,0 +1,61 @@
+@startuml erd-03-disponibilites
+title ERD SkillSwap — domaine Disponibilités
+skinparam dpi 192
+skinparam defaultFontName "DejaVu Sans"
+skinparam defaultFontSize 16
+skinparam classFontSize 16
+skinparam classAttributeFontSize 16
+skinparam titleFontSize 18
+skinparam legendFontSize 16
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam linetype ortho
+skinparam nodesep 30
+skinparam ranksep 45
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #24292f
+  ArrowColor #24292f
+}
+skinparam class<<externe>> {
+  BackgroundColor #F0F3F6
+  BorderColor #8c959f
+}
+hide circle
+hide empty methods
+
+entity "user" as user <<externe>> {
+  *id : integer <<PK>>
+  --
+  .. voir figure Identite ..
+}
+
+entity "available" as avail {
+  *id : integer <<PK>>
+  --
+  day : dayInAWeek
+  created_at : timestamp
+  updated_at : timestamp
+  time_slot : Time
+}
+
+entity "user_has_available" as uha {
+  *user_id : integer <<PK, FK>>
+  *available_id : integer <<PK, FK>>
+  --
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+avail ||--o{ uha : "(0,n)"
+user  ||--o{ uha : "(0,n)"
+
+legend bottom
+  dayInAWeek : Lundi..Dimanche (7 valeurs).
+  Time : Morning, Afternoon.
+  available est un referentiel de creneaux partage.
+  Depuis la migration 20260116161218, available ne
+  porte plus de user_id : le lien passe par
+  la table de jonction user_has_available.
+endlegend
+@enduml

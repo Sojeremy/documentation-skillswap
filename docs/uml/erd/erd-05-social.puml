@@ -1,0 +1,68 @@
+@startuml erd-05-social
+title ERD SkillSwap — domaine Social
+skinparam dpi 192
+skinparam defaultFontName "DejaVu Sans"
+skinparam defaultFontSize 16
+skinparam classFontSize 16
+skinparam classAttributeFontSize 16
+skinparam titleFontSize 18
+skinparam legendFontSize 16
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam nodesep 70
+skinparam ranksep 65
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #24292f
+  ArrowColor #24292f
+}
+skinparam class<<externe>> {
+  BackgroundColor #F0F3F6
+  BorderColor #8c959f
+}
+hide circle
+hide empty methods
+
+entity "user" as user <<externe>> {
+  *id : integer <<PK>>
+  --
+  .. voir figure Identite ..
+}
+
+entity "follow" as follow {
+  *id : integer <<PK>>
+  --
+  followed_id : integer <<FK>>
+  follower_id : integer <<FK>>
+  created_at : timestamp
+  updated_at : timestamp
+  --
+  <<UNIQUE>> (followed_id, follower_id)
+}
+
+entity "evaluation" as eval {
+  *id : integer <<PK>>
+  --
+  comments : text <<NULL>>
+  score : integer
+  evaluator_id : integer <<FK>>
+  evaluated_id : integer <<FK>>
+  created_at : timestamp
+  updated_at : timestamp
+  --
+  <<UNIQUE>> (evaluator_id, evaluated_id)
+}
+
+user ||--o{ follow : "follower_id"
+user ||--o{ follow : "followed_id"
+user ||--o{ eval : "evaluator_id"
+user ||--o{ eval : "evaluated_id"
+
+legend bottom
+  Deux associations reflexives sur user, chacune
+  materialisee en table.
+  Table physique : evaluation ; modele Prisma : Rating.
+  comments est NULLABLE depuis la migration 20260120123059.
+  Les UNIQUE interdisent doublon de suivi et de notation.
+endlegend
+@enduml

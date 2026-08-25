@@ -1,0 +1,72 @@
+@startuml erd-00-vue-ensemble
+title ERD SkillSwap — vue d'ensemble (14 tables, 18 FK)
+skinparam dpi 192
+skinparam defaultFontName "DejaVu Sans"
+skinparam defaultFontSize 16
+skinparam classFontSize 16
+skinparam classAttributeFontSize 16
+skinparam titleFontSize 18
+skinparam legendFontSize 16
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam linetype ortho
+skinparam nodesep 30
+skinparam ranksep 45
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #24292f
+  ArrowColor #24292f
+}
+skinparam class<<externe>> {
+  BackgroundColor #F0F3F6
+  BorderColor #8c959f
+}
+hide circle
+hide empty methods
+left to right direction
+skinparam nodesep 22
+skinparam ranksep 70
+
+entity "role" as role
+entity "user" as user
+entity "refresh_token" as rtok
+entity "category" as cat
+entity "skill" as skill
+entity "user_has_skill" as uhs
+entity "user_has_interest" as uhi
+entity "available" as avail
+entity "user_has_available" as uha
+entity "conversation" as conv
+entity "user_has_conversation" as uhc
+entity "message" as msg
+entity "follow" as follow
+entity "evaluation" as eval
+
+role  ||--o{ user
+user  ||--o{ rtok
+cat   ||--o{ skill
+user  ||--o{ uhs
+skill ||--o{ uhs
+user  ||--o{ uhi
+skill ||--o{ uhi
+avail ||--o{ uha
+user  ||--o{ uha
+conv  ||--o{ uhc
+user  ||--o{ uhc
+conv  ||--o{ msg
+user  ||--o{ msg
+user  ||--o{ msg
+user  ||--o{ follow
+user  ||--o{ follow
+user  ||--o{ eval
+user  ||--o{ eval
+
+legend bottom
+  Pied-de-corbeau : || = exactement 1, o{ = 0 a n.
+  18 liens = les 18 cles etrangeres du catalogue.
+  Aretes doubles vers user : message (sender_id,
+  receiver_id), follow (follower_id, followed_id),
+  evaluation (evaluator_id, evaluated_id).
+  Colonnes : voir les cinq sous-modeles.
+endlegend
+@enduml
