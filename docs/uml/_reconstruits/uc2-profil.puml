@@ -1,0 +1,50 @@
+@startuml uc2-profil
+' =============================================================================
+' SkillSwap — Cas d'utilisation, vue 2/5 : gestion de son profil
+' =============================================================================
+' Neuf routes. Toutes appliquent checkAuth (auth.middleware.ts), donc aucune
+' n'est accessible au Visiteur : cette vue ne comporte qu'un acteur.
+' Contraintes d'accès supplémentaires portées en note sur les cas concernés,
+' et uniquement quand le middleware est réellement dans la chaîne de la route.
+' =============================================================================
+
+skinparam defaultFontSize 14
+skinparam actorStyle awesome
+skinparam usecaseBackgroundColor #FEFEFE
+skinparam usecaseBorderColor #A71E34
+skinparam actorBorderColor #555555
+skinparam rectangleBorderColor #A71E34
+skinparam arrowColor #555555
+skinparam shadowing false
+left to right direction
+
+title Cas d'utilisation (vue 2/5) — gestion de son profil
+
+actor "Membre" as M
+
+rectangle "SkillSwap — /api/v1" {
+
+  rectangle "checkAuth · préfixe /api/v1/profiles" #FDF2F4 {
+    usecase "Modifier son avatar\nPATCH /avatar" as A1
+    usecase "Supprimer son avatar\nDELETE /avatar" as A2
+    usecase "Modifier son profil\nPATCH /:id + isOwner" as A3
+    usecase "Ajouter des compétences\nPOST /skills" as A4
+    usecase "Retirer une compétence\nDELETE /skills/:id" as A5
+    usecase "Ajouter des intérêts\nPOST /interests" as A6
+    usecase "Retirer un intérêt\nDELETE /interests/:id" as A7
+    usecase "Ajouter des disponibilités\nPOST /availabilities" as A8
+    usecase "Retirer une disponibilité\nDELETE /availabilities/:id" as A9
+  }
+
+}
+
+M --> A1
+M --> A2
+M --> A3
+M --> A4
+M --> A5
+M --> A6
+M --> A7
+M --> A8
+M --> A9
+@enduml

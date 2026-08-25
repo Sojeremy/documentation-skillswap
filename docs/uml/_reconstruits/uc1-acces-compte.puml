@@ -1,0 +1,66 @@
+@startuml uc1-acces-compte
+' =============================================================================
+' SkillSwap — Cas d'utilisation, vue 1/5 : accès public, authentification, compte
+' =============================================================================
+' Reconstruction déterministe. RÈGLE : un cas d'utilisation par route
+' réellement montée, une contrainte d'accès par middleware réellement appliqué.
+' Aucun cas d'usage sans route correspondante.
+'
+' Deux acteurs seulement : `enum RoleOfUser { Membre }`
+' (backend/prisma/schema.prisma:56-58) ne contient qu'une valeur, et le seed
+' ne crée qu'un rôle (models/seeding.ts:31). Il n'existe pas d'administrateur.
+'
+' Sept routes sur trente-sept n'appliquent aucun checkAuth. Le Membre y accede
+' aussi : la zone publique n'est pas interdite a l'authentifie.
+'
+' Le Visiteur est l'utilisateur sans cookie refreshToken
+' (frontend/src/middleware.ts:15-16) ; côté API, c'est l'absence de checkAuth.
+' =============================================================================
+
+skinparam defaultFontSize 14
+skinparam actorStyle awesome
+skinparam usecaseBackgroundColor #FEFEFE
+skinparam usecaseBorderColor #A71E34
+skinparam actorBorderColor #555555
+skinparam rectangleBorderColor #A71E34
+skinparam arrowColor #555555
+skinparam shadowing false
+left to right direction
+
+title Cas d'utilisation (vue 1/5) — accès public, authentification, compte
+
+actor "Visiteur" as V
+actor "Membre" as M
+
+rectangle "SkillSwap — /api/v1" {
+
+  rectangle "Routes publiques — aucun checkAuth" as PUB #F6F8FA {
+    usecase "Créer un compte\nPOST /auth/register" as UC1
+    usecase "Se connecter\nPOST /auth/login" as UC2
+    usecase "Se déconnecter\nPOST /auth/logout" as UC3
+    usecase "Rafraîchir le jeton\nPOST /auth/refresh" as UC4
+    usecase "Consulter un profil public\nGET /profiles/public/:id" as UC5
+    usecase "Voir les catégories les mieux notées\nGET /categories/top-rated" as UC6
+    usecase "Voir les membres les mieux notés\nGET /search/top-rated" as UC7
+  }
+
+  rectangle "Routes protégées — checkAuth" as PRIV #FDF2F4 {
+    usecase "Consulter son propre compte\nGET /auth/me" as UC8
+    usecase "Changer son mot de passe\nPATCH /profiles/password" as UC9
+    usecase "Supprimer son compte\nDELETE /profiles" as UC10
+  }
+}
+
+V --> UC1
+V --> UC2
+V --> UC5
+V --> UC6
+V --> UC7
+
+M --> UC3
+M --> UC4
+M --> UC8
+M --> UC9
+M --> UC10
+
+@enduml

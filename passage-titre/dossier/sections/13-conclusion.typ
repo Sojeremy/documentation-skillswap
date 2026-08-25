@@ -40,7 +40,7 @@ Docker, Nginx et certificat TLS renouvelé automatiquement.
 
 == Évolutions identifiées pour la V2
 
-Quatre catégories de dettes techniques tracées au fil du projet :
+Cinq catégories de dettes techniques tracées au fil du projet :
 
 *Sécurité* — monter Helmet (installé mais non monté), ajouter une limitation de
 débit sur les routes d'authentification, définir une Content Security Policy
@@ -53,6 +53,19 @@ l'ADR-010 (unitaire, E2E) et non implémentée.
 *DevOps* — compléter le déploiement continu par une intégration continue
 (build, lint, tests), mettre en place supervision et sauvegarde automatique de
 la base.
+
+*Parcours* — l'inscription perd la destination d'origine du visiteur. Le lien
+d'un profil public produit bien #raw("/inscription?redirect=<chemin>", lang: "txt")
+(#raw("ProfileTeaser.tsx:39", lang: "ts")), mais la page d'inscription ne lit
+jamais ce paramètre : elle redirige en dur vers
+#raw("/mon-profil", lang: "txt") (#raw("inscription/page.tsx:41", lang: "ts")).
+La page de connexion, elle, le consomme correctement
+(#raw("connexion/page.tsx:18", lang: "ts") puis #raw(":28", lang: "ts")).
+Défaut relevé lors de la reconstruction du parcours utilisateur
+(#ref(<sub-ecarts-flow>, supplement: [sous-section])). *Correctif* : aligner
+l'inscription sur la connexion, en lisant
+#raw("searchParams.get('redirect') || '/mon-profil'", lang: "ts") — le
+comportement actuel devenant le simple cas par défaut.
 
 *Fonctionnel* — blocage de profils, suggestion automatique de correspondances,
 groupes thématiques.

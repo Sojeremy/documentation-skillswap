@@ -1,0 +1,45 @@
+@startuml uc5-messagerie-temps-reel
+' =============================================================================
+' SkillSwap — Cas d'utilisation, vue 5/5 : messagerie temps réel
+' =============================================================================
+' Neuf routes REST sous /api/v1/conversations, toutes sous checkAuth
+' (conv.router.ts:30-91). Une seule porte une contrainte métier
+' supplémentaire : POST / applique `requireSimpleFollow` (conv.router.ts:36),
+' qui exige que l'émetteur suive le destinataire (conv.middleware.ts:101-104).
+'
+' Les quatre events Socket.IO ne sont PAS des routes REST : ils sont montés
+' sur le même serveur HTTP (realtime/socket.ts:74-85) et gardés par le
+' middleware `io.use` (socket.ts:88-122), pas par checkAuth. Ils figurent en
+' zone distincte pour cette raison.
+' =============================================================================
+
+skinparam defaultFontSize 14
+skinparam actorStyle awesome
+skinparam usecaseBackgroundColor #FEFEFE
+skinparam usecaseBorderColor #A71E34
+skinparam actorBorderColor #555555
+skinparam rectangleBorderColor #A71E34
+skinparam arrowColor #555555
+skinparam shadowing false
+left to right direction
+
+title Cas d'utilisation (vue 5/5) — messagerie temps réel
+
+actor "Membre" as M
+
+rectangle "SkillSwap" {
+
+
+  rectangle "Socket.IO — io.use, cookie JWT" #F6F8FA {
+    usecase "Rejoindre une conversation\nconversation:join" as E1
+    usecase "Quitter une conversation\nconversation:leave" as E2
+    usecase "Envoyer un message\nmessage:send" as E3
+    usecase "Clore une conversation\nconversation:close" as E4
+  }
+}
+
+M --> E1
+M --> E2
+M --> E3
+M --> E4
+@enduml

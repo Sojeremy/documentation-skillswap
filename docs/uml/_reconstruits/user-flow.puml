@@ -1,0 +1,55 @@
+@startuml user-flow
+' =============================================================================
+' SkillSwap — Parcours utilisateur réel, de la landing à la première conversation
+' =============================================================================
+' Reconstruit depuis frontend/src/app/, frontend/src/middleware.ts et les
+' redirections réellement écrites dans le code (window.location.href,
+' router.push, paramètre redirect). Chaque transition porte son fichier:ligne.
+' Aucune transition n'est dessinée sans instruction correspondante.
+' =============================================================================
+
+skinparam defaultFontSize 14
+skinparam rectangleBorderColor #A71E34
+skinparam arrowColor #555555
+skinparam shadowing false
+skinparam nodesep 14
+skinparam ranksep 20
+
+title Parcours utilisateur — de la landing à la première conversation
+
+rectangle "ZONE PUBLIQUE" as PUB #F6F8FA {
+  rectangle "/\nlanding" as HOME
+  rectangle "/profil/[id]\nteaser public" as PUBPROF
+}
+
+rectangle "ZONE AUTH" as AUTH #FFF6E5 {
+  rectangle "/connexion" as LOGIN
+  rectangle "/inscription" as REG
+}
+
+rectangle "ZONE MEMBRE — protectedRoutes" as MEM #FDF2F4 {
+  rectangle "/recherche" as SEARCH
+  rectangle "/profil/[id]\nvue complète" as FULL
+  rectangle "/mon-profil" as EDIT
+  rectangle "/conversation?id=…\nliste + thread + Socket.IO" as CONV
+  rectangle "Dialog Rating\naprès clôture" as RATE
+}
+
+HOME --> SEARCH : HeroSection.tsx:50
+HOME --> REG : HeroSection.tsx:47
+PUBPROF --> LOGIN : Teaser:38\n?redirect=…
+PUBPROF --> REG : Teaser:39\n?redirect=…
+
+LOGIN --> SEARCH : connexion:18, :28\nredirect || /recherche
+REG -[#A71E34]-> EDIT : inscription:41\nTOUJOURS /mon-profil,\nredirect ignoré
+
+SEARCH --> FULL : ouvrir un profil
+FULL --> EDIT : ProfileHeader.tsx:68\nsi propriétaire
+FULL --> CONV : ProfileFull:170
+CONV --> RATE : clôture puis notation
+CONV --> SEARCH : Section:135\nfil vide
+
+MEM -[#A71E34,dashed]-> LOGIN : middleware:27-30\nsans cookie
+
+EDIT --> REG : useAccount:44\nsuppression
+@enduml

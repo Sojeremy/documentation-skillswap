@@ -1,0 +1,54 @@
+@startuml arborescence
+' =============================================================================
+' SkillSwap — Arborescence réelle des routes du frontend
+' =============================================================================
+' REMPLACE docs/uml/user/arborescence.png, seule figure du dossier sans source :
+' elle n'existe qu'en PNG, ne porte aucun chunk PlantUML et n'est donc pas
+' régénérable.
+'
+' Sources, et rien d'autre :
+'   frontend/src/app/            les sept `page.tsx` réellement présents
+'   frontend/src/middleware.ts   protectedRoutes (l. 6), authRoutes (l. 9),
+'                                matcher (l. 43-53)
+'
+' Les zones sont établies sur ce que le middleware PROTÈGE RÉELLEMENT, pas sur
+' l'intention : une route absente de `protectedRoutes` est publique, même si
+' elle est rangée sous le groupe (app).
+' =============================================================================
+
+skinparam defaultFontSize 14
+skinparam rectangleBorderColor #A71E34
+skinparam arrowColor #555555
+skinparam shadowing false
+skinparam nodesep 12
+skinparam ranksep 24
+
+title Arborescence des routes — frontend Next.js App Router
+
+rectangle "middleware.ts\nmatcher : tout sauf api,\n_next/*, favicon, *.*" as MW #FFFFFF
+
+rectangle "PUBLIQUE\nhors protectedRoutes" as PUB #F6F8FA {
+  rectangle "/\napp/page.tsx\nServer, ISR 3600 s" as R1
+  rectangle "/profil/[id]\n(app)/profil/[id]/page.tsx\nServer, ISR 3600 s" as R2
+}
+
+rectangle "AUTH — authRoutes (l. 9)\nsi connecté : -> /recherche" as AUTH #FFF6E5 {
+  rectangle "/connexion\n(auth)/connexion/\npage + layout" as R3
+  rectangle "/inscription\n(auth)/inscription/\npage + layout" as R4
+}
+
+rectangle "MEMBRE — protectedRoutes (l. 6)\nsans cookie : -> /connexion" as MEM #FDF2F4 {
+  rectangle "/recherche\n(app)/recherche/\npage + layout" as R5
+  rectangle "/conversation\n(app)/conversation/page.tsx" as R6
+  rectangle "/mon-profil\n(app)/mon-profil/page.tsx" as R7
+}
+
+rectangle "Hors matcher\nrobots.ts · sitemap.ts" as META #EEEEEE
+
+MW --> PUB
+MW --> AUTH
+MW --> MEM
+MW ..> META : exclu du matcher
+
+R2 .[#A71E34].> R6 : « Contacter »
+@enduml

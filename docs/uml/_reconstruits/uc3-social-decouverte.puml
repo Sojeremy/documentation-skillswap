@@ -1,0 +1,64 @@
+@startuml uc3-social-decouverte
+' =============================================================================
+' SkillSwap — Cas d'utilisation, vue 3/5 : découverte, social et évaluation
+' =============================================================================
+' Neuf routes, toutes sous checkAuth. Une seule porte une contrainte
+' supplémentaire : POST /profiles/:id/rating applique
+' `requireFollow({ source: 'params', field: 'id', allowSelf: false })`
+' (profile.router.ts:92). Ce middleware vérifie un lien de suivi
+' UNIDIRECTIONNEL — `followerId: connectedUser, followedId: targetId`
+' (conv.middleware.ts:32-37) — et non un suivi mutuel.
+' `requireMutualFollow` existe (conv.middleware.ts:48-76) mais n'est importé
+' par aucun routeur : c'est du code mort.
+' =============================================================================
+
+skinparam defaultFontSize 14
+skinparam actorStyle awesome
+skinparam usecaseBackgroundColor #FEFEFE
+skinparam usecaseBorderColor #A71E34
+skinparam actorBorderColor #555555
+skinparam rectangleBorderColor #A71E34
+skinparam arrowColor #555555
+skinparam shadowing false
+left to right direction
+
+title Cas d'utilisation (vue 3/5) — découverte et social
+
+actor "Membre" as M
+
+rectangle "SkillSwap — /api/v1" {
+
+  rectangle "Découverte — checkAuth" #F6F8FA {
+    usecase "Consulter un profil\nGET /profiles/:id" as B1
+    usecase "Rechercher des membres\nGET /search" as B2
+    usecase "Lister les compétences\nGET /skills" as B3
+    usecase "Lister les créneaux\nGET /availabilities" as B4
+  }
+
+  rectangle "Social — checkAuth" #FDF2F4 {
+    usecase "Suivre un membre\nPOST /follows/:id/follow" as C1
+    usecase "Ne plus suivre\nDELETE /follows/:id/follow" as C2
+    usecase "Voir ses abonnés\nGET /follows/followers" as C3
+    usecase "Voir ses abonnements\nGET /follows/following" as C4
+    usecase "Évaluer un membre\nPOST /profiles/:id/rating\n+ requireFollow" as C5
+  }
+}
+
+M --> B1
+M --> B2
+M --> B3
+M --> B4
+M --> C1
+M --> C2
+M --> C3
+M --> C4
+M --> C5
+
+note right of C5
+  requireFollow = suivi
+  UNIDIRECTIONNEL.
+  Il faut suivre la personne
+  pour la noter ; la réciproque
+  n'est pas exigée.
+end note
+@enduml

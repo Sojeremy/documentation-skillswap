@@ -191,10 +191,12 @@ hiérarchie des écrans et les principaux états interactifs.
 
 === Arborescence de l'application
 
-#figure(
-  image("../../../docs/uml/user/arborescence.png", width: 82%),
-  caption: [Arborescence des écrans publics et privés de SkillSwap. La racine `/` présente la page d'accueil (catégories, membres mieux notés). Les écrans en zone publique (consultation profil, page CGU, mentions légales) sont accessibles sans authentification ; les écrans en zone privée (édition profil, recherche, conversations) nécessitent une session valide.],
-)
+#page(flipped: true)[
+  #figure(
+    image("../../../docs/uml/_reconstruits/arborescence.svg", width: 246mm),
+    caption: [*Arborescence des routes du frontend.* Les sept routes rendues par l'App Router, réparties selon ce que #raw("middleware.ts", lang: "ts") protège *réellement* et non selon leur rangement. Les parenthèses #raw("(app)", lang: "txt") et #raw("(auth)", lang: "txt") sont des groupes de routes : elles n'apparaissent pas dans l'URL et *ne déterminent pas la protection*. #raw("/profil/[id]", lang: "txt") en est la démonstration : rangé sous #raw("(app)", lang: "txt"), il reste public, parce qu'absent de #raw("protectedRoutes", lang: "ts") — choix documenté en clair dans le code pour l'indexation. Les trois routes protégées sont #raw("/recherche", lang: "txt"), #raw("/conversation", lang: "txt") et #raw("/mon-profil", lang: "txt") ; les deux routes d'authentification redirigent vers #raw("/recherche", lang: "txt") si un cookie de session est déjà présent.],
+  ) <fig-arborescence>
+]
 
 L'arborescence reflète le principe de *progressive disclosure* : la zone
 publique reste librement accessible, et l'authentification n'est requise
@@ -203,15 +205,44 @@ compétence, suivi de membre).
 
 === Parcours utilisateur principal
 
-#figure(
-  image("../../../docs/uml/user/user-flow.png", width: 95%),
-  caption: [Parcours utilisateur d'un nouveau membre — inscription → création du profil → recherche → suivi → ouverture de la première conversation. Cette séquence est exactement celle simulée par le jeu d'essai en #ref(<sec-jeu-essai>, supplement: [section]).],
-)
+#page(flipped: true)[
+  #figure(
+    image("../../../docs/uml/_reconstruits/user-flow.svg", width: 212mm),
+    caption: [*Parcours utilisateur — de la landing à la première conversation.* Établi depuis les routes rendues et les redirections réellement écrites : chaque transition porte son fichier et sa ligne.],
+  ) <fig-user-flow>
+]
 
 Les maquettes des quatre écrans principaux — accueil, profil, recherche et
 messagerie — sont reproduites en annexe F : #ref(<fig-maquette-accueil>),
 #ref(<fig-maquette-profil>), #ref(<fig-maquette-recherche>) et
 #ref(<fig-maquette-messagerie>).
+
+=== Écarts relevés lors de la reconstruction <sub-ecarts-flow>
+
+*Dix transitions sur onze étaient exactes.* Le parcours d'origine nommait
+correctement les routes françaises, les groupes #raw("(auth)", lang: "txt") et
+#raw("(app)", lang: "txt"), et la garde du middleware. Trois points seulement le
+séparent du code.
+
+#table(
+  columns: (9em, 1fr, 1fr),
+  stroke: 0.5pt + rgb("#d0d7de"),
+  inset: 6pt,
+  align: (left, left, left),
+  [*Écart*], [*Ce que montrait la figure*], [*Ce que montre le code*],
+
+  [Redirection après inscription],
+  [« succès → #raw("redirect=/recherche", lang: "txt") », symétrique de la connexion.],
+  [#code-wrap("inscription/page.tsx:41") pose #raw("window.location.href = '/mon-profil'", lang: "ts") *en dur*. Le paramètre #raw("redirect", lang: "txt") n'y est jamais lu, alors que la connexion le consomme — #code-wrap("connexion/page.tsx:18") puis #code-wrap(":28"). Or #code-wrap("ProfileTeaser.tsx:39") le *produit* : un visiteur venu d'un profil public perd sa destination.],
+
+  [Transitions absentes],
+  [Trois retours de bascule de session ne figurent pas.],
+  [Déconnexion vers #raw("/", lang: "txt") — #code-wrap("Header/index.tsx:34") ; suppression de compte vers #raw("/inscription", lang: "txt") — #code-wrap("useAccount.ts:44") ; conversation créée vers #raw("/conversation?id=…", lang: "txt") — #code-wrap("ProfileFull.tsx:170"), l'identifiant transitant par la *query string* et non par un segment d'URL.],
+
+  [Fidélité d'ensemble],
+  [—],
+  [C'est *la plus fidèle des six figures reconstruites* : contrairement à l'arborescence, elle ne portait aucune route inventée, et son seul écart de fond tient à une ligne.],
+)
 
 == Modèle entités-associations et modèle physique de la base de données <sub-mea>
 
@@ -225,8 +256,8 @@ qui génère les migrations, ce qui garantit la cohérence stricte entre le sch�
 documenté et le schéma physique appliqué en production.
 
 #figure(
-  image("../../../docs/_generated/database/mcd.svg", width: 62%),
-  caption: [Modèle conceptuel de données (Merise, notation Mocodo) — sept entités métier et onze associations, dont une association porteuse #raw("évalue", lang: "txt") (attributs #raw("score", lang: "sql") et #raw("comments", lang: "sql")). L'entité technique #raw("refresh_token", lang: "sql") est volontairement exclue du niveau conceptuel.],
+  image("../../../docs/uml/_reconstruits/mcd.svg", height: 212mm),
+  caption: [Modèle conceptuel de données (Merise, notation Mocodo) — sept entités métier et onze associations, dont une association porteuse #raw("évalue", lang: "txt") (attributs #raw("score", lang: "sql") et #raw("comments", lang: "sql")). L'entité technique #raw("refresh_token", lang: "sql") est volontairement exclue du niveau conceptuel. Les entités sont *groupées par domaine fonctionnel*, de haut en bas — compétences, identité, social, disponibilités, échange — autour de #raw("user", lang: "sql"), qui porte huit des vingt-deux pattes d'association. Le contenu est identique à la dérivation d'origine : réagencement de lisibilité seul, vérifié par comparaison des entités, des associations et des cardinalités.],
 )
 
 #figure(
@@ -344,16 +375,79 @@ de bug applicatif.
 
 == Diagramme du comportement des fonctionnalités — cas d'utilisation <sub-cas-usage>
 
+Les cas d'utilisation sont établis à partir des *37 routes réellement montées
+sur #raw("/api/v1", lang: "txt")* et de leurs chaînes de middlewares ; les
+acteurs sont au nombre de deux, l'énumération #raw("RoleOfUser", lang: "sql") ne
+comportant que #raw("Membre", lang: "sql"). Chaque cas porte sa méthode HTTP,
+son chemin et, le cas échéant, le middleware qui en restreint l'accès. Trente-sept
+cas ne tenant pas sur une page lisible, la vue est découpée par domaine, sur les
+préfixes de routeur.
+
 #figure(
-  image("../../../docs/uml/user/use-cases.png", width: 95%),
-  caption: [Diagramme de cas d'utilisation de SkillSwap. Deux acteurs : le visiteur non-authentifié et le membre authentifié. Les cas d'utilisation grisés sont hors-scope MVP et reportés à la V2.],
+  image("../../../docs/uml/_reconstruits/uc1-acces-compte.svg", height: 242mm),
+  caption: [*Vue 1/5 — accès public, authentification et compte : 10 routes.* Les sept routes publiques sont celles qui n'appliquent aucun #raw("checkAuth", lang: "ts").],
+) <fig-uc-acces>
+
+#figure(
+  image("../../../docs/uml/_reconstruits/uc2-profil.svg", height: 237mm),
+  caption: [*Vue 2/5 — gestion de son profil : 9 routes.* Toutes sous #raw("checkAuth", lang: "ts"). Une seule porte une contrainte supplémentaire : #raw("PATCH /profiles/:id", lang: "txt") applique #raw("isOwner", lang: "ts").],
+) <fig-uc-profil>
+
+#figure(
+  image("../../../docs/uml/_reconstruits/uc3-social-decouverte.svg", height: 237mm),
+  caption: [*Vue 3/5 — découverte et social : 9 routes.* L'évaluation est la seule à porter une contrainte de lien social, et ce lien est unidirectionnel — voir #ref(<sub-ecarts-uc>, supplement: [sous-section]).],
+) <fig-uc-social>
+
+#figure(
+  image("../../../docs/uml/_reconstruits/uc4-messagerie-rest.svg", height: 237mm),
+  caption: [*Vue 4/5 — messagerie, canal REST : 9 routes.* La création de conversation est la seule route du produit à porter #raw("requireSimpleFollow", lang: "ts") : c'est le gating métier détaillé en #ref(<sec-realisations>, supplement: [section]).],
+) <fig-uc-messagerie>
+
+#figure(
+  image("../../../docs/uml/_reconstruits/uc5-messagerie-temps-reel.svg", height: 178mm),
+  caption: [*Vue 5/5 — messagerie, canal temps réel : 4 events.* Ces quatre events ne sont pas des routes REST et ne sont pas gardés par #raw("checkAuth", lang: "ts") mais par le middleware de handshake #raw("io.use", lang: "ts") — d'où leur zone distincte.],
+) <fig-uc-temps-reel>
+
+=== Écarts relevés lors de la reconstruction <sub-ecarts-uc>
+
+La figure d'origine a été confrontée à sa source PlantUML embarquée — 232 lignes,
+directive #raw("@startuml UC_SkillSwap_Complet", lang: "txt") — c'est-à-dire au
+texte qui a réellement produit l'image. Elle déclarait *49 cas d'utilisation pour
+37 routes*, sans jamais indiquer de méthode, de chemin ni de contrainte d'accès.
+
+#table(
+  columns: (8em, 1fr, 1fr),
+  stroke: 0.5pt + rgb("#d0d7de"),
+  inset: 6pt,
+  align: (left, left, left),
+  [*Écart*], [*Ce que montrait la figure*], [*Ce que montre le code*],
+
+  [Contrainte d'évaluation],
+  [« Évaluer un membre *(suivi mutuel requis)* ».],
+  [#code-wrap("profile.router.ts:92") monte #raw("requireFollow", lang: "ts"), qui interroge #raw("followerId: connectedUser, followedId: targetId", lang: "ts") — #code-wrap("conv.middleware.ts:32-37"). *Un seul sens* : il suffit de suivre la personne pour la noter, la réciproque n'est pas exigée. #raw("requireMutualFollow", lang: "ts") existe bien, #code-wrap("conv.middleware.ts:48-76"), mais *n'est monté sur aucune route*.],
+
+  [Acceptation des CGU],
+  [Cas d'usage « Accepter les CGU », rattaché à la création de compte.],
+  [Aucune trace : ni champ dans #code-wrap("validation/auth.validation.ts"), ni route, ni page. Le schéma d'inscription ne comporte aucun consentement.],
+
+  [Niveau de compétence],
+  [Cas d'usage « Définir le niveau », rattaché à l'ajout d'une compétence.],
+  [#raw("model UserHasSkill", lang: "sql") — #code-wrap("schema.prisma:75-85") — ne porte que #raw("userId", lang: "sql") et #raw("skillId", lang: "sql"). Aucune occurrence de #raw("level", lang: "sql"), #raw("niveau", lang: "sql") ou #raw("proficiency", lang: "sql") dans tout le schéma.],
+
+  [Routes sans cas d'usage],
+  [Six routes réelles n'apparaissent nulle part dans la figure.],
+  [#raw("POST /auth/refresh", lang: "txt"), #raw("GET /auth/me", lang: "txt"), #raw("DELETE /profiles/avatar", lang: "txt"), #raw("PATCH /conversations/:id/message/:messageId", lang: "txt"), #raw("GET /skills", lang: "txt"), #raw("GET /availabilities", lang: "txt").],
 )
+
+Neuf autres cas de la figure sont des sous-étapes d'interface reliées en
+#raw("<<include>>", lang: "txt") — « Saisir un mot-clé », « Voir les résultats »,
+« Donner une note » — qui décrivent un écran et non un service. Ils ne sont pas
+des écarts de fond, mais ils expliquent l'essentiel du surnombre : 49 contre 37.
 
 === Acteurs et cas d'utilisation principaux
 
 *Visiteur non-authentifié* — peut consulter les profils publics, parcourir
-les catégories, lire les mentions légales et la politique de confidentialité,
-et bien sûr s'inscrire ou se connecter. Aucune action transactionnelle
+les catégories, et bien sûr s'inscrire ou se connecter. Aucune action transactionnelle
 (message, suivi, évaluation) ne lui est accessible.
 
 *Membre authentifié* — accède à l'ensemble des fonctionnalités MVP :

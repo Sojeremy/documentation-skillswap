@@ -1,0 +1,55 @@
+@startuml uc4-messagerie-rest
+' =============================================================================
+' SkillSwap — Cas d'utilisation, vue 4/5 : messagerie REST
+' =============================================================================
+' Neuf routes REST sous /api/v1/conversations, toutes sous checkAuth
+' (conv.router.ts:30-91). Une seule porte une contrainte métier
+' supplémentaire : POST / applique `requireSimpleFollow` (conv.router.ts:36),
+' qui exige que l'émetteur suive le destinataire (conv.middleware.ts:101-104).
+'
+' Les quatre events Socket.IO ne sont PAS des routes REST : ils sont montés
+' sur le même serveur HTTP (realtime/socket.ts:74-85) et gardés par le
+' middleware `io.use` (socket.ts:88-122), pas par checkAuth. Ils figurent en
+' zone distincte pour cette raison.
+' =============================================================================
+
+skinparam defaultFontSize 14
+skinparam actorStyle awesome
+skinparam usecaseBackgroundColor #FEFEFE
+skinparam usecaseBorderColor #A71E34
+skinparam actorBorderColor #555555
+skinparam rectangleBorderColor #A71E34
+skinparam arrowColor #555555
+skinparam shadowing false
+left to right direction
+
+title Cas d'utilisation (vue 4/5) — messagerie REST
+
+actor "Membre" as M
+
+rectangle "SkillSwap" {
+
+  rectangle "REST — checkAuth · préfixe /api/v1/conversations" #FDF2F4 {
+    usecase "Lister ses conversations\nGET /" as D1
+    usecase "Créer une conversation\nPOST / + requireSimpleFollow" as D2
+    usecase "Ouvrir une conversation\nGET /:id" as D3
+    usecase "Supprimer une conversation\nDELETE /:id" as D4
+    usecase "Clore une conversation\nPATCH /:id/close" as D5
+    usecase "Lire les messages\nGET /:id/messages" as D6
+    usecase "Poster un message\nPOST /:id/messages" as D7
+    usecase "Modifier un message\nPATCH /:id/message/:messageId" as D8
+    usecase "Supprimer un message\nDELETE /:id/message/:messageId" as D9
+  }
+
+}
+
+M --> D1
+M --> D2
+M --> D3
+M --> D4
+M --> D5
+M --> D6
+M --> D7
+M --> D8
+M --> D9
+@enduml

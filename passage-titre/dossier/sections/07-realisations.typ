@@ -569,9 +569,8 @@ Ce middleware applique trois contrôles successifs : la validité du
 (impossible de se contacter soi-même), et la présence d'une relation de
 suivi #raw("Follow", lang: "ts") du #raw("sender", lang: "ts") vers le #raw("receiver", lang: "ts").
 Cette dernière règle est *la plus importante du produit* : elle garantit
-qu'aucun spam direct n'est possible entre membres qui ne se sont pas
-mutuellement signalé un intérêt par le suivi. Le contournement d'un
-front compromis est donc bloqué au niveau backend.
+qu'aucun spam direct n'est possible vers un membre qu'on ne suit pas. Le
+contournement d'un front compromis est donc bloqué au niveau backend.
 
 === Modèle de rooms Socket.IO
 
