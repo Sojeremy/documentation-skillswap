@@ -256,8 +256,8 @@ qui génère les migrations, ce qui garantit la cohérence stricte entre le sch�
 documenté et le schéma physique appliqué en production.
 
 #figure(
-  image("../../../docs/uml/_reconstruits/mcd.svg", height: 212mm),
-  caption: [Modèle conceptuel de données (Merise, notation Mocodo) — sept entités métier et onze associations, dont une association porteuse #raw("évalue", lang: "txt") (attributs #raw("score", lang: "sql") et #raw("comments", lang: "sql")). L'entité technique #raw("refresh_token", lang: "sql") est volontairement exclue du niveau conceptuel. Les entités sont *groupées par domaine fonctionnel*, de haut en bas — compétences, identité, social, disponibilités, échange — autour de #raw("user", lang: "sql"), qui porte huit des vingt-deux pattes d'association. Le contenu est identique à la dérivation d'origine : réagencement de lisibilité seul, vérifié par comparaison des entités, des associations et des cardinalités.],
+  image("../../../docs/uml/_reconstruits/mcd.svg", height: 200mm),
+  caption: [Modèle conceptuel de données (Merise, notation Mocodo) — sept entités métier et onze associations, dont une association porteuse #raw("évalue", lang: "txt") (attributs #raw("score", lang: "sql") et #raw("comments", lang: "sql")). L'entité technique #raw("refresh_token", lang: "sql") est volontairement exclue du niveau conceptuel. Les entités sont *groupées par domaine fonctionnel* autour de #raw("user", lang: "sql") — compétences au nord-ouest, identité et social au nord, disponibilités à l'ouest, échange au sud. #raw("user", lang: "sql") porte *onze des vingt-deux pattes d'association* — neuf associations, dont deux réflexives (#raw("suit", lang: "txt") et #raw("évalue", lang: "txt")) qui comptent double ; l'agencement les répartit sur les quatre côtés de l'entité au lieu de six sur un seul flanc. Contenu identique à la dérivation d'origine : réagencement seul, vérifié par diff sémantique automatisé.],
 )
 
 #figure(

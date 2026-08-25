@@ -1,14 +1,29 @@
 %% MCD SkillSwap — source Mocodo 4.3.3
 %%
-%% AGENCEMENT réorganisé le 25 août 2026 pour la lisibilité : les cinq domaines
-%% fonctionnels de la section 6.4.1 sont regroupés spatialement autour de user,
-%% qui reste le pivot (huit pattes). CONTENU STRICTEMENT INCHANGÉ : sept
+%% AGENCEMENT « P24 », posé le 25 août 2026 pour la lisibilité de la STRUCTURE.
+%% Objectif : décongestionner le flanc de user, qui portait six de ses onze
+%% pattes du même côté, avec deux étiquettes de cardinalité superposées.
+%% CONTENU STRICTEMENT INCHANGÉ vs docs/_generated/database/mcd.mcd : sept
 %% entités, onze associations, cardinalités et attributs identiques — vérifié
-%% par diff sémantique, pas par relecture.
+%% par diff sémantique automatisé (noms, attributs, cardinalités et ordre des
+%% pattes), pas par relecture. Réagencement seul.
 %%
-%% Colonnes : gauche | centre | droite. Une ligne « : » est une case vide.
-%% Domaines, de haut en bas : Compétences, Identité, Social, Disponibilités,
-%% Échange.
+%% Mesuré sur le rendu, contre l'agencement précédent (434x787) :
+%%   pattes de user ....... N2 S2 E3 O4   (était N3 S1 E6 O1)
+%%   croisements .......... 0             (était 1)
+%%   traversées de boîte .. 1             (était 2 franches)
+%%   étiquettes superposées 0             (était 1, sur 21,6 px)
+%%   police effective ..... 10,0 pt en portrait A4 (était 9,3)
+%%   dimensions ........... 537x729
+%% La traversée résiduelle est destiné_à -> user au travers de est_disponible :
+%% c'est le prix de la quatrième patte à l'ouest, le flanc n'en accepte que
+%% trois dans la hauteur de la boîte user (104x232 px, onze attributs).
+%%
+%% Colonnes : gauche | centre-gauche | centre-droit | droite.
+%% Une ligne « : » est une case vide. Un groupe de lignes séparé par une ligne
+%% blanche est une LIGNE de la grille ; chaque ligne du groupe est une COLONNE.
+%% Domaines : Compétences au nord-ouest, Identité et Social au nord,
+%% Disponibilités à l'ouest, Échange au sud.
 %% Rendu : mocodo --input mcd.mcd --output_dir .
 %%
 %% Dérivé du schéma réel (base montée depuis les 6 migrations) et du code de
@@ -33,28 +48,30 @@
 
 category: id, name, slug
 appartient_à, 11 skill, 0N category
+role: id, name
+:
+
 skill: id, name
+possède, 0N user, 0N skill
+suit, 0N user, 0N user
+a_pour_rôle, 11 user, 0N role
 
 :
-possède, 0N user, 0N skill
 s_intéresse_à, 0N user, 0N skill
-
-role: id, name
-a_pour_rôle, 11 user, 0N role
-suit, 0N user, 0N user
-
-est_disponible, 0N user, 0N available
 user: id, firstname, lastname, email, password, address, postal_code, city, age, description, avatar_url
 évalue, 0N user, 0N user: score, comments
 
 available: id, day, time_slot
-participe_à, 02 conversation, 0N user
+est_disponible, 0N user, 0N available
 émet, 11 message, 0N user
+:
 
 :
-conversation: id, status, title
 destiné_à, 11 message, 0N user
-
-se_rattache_à, 11 message, 0N conversation
 message: id, content
+participe_à, 02 conversation, 0N user
+
+:
+se_rattache_à, 11 message, 0N conversation
+conversation: id, status, title
 :
