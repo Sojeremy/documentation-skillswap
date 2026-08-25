@@ -63,15 +63,17 @@ exige que l'émetteur suive le destinataire avant que la conversation
 puisse exister. Sans relation de suivi, aucune conversation n'est créée,
 donc aucun message ne peut transiter — le contrôle Socket de
 l'étape 5 ne sera jamais sollicité car il n'y aura pas de couple
-conversation/participant à vérifier. Cette antériorité du gating REST
-sur le pipeline Socket constitue le verrou métier le plus important du
-produit.
+conversation/participant à vérifier. Cette antériorité du gating REST sur le pipeline Socket protège la
+création de la conversation, pas sa durée de vie : le lien
+#raw("Follow", lang: "ts") n'est revérifié ni par le service REST d'envoi,
+ni par le handler Socket, une fois la conversation créée — dette
+détaillée ci-dessous.
 
 == Défense en profondeur — front, back, base
 
-Trois barrières indépendantes appliquent les mêmes règles à des niveaux
-distincts du système, ce qui garantit que la compromission d'une couche
-ne suffit pas à contourner les contrôles.
+Trois barrières indépendantes appliquent des contrôles complémentaires à
+des niveaux distincts du système, ce qui garantit que la compromission
+d'une couche ne suffit pas à contourner les contrôles.
 
 #table(
   columns: (8em, 1fr),
@@ -86,7 +88,7 @@ ne suffit pas à contourner les contrôles.
 
 == Dettes de sécurité assumées
 
-Quatre zones de fragilité ont été identifiées en audit interne et sont
+Six zones de fragilité ont été identifiées en audit interne et sont
 documentées plutôt que masquées. Aucune ne remet en cause la stabilité
 fonctionnelle observée en production, mais toutes constituent des
 chantiers de durcissement à programmer en V2.
@@ -102,6 +104,7 @@ chantiers de durcissement à programmer en V2.
   [Content Security Policy absente], [Aucune directive #raw("Content-Security-Policy", lang: "txt") posée, ni côté Express ni côté Nginx. Le frontend Next.js n'est donc pas protégé contre l'injection de scripts tiers. *V2* : CSP stricte côté Nginx en mode #raw("Report-Only", lang: "txt") d'abord, puis enforcement après recensement des inline-scripts légitimes.],
   [Validation Socket sans Zod], [Les events Socket utilisent une validation manuelle (#raw("Number.isInteger", lang: "ts"), bornes de longueur) plutôt que les schémas Zod employés sur les routes REST. Trade-off latence assumé pour le handler #raw("message:send", lang: "ts"). *V2* : harmonisation Zod si la latence mesurée le permet.],
   [Garde d'évaluation plus faible qu'annoncée], [#raw("requireMutualFollow", lang: "ts") est écrit et exporté — #code-wrap("middlewares/conv.middleware.ts:48-76") — mais *monté sur aucune route*. La seule garde effective de l'évaluation est #raw("requireFollow", lang: "ts") (#code-wrap("profile.router.ts:92")), qui ne vérifie qu'un lien *unidirectionnel* : #raw("followerId: connectedUser, followedId: targetId", lang: "ts") en #code-wrap("conv.middleware.ts:32-37"). Impact : il suffit de suivre un membre pour le noter, sans qu'il vous suive en retour — un compte peut donc noter n'importe qui après un simple follow, et le retirer ensuite. La note reste. *V2* : soit monter #raw("requireMutualFollow", lang: "ts") sur #raw("POST /profiles/:id/rating", lang: "txt") si la réciprocité est la règle voulue, soit supprimer le middleware mort et aligner la documentation sur le suivi simple.],
+  [Garantie anti-spam ponctuelle, pas permanente], [Le gating #raw("requireSimpleFollow", lang: "ts") ne s'exécute qu'à la création de la conversation : ni le service REST d'envoi (#raw("message.service.ts:114-171", lang: "txt")) ni le handler Socket (#raw("socket.ts:167-347", lang: "txt")) ne revérifient le lien #raw("Follow", lang: "ts") à l'envoi. Impact : un membre désabonné après coup continue de recevoir des messages sur une conversation déjà ouverte. *V2* : revérifier le lien #raw("Follow", lang: "ts") dans #raw("message.service.ts", lang: "ts") et dans le handler Socket #raw("message:send", lang: "ts") avant chaque envoi.],
 )
 
 // CC-VERIFY : reformulations alignées sur l'audit S8 du `06-audit-report.md`.

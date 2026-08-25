@@ -47,7 +47,7 @@ production, les healthchecks, le support du rechargement à chaud (HMR) dans le
 conteneur, le passage des images de développement à Node 24, la correction du
 script d'attente de PostgreSQL — chemin absolu, ordonnancement du démarrage
 base/API — puis les volumes nommés et le montage sélectif de la configuration
-Nginx. Quinze commits sur trois jours ont été nécessaires pour obtenir un
+Nginx. Quatorze commits sur trois jours ont été nécessaires pour obtenir un
 environnement stable.
 
 Une régression est survenue une semaine plus tard : le 19 janvier, une erreur

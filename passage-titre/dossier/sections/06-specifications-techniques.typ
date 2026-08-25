@@ -167,9 +167,9 @@ relecture, et constitue la dette technique la plus visible du projet.
 
 == Sécurité transversale <sub-secu-transverse>
 
-Cinq mécanismes de sécurité couvrent l'ensemble des routes et des
-échanges, complétés par les contrôles spécifiques à la messagerie
-détaillés en #ref(<sec-realisations>, supplement: [section]).
+Cinq mécanismes de sécurité couvrent les routes et les échanges, à des
+degrés que le tableau ci-dessous précise, complétés par les contrôles
+spécifiques à la messagerie détaillés en #ref(<sec-realisations>, supplement: [section]).
 
 #table(
   columns: (12em, 1fr),

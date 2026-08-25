@@ -568,9 +568,16 @@ Ce middleware applique trois contrôles successifs : la validité du
 #raw("receiverId", lang: "ts") (entier positif), l'absence d'auto-conversation
 (impossible de se contacter soi-même), et la présence d'une relation de
 suivi #raw("Follow", lang: "ts") du #raw("sender", lang: "ts") vers le #raw("receiver", lang: "ts").
-Cette dernière règle est *la plus importante du produit* : elle garantit
-qu'aucun spam direct n'est possible vers un membre qu'on ne suit pas. Le
-contournement d'un front compromis est donc bloqué au niveau backend.
+Cette règle est le verrou métier d'entrée du produit : aucune conversation
+ne peut naître vers un membre qu'on ne suit pas, et le contournement d'un
+front compromis est bloqué au niveau backend. Le contrôle est en revanche
+ponctuel : il s'exécute à la création de la conversation, et n'est rejoué
+ni par le service REST d'envoi (#raw("message.service.ts:114-171", lang: "txt"))
+ni par le handler Socket (#raw("socket.ts:167-347", lang: "txt")). Un
+désabonnement postérieur laisse donc la conversation pleinement
+fonctionnelle. Rendre la garantie permanente supposerait de revérifier le
+lien #raw("Follow", lang: "ts") à chaque envoi — dette identifiée,
+reportée en V2.
 
 === Modèle de rooms Socket.IO
 
