@@ -454,8 +454,8 @@ les catégories, et bien sûr s'inscrire ou se connecter. Aucune action transact
 édition complète de son profil (compétences, intérêts, disponibilités,
 avatar), recherche d'autres membres avec filtre par catégorie, suivi /
 désuivi de membres, ouverture de conversations avec les membres suivis,
-envoi et clôture de conversations, évaluation post-conversation des
-membres avec qui il a échangé.
+envoi et clôture de conversations, évaluation des membres qu'il suit et
+qu'il n'a pas déjà évalués.
 
 *Aucun rôle d'administration n'est implémenté.* La table
 #raw("role", lang: "sql") existe et chaque utilisateur y est rattaché par une
